@@ -125,8 +125,35 @@ class AddInquiryProduct extends StatelessWidget {
                             itemCount: controller.inquiryProductList.length,
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            itemBuilder: (context, index) =>
-                                addedProductListItem(),
+                            itemBuilder: (context, index) => addedProductListItem(
+                              productName: controller.productList
+                                  .firstWhere(
+                                    (element) =>
+                                        element.productId ==
+                                        controller
+                                            .inquiryProductList[index]
+                                            .productId,
+                                  )
+                                  .productName!,
+                              quentity: controller.productList
+                                  .firstWhere(
+                                    (element) =>
+                                        element.productId ==
+                                        controller
+                                            .inquiryProductList[index]
+                                            .productId,
+                                  )
+                                  .productUom!, // TODO: Add quentity and amount to InquiryProductModel
+                              amount: controller.productList
+                                  .firstWhere(
+                                    (element) =>
+                                        element.productId ==
+                                        controller
+                                            .inquiryProductList[index]
+                                            .productId,
+                                  )
+                                  .productRate!,
+                            ),
                           ),
                   ),
                 ],
@@ -151,7 +178,11 @@ class AddInquiryProduct extends StatelessWidget {
     );
   }
 
-  Widget addedProductListItem() {
+  Widget addedProductListItem({
+    required String productName,
+    required String quentity,
+    required String amount,
+  }) {
     return Card(
       child: Padding(
         padding: EdgeInsets.all(8),
@@ -160,19 +191,21 @@ class AddInquiryProduct extends StatelessWidget {
           children: [
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Product Name"),
-                Text("Quentity"),
-                Text("Amount"),
-              ],
+              children: [Text("Product Name"), Text("Quentity"), Text("Rate")],
             ),
-            const SizedBox(width: 40),
+            const SizedBox(width: 30),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Product Name"),
-                Text("Quentity"),
-                Text("Amount"),
+                Text(
+                  productName,
+                  style: TextStyle(overflow: TextOverflow.ellipsis),
+                ),
+                Text(
+                  quentity,
+                  style: TextStyle(overflow: TextOverflow.ellipsis),
+                ),
+                Text(amount, style: TextStyle(overflow: TextOverflow.ellipsis)),
               ],
             ),
           ],

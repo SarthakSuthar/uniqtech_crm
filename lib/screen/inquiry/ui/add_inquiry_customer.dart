@@ -5,12 +5,18 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class AddInquiryCustomer extends StatelessWidget {
-  AddInquiryCustomer({super.key});
+  AddInquiryCustomer({super.key, required this.no, required this.isEdit});
+
+  final String? no;
+  final bool isEdit;
 
   final InquiryController controller = Get.put(InquiryController());
 
   @override
   Widget build(BuildContext context) {
+    isEdit == true ? controller.isEdit = true : controller.isEdit = false;
+    no != null ? controller.no = no : controller.no = '';
+
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (didPop, result) {

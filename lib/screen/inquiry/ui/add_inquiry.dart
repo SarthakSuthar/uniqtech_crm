@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:tab_indicator_styler/tab_indicator_styler.dart';
 
 class AddInquiryScreen extends StatefulWidget {
-  const AddInquiryScreen({super.key});
+  final String? no;
+  final bool isEdit;
+  const AddInquiryScreen({super.key, this.no, required this.isEdit});
 
   @override
   State<AddInquiryScreen> createState() => _AddInquiryScreenState();
@@ -51,7 +53,12 @@ class _AddInquiryScreenState extends State<AddInquiryScreen> {
               Expanded(
                 child: TabBarView(
                   children: [
-                    SizedBox(child: AddInquiryCustomer()),
+                    SizedBox(
+                      child: AddInquiryCustomer(
+                        no: widget.no,
+                        isEdit: widget.isEdit,
+                      ),
+                    ),
                     SizedBox(child: AddInquiryProduct()),
                   ],
                 ),

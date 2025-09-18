@@ -13,6 +13,9 @@ class InquiryController extends GetxController {
   final Map<String, TextEditingController> controllers = {};
   final Map<String, FocusNode> focusNodes = {};
 
+  bool isEdit = false;
+  String? no;
+
   // Dropdown values
   RxString? selectedProduct = RxString("");
   RxString? selectedUOM = RxString("");
@@ -45,8 +48,35 @@ class InquiryController extends GetxController {
     await getinquiryProductList();
     await getCustomersList();
     // Set initial inquiry number based on the total number of inquiries
-    controllers['num']!.text = (inquiryList.length + 1).toString();
-    controllers['date']!.text = dateFormat.format(DateTime.now());
+
+    if (isEdit == true) {
+      await setEditDetails();
+    } else {
+      controllers['num']!.text = (inquiryList.length + 1).toString();
+      controllers['date']!.text = dateFormat.format(DateTime.now());
+    }
+  }
+
+  Future<void> setEditDetails() async {
+    int intNo = int.parse(no ?? '');
+
+    controllers['num']!.text = no!;
+    controllers['date']!.text = inquiryList
+        .firstWhereOrNull((element) => element.id == intNo)!
+        .date!;
+    controllers['name1']!.text = inquiryList
+        .firstWhereOrNull((element) => element.id == intNo)!
+        .custName1!;
+    controllers['email']!.text = inquiryList
+        .firstWhereOrNull((element) => element.id == intNo)!
+        .email!;
+    controllers['mobile']!.text = inquiryList
+        .firstWhereOrNull((element) => element.id == intNo)!
+        .mobileNo!;
+    controllers['social']!.text = inquiryList
+        .firstWhereOrNull((element) => element.id == intNo)!
+        .source!;
+    await getinquiryProductList();
   }
 
   @override
@@ -132,6 +162,8 @@ class InquiryController extends GetxController {
     try {
       final result = await InquiryRepo.getAllInquiries();
       inquiryList.assignAll(result);
+      filterendList.value = inquiryList;
+      showlog("inquiry list : ${result.map((e) => e.toJson()).toList()}");
     } catch (e) {
       showlog("error on get inquiry list : $e");
     }
@@ -155,12 +187,22 @@ class InquiryController extends GetxController {
   Future<void> getinquiryProductList() async {
     try {
       final result = await InquiryRepo.getAllInquiryProducts();
-      inquiryProductList.assignAll(result);
+      showlog(
+        "-------------- result : ${result.map((e) => e.toJson()).toList()}",
+      );
+      inquiryProductList.assignAll(
+        result
+            .where(
+              (element) =>
+                  element.inquiryId == int.parse(controllers['num']!.text),
+            )
+            .toList(),
+      );
       showlog(
         "inquiry product list : ${result.map((e) => e.toJson()).toList()}",
       );
     } catch (e) {
-      showlog("error on get product list : $e");
+      showlog("error on get inquiry product list : $e");
     }
   }
 
@@ -175,7 +217,9 @@ class InquiryController extends GetxController {
       for (var contact in result) {
         customerList[contact.custName!] = contact.id.toString();
       }
-      customerList.forEach((key, value) => showlog("$key : $value"));
+      customerList.forEach(
+        (key, value) => showlog("Customer list $key : $value"),
+      );
     } catch (e) {
       showlog("error on get customers list : $e");
     }
@@ -264,6 +308,7 @@ class InquiryController extends GetxController {
       final inqProdId = InquiryProductModel(
         inquiryId: inquiryList.length + 1,
         productId: getProductId(selectedProduct!.value),
+        quentity: int.parse(controllers["quntity"]!.text),
       );
 
       showlog("inquiry id : ${inqProdId.inquiryId}");
@@ -282,7 +327,7 @@ class InquiryController extends GetxController {
     try {
       await addInquiryCustomer(); // customer
       // await addProduct(); // product
-      await addInquiryProductID(); // both's id
+      // await addInquiryProductID(); // both's id // already adding on ADD button
     } catch (e) {
       showlog("Error submitting inquiry : $e");
     }

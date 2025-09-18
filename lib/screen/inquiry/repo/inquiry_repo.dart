@@ -88,6 +88,7 @@ class InquiryRepo {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             inquiryId INTEGER,
             productId INTEGER,
+            quentity INTEGER,
             isSynced INTEGER
         )
     ''');

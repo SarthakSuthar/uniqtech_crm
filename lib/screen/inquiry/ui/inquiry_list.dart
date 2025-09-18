@@ -99,14 +99,16 @@ class _InquiryListState extends State<InquiryList> {
                   ? Text(" No data found")
                   : Expanded(
                       child: ListView.builder(
-                        itemCount: 2,
+                        itemCount: controller.filterendList.length,
+                        shrinkWrap: true,
+                        // physics: const NeverScrollableScrollPhysics(),
                         itemBuilder: (context, index) => contactListWidget(
-                          no: controller.inquiryList[index].id.toString(),
-                          email: controller.inquiryList[index].email ?? '',
+                          no: controller.filterendList[index].id.toString(),
+                          email: controller.filterendList[index].email ?? '',
                           mobileNo:
-                              controller.inquiryList[index].mobileNo ?? '',
+                              controller.filterendList[index].mobileNo ?? '',
                           customerName:
-                              controller.inquiryList[index].custName1 ?? '',
+                              controller.filterendList[index].custName1 ?? '',
                         ),
                       ),
                     ),
@@ -117,7 +119,7 @@ class _InquiryListState extends State<InquiryList> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showlog("Action button pressed");
-          Get.toNamed(AppRoutes.addInquiry);
+          Get.toNamed(AppRoutes.addInquiry, arguments: {'isEdit': false});
         },
         backgroundColor: Theme.of(context).primaryColor,
         child: Icon(
@@ -177,6 +179,10 @@ class _InquiryListState extends State<InquiryList> {
                 children: [
                   InkWell(
                     onTap: () {
+                      Get.toNamed(
+                        AppRoutes.addInquiry,
+                        arguments: {'no': no, 'isEdit': true},
+                      );
                       showlog("edit button taped");
                     },
                     child: Container(

@@ -19,7 +19,7 @@ class DatabaseHelper {
     return _databaseHelper;
   }
   Future<Database> get database async {
-    showlog("inside get database");
+    // showlog("inside get database");
     if (_database != null) return _database!;
     _database = await _initDatabase();
     return _database!;
