@@ -84,26 +84,6 @@ class AddCustomerController extends GetxController {
     if (val != null) radioValue.value = val;
   }
 
-  ///search for customername
-  // void searchCustomerResult(String val) {
-  //   showlog("search for customer name : $val");
-  //   filterendList.value = AppFunctions.searchList(
-  //     val,
-  //     contacts,
-  //     (item) => item.custName,
-  //   );
-  // }
-
-  // ///search for number
-  // void searchNumResult(String val) {
-  //   showlog("search for number : $val");
-  //   filterendList.value = AppFunctions.searchList(
-  //     val,
-  //     contacts,
-  //     (item) => item.uid,
-  //   );
-  // }
-
   /// Search for customer name or number
   void searchResult(String val) {
     showlog("search for name or number : $val");

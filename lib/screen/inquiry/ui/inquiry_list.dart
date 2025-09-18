@@ -3,6 +3,7 @@ import 'package:crm/app_const/widgets/app_bar.dart';
 import 'package:crm/app_const/widgets/app_drawer.dart';
 import 'package:crm/app_const/widgets/app_widgets.dart';
 import 'package:crm/routes/app_routes.dart';
+import 'package:crm/screen/inquiry/controller/inquiry_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -14,6 +15,7 @@ class InquiryList extends StatefulWidget {
 }
 
 class _InquiryListState extends State<InquiryList> {
+  final InquiryController controller = Get.put(InquiryController());
   TextEditingController noController = TextEditingController();
   TextEditingController searchController = TextEditingController();
 
@@ -80,20 +82,34 @@ class _InquiryListState extends State<InquiryList> {
                     title: "Search",
                     context: context,
                     onTap: () {
-                      noController.clear();
-                      searchController.clear();
-                      showlog("Clear button pressed");
+                      if (noController.text.isNotEmpty) {
+                        controller.searchResult(noController.text);
+                      } else if (searchController.text.isNotEmpty) {
+                        controller.searchResult(searchController.text);
+                      }
+                      showlog("search button pressed");
                     },
                   ),
                 ),
               ],
             ),
 
-            Expanded(
-              child: ListView.builder(
-                itemCount: 2,
-                itemBuilder: (context, index) => contactListWidget(),
-              ),
+            Obx(
+              () => controller.inquiryList.isEmpty
+                  ? Text(" No data found")
+                  : Expanded(
+                      child: ListView.builder(
+                        itemCount: 2,
+                        itemBuilder: (context, index) => contactListWidget(
+                          no: controller.inquiryList[index].id.toString(),
+                          email: controller.inquiryList[index].email ?? '',
+                          mobileNo:
+                              controller.inquiryList[index].mobileNo ?? '',
+                          customerName:
+                              controller.inquiryList[index].custName1 ?? '',
+                        ),
+                      ),
+                    ),
             ),
           ],
         ),
@@ -104,12 +120,22 @@ class _InquiryListState extends State<InquiryList> {
           Get.toNamed(AppRoutes.addInquiry);
         },
         backgroundColor: Theme.of(context).primaryColor,
-        child: const Icon(Icons.add),
+        child: Icon(
+          Icons.add,
+          color: Theme.of(context).brightness == Brightness.light
+              ? Colors.white
+              : Colors.black,
+        ),
       ),
     );
   }
 
-  Widget contactListWidget() {
+  Widget contactListWidget({
+    required String no,
+    required String customerName,
+    required String email,
+    required String mobileNo,
+  }) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Card(
@@ -134,10 +160,10 @@ class _InquiryListState extends State<InquiryList> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("1"),
-                      Text("Heet"),
-                      Text("someone@example.com"),
-                      Text("+91 1234567890"),
+                      Text(no),
+                      Text(customerName),
+                      Text(email),
+                      Text(mobileNo),
                       const SizedBox(height: 40),
                     ],
                   ),

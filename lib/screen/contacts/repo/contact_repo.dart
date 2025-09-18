@@ -55,9 +55,9 @@ class ContactsRepo {
   }
 
   ///select detail of specific person by id
-  static Future<ContactModel> getContactById(String uid) async {
+  static Future<ContactModel> getContactById(String id) async {
     Database db = await DatabaseHelper().database;
-    final result = await db.query(table, where: 'uid = ?', whereArgs: [uid]);
+    final result = await db.query(table, where: 'id = ?', whereArgs: [id]);
 
     if (result.isNotEmpty) {
       return ContactModel.fromMap(result.first);
@@ -69,7 +69,7 @@ class ContactsRepo {
   ///delete record of specific id
   static Future<int> deleteContact(int id) async {
     Database db = await DatabaseHelper().database;
-    return await db.delete(table, where: 'uid = ?', whereArgs: [id]);
+    return await db.delete(table, where: 'id = ?', whereArgs: [id]);
   }
 
   ///update contact record by id
@@ -80,8 +80,8 @@ class ContactsRepo {
       int changedRows = await db.update(
         table,
         contact.toMap(),
-        where: 'uid = ?',
-        whereArgs: [contact.uid],
+        where: 'id = ?',
+        whereArgs: [contact.id],
       );
       showlog("data updated : $changedRows");
       return changedRows;

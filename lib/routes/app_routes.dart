@@ -65,7 +65,7 @@ class AppRoutes {
       },
     ),
     // GetPage(name: editContact, page: () => const EditContact()),
-    GetPage(name: inquiry, page: () => const InquiryList()),
+    GetPage(name: inquiry, page: () => InquiryList()),
     GetPage(name: addInquiry, page: () => const AddInquiryScreen()),
     GetPage(name: inquiryFollowup, page: () => InquiryFollowup()),
     // GetPage(name: addContactCustomer, page: () => AddCustomerContactScreen()),

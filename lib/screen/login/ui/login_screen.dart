@@ -138,7 +138,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       padding: const EdgeInsets.all(8.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: [Text("Sign in")],
+                        children: [
+                          Text(
+                            "Sign in",
+                            style:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? TextStyle(color: Colors.black)
+                                : TextStyle(color: Colors.white),
+                          ),
+                        ],
                       ),
                     ),
                   ),

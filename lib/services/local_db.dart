@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/screen/contacts/repo/contact_repo.dart';
+import 'package:crm/screen/inquiry/repo/inquiry_repo.dart';
+import 'package:crm/screen/product/repo/product_repo.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -49,6 +51,18 @@ class DatabaseHelper {
 
       await ContactsRepo.createTable(db);
       showlog("after creating contact table");
+
+      await ProductRepo.createTable(db);
+      showlog("after creating product table");
+
+      await InquiryRepo.createInquiryTable(db);
+      showlog("after creating inquiry table");
+
+      await InquiryRepo.createinquiryProductTable(db);
+      showlog("after creating inquiryProduct table");
+
+      await InquiryRepo.createInquiryFollowupTable(db);
+      showlog("after creating inquiryFollowup table");
     } catch (e) {
       // Log the error for debugging or report to an error tracking service
       showlog("Error creating tables: $e");

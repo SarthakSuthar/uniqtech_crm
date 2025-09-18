@@ -1,3 +1,4 @@
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -7,7 +8,7 @@ Widget inputWidget({
   required TextEditingController controller,
   required BuildContext context,
   required FocusNode focusNode,
-  // void Function(String)? onChanged,
+  void Function(String)? onChanged,
   int? minLines,
   TextInputType? keyboardType,
   bool expandInRow = false, // default safe for Column
@@ -15,7 +16,7 @@ Widget inputWidget({
   final screenWidth = MediaQuery.of(context).size.width;
 
   final field = TextFormField(
-    // onChanged: onChanged,
+    onChanged: onChanged,
     focusNode: focusNode,
     controller: controller,
     keyboardType: keyboardType ?? TextInputType.text,
@@ -138,11 +139,14 @@ Widget datePickerWidget({
       readOnly: true,
       decoration: InputDecoration(
         prefixIcon: Icon(icon),
-        hintText: "Date",
+        hintText: dateFormat.format(DateTime.now()),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       ),
       onTap: () async {
         DateTime initialDate;
+
+        // If controller is empty, set initialDate to today's date
+        if (controller.text.isEmpty) initialDate = DateTime.now();
 
         if (controller.text.isNotEmpty) {
           try {
@@ -163,6 +167,9 @@ Widget datePickerWidget({
 
         if (picked != null) {
           controller.text = dateFormat.format(picked);
+        } else if (controller.text.isEmpty) {
+          // 👇 if user cancels and it's still empty, set today's date
+          controller.text = dateFormat.format(DateTime.now());
         }
       },
     ),
@@ -234,5 +241,38 @@ Future<void> addNewTerms({
         ],
       );
     },
+  );
+}
+
+Widget fileSelectWidget({
+  required BuildContext context,
+  required String title,
+  required IconData icon,
+  required VoidCallback onTap,
+}) {
+  return Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: InkWell(
+      onTap: onTap,
+      child: DottedBorder(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                children: [
+                  Icon(icon, size: 30),
+                  Text(
+                    "Select $title",
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
   );
 }
