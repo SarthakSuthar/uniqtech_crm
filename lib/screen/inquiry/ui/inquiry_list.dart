@@ -232,7 +232,10 @@ class _InquiryListState extends State<InquiryList> {
                   InkWell(
                     onTap: () {
                       showlog("Follow up : inquiry");
-                      Get.toNamed(AppRoutes.inquiryFollowup);
+                      Get.toNamed(
+                        AppRoutes.inquiryFollowup,
+                        arguments: {'inquiryId': no},
+                      );
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -256,6 +259,7 @@ class _InquiryListState extends State<InquiryList> {
 
                   InkWell(
                     onTap: () {
+                      controller.deleteInquiry(id: int.parse(no));
                       showlog("delete button taped");
                     },
                     child: Container(

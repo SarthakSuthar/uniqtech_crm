@@ -49,12 +49,15 @@ class DatabaseHelper {
     ''');
       showlog("after creating user table");
 
+      //MARK:  Contact Table
       await ContactsRepo.createTable(db);
       showlog("after creating contact table");
 
+      //MARK: Product Table
       await ProductRepo.createTable(db);
       showlog("after creating product table");
 
+      //MARK: Inquiry Tables
       await InquiryRepo.createInquiryTable(db);
       showlog("after creating inquiry table");
 
@@ -63,6 +66,8 @@ class DatabaseHelper {
 
       await InquiryRepo.createInquiryFollowupTable(db);
       showlog("after creating inquiryFollowup table");
+
+      //MARK: Quatation Tables
     } catch (e) {
       // Log the error for debugging or report to an error tracking service
       showlog("Error creating tables: $e");

@@ -1,5 +1,6 @@
 import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/screen/contacts/repo/contact_repo.dart';
+import 'package:crm/screen/inquiry/model/inquiry_followup_model.dart';
 import 'package:crm/screen/inquiry/model/inquiry_model.dart';
 import 'package:crm/screen/inquiry/model/inquiry_product_model.dart';
 import 'package:crm/screen/inquiry/repo/inquiry_repo.dart';
@@ -32,6 +33,11 @@ class InquiryController extends GetxController {
     "rate",
     "amount",
     "remarks",
+    "followupDate",
+    "followupType",
+    "followupStatus",
+    "followupRemarks",
+    "followupAssignedTo",
   ];
 
   final dateFormat = DateFormat("d/M/yyyy");
@@ -65,6 +71,9 @@ class InquiryController extends GetxController {
         .firstWhereOrNull((element) => element.id == intNo)!
         .date!;
     controllers['name1']!.text = inquiryList
+        .firstWhereOrNull((element) => element.id == intNo)!
+        .custName1!;
+    selectedCustomer.value = inquiryList
         .firstWhereOrNull((element) => element.id == intNo)!
         .custName1!;
     controllers['email']!.text = inquiryList
@@ -330,6 +339,110 @@ class InquiryController extends GetxController {
       // await addInquiryProductID(); // both's id // already adding on ADD button
     } catch (e) {
       showlog("Error submitting inquiry : $e");
+    }
+  }
+
+  Future<void> deleteInquiry({required int id}) async {
+    try {
+      await InquiryRepo.deleteInquiry(id);
+      await getInquiryList();
+      await InquiryRepo.deleteInquiryProduct(id);
+      await getinquiryProductList();
+    } catch (e) {
+      showlog("Error deleting inquiry : $e");
+    }
+  }
+
+  Future<void> updateInquiry() async {
+    try {
+      //TODO: implement update logic
+      /* 
+      If we re getting contact details & product details from their different masters
+      What we need to update ????
+      */
+      final inquiry = InquiryModel(
+        id: int.parse(controllers['num']!.text),
+        uid: DateTime.now().millisecondsSinceEpoch.toString(),
+        custId: int.parse(controllers['custId']!.text),
+        custName1: selectedCustomer.value,
+        custName2: controllers['name2']!.text,
+        date: controllers['date']!.text,
+        email: controllers['email']!.text,
+        mobileNo: controllers['mobile']!.text,
+        source: controllers['social']!.text,
+      );
+      showlog("updated inquiry ----> ${inquiry.toJson()}");
+      // int result = await InquiryRepo.updateInquiry(inquiry);
+      // showlog("update inquiry ----> $result");
+    } catch (e) {
+      showlog("Error update inquiry : $e");
+    }
+  }
+
+  // MARK: Inquiry Follow up ---------------- TODO: Hvae to impl
+
+  final selectedFollowupDate = "".obs;
+  final selectedFollowupType = "".obs;
+  final selectedFollowupStatus = "".obs;
+  final selectedFollowupRemarks = "".obs;
+  final selectedFollowupAssignedTo = "".obs;
+
+  final RxList<InquiryFollowupModel> inquiryFollowupList =
+      <InquiryFollowupModel>[].obs;
+
+  ///GET SELECTED Followup DETAIL's
+  Future<void> setSelectedFollowupDetail(int selectedFolloupId) async {
+    try {
+      final result = await InquiryRepo.getInquiryFollowupById(
+        selectedFolloupId,
+      );
+      showlog("selected followup detail : ${result.toJson()}");
+      selectedFollowupAssignedTo.value = result.followupAssignedTo!;
+      selectedFollowupDate.value = result.followupDate!;
+      selectedFollowupRemarks.value = result.followupRemarks!;
+      selectedFollowupStatus.value = result.followupStatus!;
+      selectedFollowupType.value = result.followupStatus!;
+    } catch (e) {
+      showlog("Error getting selected followup detail : $e");
+    }
+  }
+
+  ///GET FOLLOWUP LIST
+  ///
+  ///return only selected inquiry assigned followups
+  Future<List<InquiryFollowupModel>> getInquiryFollowupList(
+    int inquiryId,
+  ) async {
+    try {
+      final result = await InquiryRepo.getInquiryFollowupListByInquiryId(
+        inquiryId,
+      );
+      inquiryFollowupList.assignAll(result);
+      showlog(
+        "inquiry followup list : ${result.map((e) => e.toJson()).toList()}",
+      );
+      return result;
+    } catch (e) {
+      showlog("Error getting inquiry followup list : $e");
+      return [];
+    }
+  }
+
+  ///ADD FOLLOWUP
+  Future<void> addInquiryFollowup(int inquiryId) async {
+    try {
+      final inquiryFollowup = InquiryFollowupModel(
+        inquiryId: inquiryId,
+        followupDate: controllers['followupDate']!.text,
+        followupStatus: controllers['followupStatus']!.text,
+        followupRemarks: controllers['followupRemarks']!.text,
+        followupAssignedTo: controllers['followupAssignedTo']!.text,
+      );
+      showlog("added inquiry followup ----> ${inquiryFollowup.toJson()}");
+      int result = await InquiryRepo.insertInquiryFollowup(inquiryFollowup);
+      showlog("insert inquiry followup ----> $result");
+    } catch (e) {
+      showlog("Error adding inquiry followup : $e");
     }
   }
 }

@@ -162,12 +162,14 @@ class AddInquiryProduct extends StatelessWidget {
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
-              controller.submitInquiry();
-              showlog("Action button pressed");
+              controller.isEdit == true
+                  ? controller.updateInquiry()
+                  : controller.submitInquiry();
+              showlog("Inquiry Action button pressed");
             },
             backgroundColor: Theme.of(context).primaryColor,
             child: Text(
-              "Save",
+              controller.isEdit == true ? "Update" : "Save",
               style: Theme.of(context).brightness == Brightness.light
                   ? TextStyle(color: Colors.white)
                   : TextStyle(color: Colors.black),

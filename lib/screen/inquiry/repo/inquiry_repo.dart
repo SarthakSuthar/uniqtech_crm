@@ -155,9 +155,13 @@ class InquiryRepo {
   }
 
   /// Deletes an inquiry product record by its ID from the 'inquiryProduct' table.
-  static Future<int> deleteInquiryProduct(int id) async {
+  static Future<int> deleteInquiryProduct(int inquiryId) async {
     Database db = await DatabaseHelper().database;
-    return db.delete(inquiryProductTable, where: 'id = ?', whereArgs: [id]);
+    return db.delete(
+      inquiryProductTable,
+      where: 'inquiryId = ?',
+      whereArgs: [inquiryId],
+    );
   }
 
   // ---------- Inquiry Follow up Table --------------
@@ -227,7 +231,7 @@ class InquiryRepo {
     }
   }
 
-  ///get inquiry followup by id
+  ///get inquiry follow up by id
   static Future<InquiryFollowupModel> getInquiryFollowupById(int id) async {
     try {
       Database db = await DatabaseHelper().database;
@@ -244,6 +248,29 @@ class InquiryRepo {
       }
     } catch (e) {
       showlog("error on get inquiry followup by id : $e");
+      rethrow;
+    }
+  }
+
+  ///get inquiry followup List by inquiryId
+  static Future<List<InquiryFollowupModel>> getInquiryFollowupListByInquiryId(
+    int inquiryId,
+  ) async {
+    try {
+      Database db = await DatabaseHelper().database;
+      final result = await db.query(
+        inquiryFollowupTable,
+        where: 'inquiryId = ?',
+        whereArgs: [inquiryId],
+      );
+
+      if (result.isNotEmpty) {
+        return result.map((e) => InquiryFollowupModel.fromJson(e)).toList();
+      } else {
+        throw Exception('Inquiry followup not found');
+      }
+    } catch (e) {
+      showlog("error on get inquiry followup by inquiryId : $e");
       rethrow;
     }
   }

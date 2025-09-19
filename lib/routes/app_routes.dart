@@ -73,7 +73,13 @@ class AppRoutes {
         return AddInquiryScreen(no: args['no'], isEdit: args['isEdit']);
       },
     ),
-    GetPage(name: inquiryFollowup, page: () => InquiryFollowup()),
+    GetPage(
+      name: inquiryFollowup,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>;
+        return InquiryFollowup(inquiryId: args['inquiryId']);
+      },
+    ),
     // GetPage(name: addContactCustomer, page: () => AddCustomerContactScreen()),
     GetPage(name: quote, page: () => const QuoteList()),
     GetPage(name: addQuote, page: () => const AddQuotes()),
