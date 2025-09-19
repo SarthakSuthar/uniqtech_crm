@@ -3,6 +3,7 @@ import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/screen/contacts/repo/contact_repo.dart';
 import 'package:crm/screen/inquiry/repo/inquiry_repo.dart';
 import 'package:crm/screen/product/repo/product_repo.dart';
+import 'package:crm/screen/terms/repo/terms_repo.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -53,9 +54,12 @@ class DatabaseHelper {
       await ContactsRepo.createTable(db);
       showlog("after creating contact table");
 
-      //MARK: Product Table
+      //MARK: Masters Tables
       await ProductRepo.createTable(db);
       showlog("after creating product table");
+
+      await TermsRepo.createTermsTable(db);
+      showlog("after creating terms table");
 
       //MARK: Inquiry Tables
       await InquiryRepo.createInquiryTable(db);

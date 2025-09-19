@@ -1,5 +1,6 @@
 import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/app_const/widgets/app_widgets.dart';
+import 'package:crm/screen/terms/widget/add_task_popup.dart';
 import 'package:flutter/material.dart';
 
 class AddOrderTerms extends StatelessWidget {
@@ -26,9 +27,9 @@ class AddOrderTerms extends StatelessWidget {
                   onTap: () {
                     addNewTerms(
                       context: context,
-                      onSave: (value) {
-                        showlog("New term added : $value");
-                      },
+                      // onSave: (value) {
+                      //   showlog("New term added : $value");
+                      // },
                     );
                   },
                   context: context,

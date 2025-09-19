@@ -200,50 +200,6 @@ Widget termsTile() {
   );
 }
 
-Future<void> addNewTerms({
-  required BuildContext context,
-  required Function(String) onSave,
-}) async {
-  final TextEditingController inputController = TextEditingController();
-
-  await showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: Text(
-          "Add New Term",
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        content: TextField(
-          controller: inputController,
-          decoration: const InputDecoration(
-            hintText: "Enter defination",
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(12)),
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(), // close
-            child: const Text("Cancel"),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (inputController.text.trim().isNotEmpty) {
-                onSave(inputController.text.trim());
-                Navigator.of(context).pop(); // close after save
-              }
-            },
-            child: const Text("Save"),
-          ),
-        ],
-      );
-    },
-  );
-}
-
 Widget fileSelectWidget({
   required BuildContext context,
   required String title,
