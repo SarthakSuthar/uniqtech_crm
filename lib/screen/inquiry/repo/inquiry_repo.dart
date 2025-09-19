@@ -63,6 +63,7 @@ class InquiryRepo {
     return await db.delete(table, where: 'id = ?', whereArgs: [id]);
   }
 
+  /// Updates an existing inquiry record in the 'inquiry' table.
   static Future<int> updateInquiry(InquiryModel inquiry) async {
     try {
       Database db = await DatabaseHelper().database;

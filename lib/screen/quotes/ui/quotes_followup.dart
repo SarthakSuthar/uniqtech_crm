@@ -29,7 +29,7 @@ class QuotesFollowup extends StatelessWidget {
                   datePickerWidget(
                     icon: Icons.calendar_month,
                     controller: controller
-                        .controllers["date"]!, //TODO: add new foeld for this in controller
+                        .controllers["date"]!, //TODO: add new fild for this in controller
                     context: context,
                     expandInRow: true,
                   ),
