@@ -2,6 +2,7 @@ import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/app_const/widgets/app_drawer.dart';
 import 'package:crm/app_const/widgets/app_widgets.dart';
 import 'package:crm/routes/app_routes.dart';
+import 'package:crm/screen/orders/controller/order_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -15,12 +16,20 @@ class OrderList extends StatefulWidget {
 }
 
 class _OrderListState extends State<OrderList> {
+  final OrderController controller = Get.put(OrderController());
+
   TextEditingController noController = TextEditingController();
   TextEditingController searchController = TextEditingController();
 
   // FocuseNodes
   FocusNode noFocus = FocusNode();
   FocusNode searchFocus = FocusNode();
+
+  @override
+  void initState() {
+    controller.getOrderList();
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -81,20 +90,35 @@ class _OrderListState extends State<OrderList> {
                     title: "Search",
                     context: context,
                     onTap: () {
-                      noController.clear();
-                      searchController.clear();
-                      showlog("Clear button pressed");
+                      if (noController.text.isNotEmpty) {
+                        controller.searchResult(noController.text);
+                      } else if (searchController.text.isNotEmpty) {
+                        controller.searchResult(searchController.text);
+                      }
+                      showlog("search button pressed");
                     },
                   ),
                 ),
               ],
             ),
 
-            Expanded(
-              child: ListView.builder(
-                itemCount: 2,
-                itemBuilder: (context, index) => orderListWidget(),
-              ),
+            Obx(
+              () => controller.orderList.isEmpty
+                  ? Text("No Data found")
+                  : Expanded(
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: controller.filterendList.length,
+                        itemBuilder: (context, index) => orderListWidget(
+                          no: controller.filterendList[index].id.toString(),
+                          email: controller.filterendList[index].email ?? '',
+                          mobileNo:
+                              controller.filterendList[index].mobileNo ?? '',
+                          customerName:
+                              controller.filterendList[index].custName1 ?? '',
+                        ),
+                      ),
+                    ),
             ),
           ],
         ),
@@ -103,15 +127,25 @@ class _OrderListState extends State<OrderList> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showlog("Action button pressed");
-          Get.toNamed(AppRoutes.addOrder);
+          Get.toNamed(AppRoutes.addOrder, arguments: {'isEdit': false});
         },
         backgroundColor: Theme.of(context).primaryColor,
-        child: const Icon(Icons.add),
+        child: Icon(
+          Icons.add,
+          color: Theme.of(context).brightness == Brightness.light
+              ? Colors.white
+              : Colors.black,
+        ),
       ),
     );
   }
 
-  Widget orderListWidget() {
+  Widget orderListWidget({
+    required String no,
+    required String customerName,
+    required String email,
+    required String mobileNo,
+  }) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Card(
@@ -136,10 +170,10 @@ class _OrderListState extends State<OrderList> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("1"),
-                      Text("Heet"),
-                      Text("someone@example.com"),
-                      Text("+91 1234567890"),
+                      Text(no),
+                      Text(customerName),
+                      Text(email),
+                      Text(mobileNo),
                       const SizedBox(height: 40),
                     ],
                   ),
@@ -153,6 +187,10 @@ class _OrderListState extends State<OrderList> {
                 children: [
                   InkWell(
                     onTap: () {
+                      Get.toNamed(
+                        AppRoutes.addOrder,
+                        arguments: {'no': no, 'isEdit': true},
+                      );
                       showlog("edit button taped");
                     },
                     child: Container(
@@ -200,7 +238,8 @@ class _OrderListState extends State<OrderList> {
                   const SizedBox(width: 5),
 
                   InkWell(
-                    onTap: () {
+                    onTap: () async {
+                      await controller.deleteOrder(id: int.parse(no));
                       showlog("delete button taped");
                     },
                     child: Container(

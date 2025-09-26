@@ -59,10 +59,7 @@ class AddQuotes extends StatelessWidget {
                     ),
                     SizedBox(child: AddQuoteProduct()),
                     SizedBox(
-                      child: QuotesTerms(
-                        quotationId: (no ?? '0'),
-                        isEdit: isEdit,
-                      ),
+                      child: QuotesTerms(quotationId: no, isEdit: isEdit),
                     ),
                   ],
                 ),

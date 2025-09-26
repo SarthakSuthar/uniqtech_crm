@@ -10,6 +10,18 @@ class OrderRepo {
   static const String orderProductTable = 'orderProduct';
   static const String orderTermsTable = 'orderTerms';
 
+  //initalize all tables
+  // static Future<void> initializeTables() async {
+  //   try {
+  //     Database db = await DatabaseHelper().database;
+  //     await createOrderTable(db);
+  //     await createOrderProductTable(db);
+  //     await createOrderTermsTable(db);
+  //   } catch (e) {
+  //     showlog("error on initialize orders tables : $e");
+  //   }
+  // }
+
   // ---------- Order Table --------
   /// create 'orders' table
   static Future<void> createOrderTable(Database db) async {

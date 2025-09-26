@@ -7,7 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:tab_indicator_styler/tab_indicator_styler.dart';
 
 class AddOrder extends StatelessWidget {
-  const AddOrder({super.key});
+  final String? no;
+  final bool isEdit;
+
+  const AddOrder({super.key, this.no, required this.isEdit});
 
   @override
   Widget build(BuildContext context) {
@@ -50,9 +53,13 @@ class AddOrder extends StatelessWidget {
               Expanded(
                 child: TabBarView(
                   children: [
-                    SizedBox(child: AddOrderCustomer()),
+                    SizedBox(
+                      child: AddOrderCustomer(no: no, isEdit: isEdit),
+                    ),
                     SizedBox(child: AddOrderProduct()),
-                    SizedBox(child: AddOrderTerms()),
+                    SizedBox(
+                      child: AddOrderTerms(orderId: no, isEdit: isEdit),
+                    ),
                   ],
                 ),
               ),

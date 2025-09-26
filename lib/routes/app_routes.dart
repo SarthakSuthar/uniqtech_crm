@@ -91,7 +91,13 @@ class AppRoutes {
     ),
     GetPage(name: quotesFollowup, page: () => QuotesFollowup()),
     GetPage(name: order, page: () => const OrderList()),
-    GetPage(name: addOrder, page: () => const AddOrder()),
+    GetPage(
+      name: addOrder,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>;
+        return AddOrder(no: args['no'], isEdit: args['isEdit']);
+      },
+    ),
     GetPage(name: tasks, page: () => const TasksList()),
     GetPage(
       name: addTask,

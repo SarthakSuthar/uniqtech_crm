@@ -3,6 +3,7 @@ import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/screen/contacts/repo/contact_repo.dart';
 import 'package:crm/screen/inquiry/repo/inquiry_repo.dart';
 import 'package:crm/screen/masters/product/repo/product_repo.dart';
+import 'package:crm/screen/orders/repo/order_repo.dart';
 import 'package:crm/screen/quotes/repo/quotation_repo.dart';
 import 'package:crm/screen/masters/terms/repo/terms_repo.dart';
 import 'package:path/path.dart';
@@ -90,6 +91,16 @@ class DatabaseHelper {
       // SEPERATED AGAIN BECAUSE createQuotationTermsTable ISM'T WORKING IN initializeQuotationDB
       // await QuotationRepo.initializeQuotationDB(db);
       // showlog("after creating quotation tables");
+
+      //MARK: Order Tables
+      await OrderRepo.createOrderTable(db);
+      showlog("after creating order tables");
+
+      await OrderRepo.createOrderProductTable(db);
+      showlog("after creating orderProduct tables");
+
+      await OrderRepo.createOrderTermsTable(db);
+      showlog("after creating orderTerms tables");
     } catch (e) {
       // Log the error for debugging or report to an error tracking service
       showlog("Error creating tables: $e");

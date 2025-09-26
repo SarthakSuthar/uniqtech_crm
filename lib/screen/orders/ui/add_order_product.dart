@@ -11,112 +11,188 @@ class AddOrderProduct extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Obx(
-              () => dropdownWidget(
-                hintText: "Select Product",
-                icon: Icons.business,
-                items: ["1", "2", "3"],
-                value: controller.selectedProduct?.value.isEmpty == true
-                    ? null
-                    : controller.selectedProduct?.value,
-                onChanged: controller.updateProduct,
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          Get.delete<OrderController>();
+          debugPrint("Route popped with result: $result");
+        } else {
+          debugPrint("Pop prevented!");
+        }
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Scaffold(
+          body: GestureDetector(
+            onTap: () => FocusScope.of(context).unfocus(),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Obx(
+                    () => dropdownWidget(
+                      hintText: "Select Product",
+                      icon: Icons.business,
+                      items: controller.productList.isEmpty
+                          ? ["No Product Available"]
+                          : controller.productList
+                                .map((e) => e.productName!)
+                                .toList(),
+                      value: controller.selectedProduct?.value.isEmpty == true
+                          ? null
+                          : controller.selectedProduct?.value,
+                      onChanged: controller.updateProduct,
+                    ),
+                  ),
+
+                  Row(
+                    children: [
+                      Obx(
+                        () => dropdownWidget(
+                          hintText: "Select UOM",
+                          icon: Icons.business,
+                          items: ["1", "2", "3"],
+                          value: controller.selectedUOM?.value.isEmpty == true
+                              ? null
+                              : controller.selectedUOM?.value,
+                          onChanged: controller.updateUOM,
+                          expandInRow: true,
+                        ),
+                      ),
+                      inputWidget(
+                        hintText: "Quentity",
+                        icon: Icons.numbers_outlined,
+                        controller: controller.controllers["quntity"]!,
+                        context: context,
+                        focusNode: controller.focusNodes["quntity"]!,
+                        keyboardType: TextInputType.number,
+                        expandInRow: true,
+                        onChanged: (val) => controller.calculateAmount(),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      inputWidget(
+                        hintText: "Rate",
+                        icon: Icons.note,
+                        controller: controller.controllers["rate"]!,
+                        context: context,
+                        focusNode: controller.focusNodes["rate"]!,
+                        keyboardType: TextInputType.number,
+                        expandInRow: true,
+                        onChanged: (val) => controller.calculateAmount(),
+                      ),
+                      inputWidget(
+                        hintText: "Discount",
+                        icon: Icons.money,
+                        controller: controller.controllers["discount"]!,
+                        context: context,
+                        focusNode: controller.focusNodes["discount"]!,
+                        keyboardType: TextInputType.number,
+                        expandInRow: true,
+                        onChanged: (val) => controller.calculateAmount(),
+                      ),
+                    ],
+                  ),
+                  inputWidget(
+                    hintText: "Amount",
+                    icon: Icons.money,
+                    controller: controller.controllers["amount"]!,
+                    context: context,
+                    focusNode: controller.focusNodes["amount"]!,
+                    keyboardType: TextInputType.number,
+                  ),
+                  inputWidget(
+                    hintText: "Remarks",
+                    icon: Icons.money,
+                    controller: controller.controllers["remarks"]!,
+                    context: context,
+                    focusNode: controller.focusNodes["remarks"]!,
+                    minLines: 2,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      buttonWidget(
+                        title: "ADD",
+                        onTap: () async {
+                          await controller.addOrderProductID();
+                          showlog("ADD :: Add Order customer");
+                        },
+                        context: context,
+                      ),
+                    ],
+                  ),
+
+                  Obx(
+                    () => controller.orderProductList.isEmpty
+                        ? const Text("no data for product ")
+                        : ListView.builder(
+                            itemCount: controller.orderProductList.length,
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemBuilder: (context, index) => addedProductListItem(
+                              productName: controller.productList
+                                  .firstWhere(
+                                    (element) =>
+                                        element.productId ==
+                                        controller
+                                            .orderProductList[index]
+                                            .productId,
+                                  )
+                                  .productName!,
+                              quentity: controller.productList
+                                  .firstWhere(
+                                    (element) =>
+                                        element.productId ==
+                                        controller
+                                            .orderProductList[index]
+                                            .productId,
+                                  )
+                                  .productUom!, // TODO: Add quentity and amount to QuotationProductModel
+                              amount: controller.productList
+                                  .firstWhere(
+                                    (element) =>
+                                        element.productId ==
+                                        controller
+                                            .orderProductList[index]
+                                            .productId,
+                                  )
+                                  .productRate!,
+                            ),
+                          ),
+                  ),
+                ],
               ),
             ),
-
-            Row(
-              children: [
-                Obx(
-                  () => dropdownWidget(
-                    hintText: "Select UOM",
-                    icon: Icons.business,
-                    items: ["1", "2", "3"],
-                    value: controller.selectedUOM?.value.isEmpty == true
-                        ? null
-                        : controller.selectedUOM?.value,
-                    onChanged: controller.updateUOM,
-                    expandInRow: true,
-                  ),
-                ),
-                inputWidget(
-                  hintText: "Quentity",
-                  icon: Icons.numbers_outlined,
-                  controller: controller.controllers["quntity"]!,
-                  context: context,
-                  focusNode: controller.focusNodes["quntity"]!,
-                  keyboardType: TextInputType.number,
-                  expandInRow: true,
-                ),
-              ],
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              controller.isEdit == true
+                  ? controller.updateOrder()
+                  : controller.submitQuotation();
+              showlog("Inquiry Action button pressed");
+            },
+            backgroundColor: Theme.of(context).primaryColor,
+            child: Text(
+              controller.isEdit == true ? "Update" : "Save",
+              style: Theme.of(context).brightness == Brightness.light
+                  ? TextStyle(color: Colors.white)
+                  : TextStyle(color: Colors.black),
             ),
-            Row(
-              children: [
-                inputWidget(
-                  hintText: "Rate",
-                  icon: Icons.note,
-                  controller: controller.controllers["rate"]!,
-                  context: context,
-                  focusNode: controller.focusNodes["rate"]!,
-                  keyboardType: TextInputType.number,
-                  expandInRow: true,
-                ),
-                inputWidget(
-                  hintText: "Amount",
-                  icon: Icons.money,
-                  controller: controller.controllers["amount"]!,
-                  context: context,
-                  focusNode: controller.focusNodes["amount"]!,
-                  keyboardType: TextInputType.number,
-                  expandInRow: true,
-                ),
-              ],
-            ),
-            inputWidget(
-              hintText: "Discount",
-              icon: Icons.money,
-              controller: controller.controllers["discount"]!,
-              context: context,
-              focusNode: controller.focusNodes["discount"]!,
-              keyboardType: TextInputType.number,
-            ),
-            inputWidget(
-              hintText: "Remarks",
-              icon: Icons.money,
-              controller: controller.controllers["remarks"]!,
-              context: context,
-              focusNode: controller.focusNodes["remarks"]!,
-              minLines: 2,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                buttonWidget(
-                  title: "ADD",
-                  onTap: () {
-                    showlog("ADD :: Add Order customer");
-                  },
-                  context: context,
-                ),
-              ],
-            ),
-            ListView.builder(
-              itemCount: 10,
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemBuilder: (context, index) => addedProductListItem(),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget addedProductListItem() {
+  Widget addedProductListItem({
+    required String productName,
+    required String quentity,
+    required String amount,
+  }) {
     return Card(
       child: Padding(
         padding: EdgeInsets.all(8),
@@ -135,9 +211,15 @@ class AddOrderProduct extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Product Name"),
-                Text("Quentity"),
-                Text("Amount"),
+                Text(
+                  productName,
+                  style: TextStyle(overflow: TextOverflow.ellipsis),
+                ),
+                Text(
+                  quentity,
+                  style: TextStyle(overflow: TextOverflow.ellipsis),
+                ),
+                Text(amount, style: TextStyle(overflow: TextOverflow.ellipsis)),
               ],
             ),
           ],

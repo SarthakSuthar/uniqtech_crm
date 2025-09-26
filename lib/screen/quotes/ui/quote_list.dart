@@ -303,7 +303,8 @@ class _QuoteListState extends State<QuoteList> {
                   const SizedBox(width: 5),
 
                   InkWell(
-                    onTap: () {
+                    onTap: () async {
+                      await controller.deleteQuotation(id: int.parse(no));
                       showlog("delete button taped");
                     },
                     child: Container(

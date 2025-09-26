@@ -473,9 +473,6 @@ class QuotesController extends GetxController {
   }
 
   // -------------- Quotes Terms ------------
-  // TODO: improve terms module
-  // TODO: get selected terms by id
-  // TODO: add selected terms by id & unique id
 
   RxList<TermsModel> allTerms = <TermsModel>[].obs;
   RxList<QuotationTermsModel> quotationTermsList = <QuotationTermsModel>[].obs;
