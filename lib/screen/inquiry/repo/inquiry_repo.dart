@@ -10,6 +10,16 @@ class InquiryRepo {
   static const String inquiryProductTable = 'inquiryProduct';
   static const String inquiryFollowupTable = 'inquiryFollowup';
 
+  static Future<void> initializeInquiryDB(Database db) async {
+    try {
+      await createInquiryTable(db);
+      await createinquiryProductTable(db);
+      await createInquiryFollowupTable(db);
+    } catch (e) {
+      showlog("Error initializing Inquiry DB : $e");
+    }
+  }
+
   /// Creates the 'inquiry' table in the database if it doesn't already exist.
   static Future<void> createInquiryTable(Database db) async {
     await db.execute('''

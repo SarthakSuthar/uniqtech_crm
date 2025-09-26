@@ -1,4 +1,4 @@
-import 'package:crm/screen/product/model/product_model.dart';
+import 'package:crm/screen/masters/product/model/product_model.dart';
 import 'package:crm/services/local_db.dart';
 import 'package:sqflite/sqlite_api.dart';
 

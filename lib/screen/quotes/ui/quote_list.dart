@@ -2,6 +2,7 @@ import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/app_const/widgets/app_bar.dart';
 import 'package:crm/app_const/widgets/app_drawer.dart';
 import 'package:crm/app_const/widgets/app_widgets.dart';
+import 'package:crm/screen/quotes/controller/quotes_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -15,6 +16,7 @@ class QuoteList extends StatefulWidget {
 }
 
 class _QuoteListState extends State<QuoteList> {
+  final QuotesController controller = Get.put(QuotesController());
   TextEditingController noController = TextEditingController();
   TextEditingController searchController = TextEditingController();
 
@@ -81,20 +83,35 @@ class _QuoteListState extends State<QuoteList> {
                     title: "Search",
                     context: context,
                     onTap: () {
-                      noController.clear();
-                      searchController.clear();
-                      showlog("Clear button pressed");
+                      if (noController.text.isNotEmpty) {
+                        controller.searchResult(noController.text);
+                      } else if (searchController.text.isNotEmpty) {
+                        controller.searchResult(searchController.text);
+                      }
+                      showlog("search button pressed");
                     },
                   ),
                 ),
               ],
             ),
 
-            Expanded(
-              child: ListView.builder(
-                itemCount: 2,
-                itemBuilder: (context, index) => quoteListWidget(),
-              ),
+            Obx(
+              () => controller.quotationList.isEmpty
+                  ? Text(" No data found")
+                  : Expanded(
+                      child: ListView.builder(
+                        itemCount: controller.filterendList.length,
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) => quoteListWidget(
+                          no: controller.filterendList[index].id.toString(),
+                          email: controller.filterendList[index].email ?? '',
+                          mobileNo:
+                              controller.filterendList[index].mobileNo ?? '',
+                          customerName:
+                              controller.filterendList[index].custName1 ?? '',
+                        ),
+                      ),
+                    ),
             ),
           ],
         ),
@@ -102,15 +119,25 @@ class _QuoteListState extends State<QuoteList> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showlog("Action button pressed");
-          Get.toNamed(AppRoutes.addQuote);
+          Get.toNamed(AppRoutes.addQuote, arguments: {'isEdit': false});
         },
         backgroundColor: Theme.of(context).primaryColor,
-        child: const Icon(Icons.add),
+        child: Icon(
+          Icons.add,
+          color: Theme.of(context).brightness == Brightness.light
+              ? Colors.white
+              : Colors.black,
+        ),
       ),
     );
   }
 
-  Widget quoteListWidget() {
+  Widget quoteListWidget({
+    required String no,
+    required String customerName,
+    required String email,
+    required String mobileNo,
+  }) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Card(
@@ -135,10 +162,10 @@ class _QuoteListState extends State<QuoteList> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("1"),
-                      Text("Heet"),
-                      Text("someone@example.com"),
-                      Text("+91 1234567890"),
+                      Text(no),
+                      Text(customerName),
+                      Text(email),
+                      Text(mobileNo),
                       const SizedBox(height: 40),
                     ],
                   ),
@@ -152,6 +179,10 @@ class _QuoteListState extends State<QuoteList> {
                 children: [
                   InkWell(
                     onTap: () {
+                      Get.toNamed(
+                        AppRoutes.addQuote,
+                        arguments: {'no': no, 'isEdit': true},
+                      );
                       showlog("edit button taped");
                     },
                     child: Container(

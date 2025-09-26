@@ -4,8 +4,8 @@ import 'package:crm/screen/inquiry/model/inquiry_followup_model.dart';
 import 'package:crm/screen/inquiry/model/inquiry_model.dart';
 import 'package:crm/screen/inquiry/model/inquiry_product_model.dart';
 import 'package:crm/screen/inquiry/repo/inquiry_repo.dart';
-import 'package:crm/screen/product/model/product_model.dart';
-import 'package:crm/screen/product/repo/product_repo.dart';
+import 'package:crm/screen/masters/product/model/product_model.dart';
+import 'package:crm/screen/masters/product/repo/product_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -53,8 +53,8 @@ class InquiryController extends GetxController {
     await getProductList();
     await getinquiryProductList();
     await getCustomersList();
-    // Set initial inquiry number based on the total number of inquiries
 
+    // Set initial inquiry number based on the total number of inquiries
     if (isEdit == true) {
       await setEditDetails();
     } else {
@@ -85,7 +85,10 @@ class InquiryController extends GetxController {
     controllers['social']!.text = inquiryList
         .firstWhereOrNull((element) => element.id == intNo)!
         .source!;
-    await getinquiryProductList();
+
+    if (no != null) {
+      await getinquiryProductList();
+    }
   }
 
   @override
@@ -119,6 +122,7 @@ class InquiryController extends GetxController {
     }
   }
 
+  ///update selected product according to edit or not
   void updateProduct(String? val) {
     if (val != null) {
       selectedProduct?.value = val;
@@ -199,16 +203,24 @@ class InquiryController extends GetxController {
       showlog(
         "-------------- result : ${result.map((e) => e.toJson()).toList()}",
       );
+
+      final numText = controllers['num']?.text ?? "";
+      showlog("controllers['num']?.text --> $numText");
+      final inquiryId = int.tryParse(numText);
+
+      if (inquiryId == null) {
+        showlog("Invalid inquiryId: $numText");
+        inquiryProductList.clear();
+        return;
+      } else {
+        showlog("inquiryId : $inquiryId");
+      }
+
       inquiryProductList.assignAll(
-        result
-            .where(
-              (element) =>
-                  element.inquiryId == int.parse(controllers['num']!.text),
-            )
-            .toList(),
+        result.where((element) => element.inquiryId == inquiryId).toList(),
       );
       showlog(
-        "inquiry product list : ${result.map((e) => e.toJson()).toList()}",
+        "inquiry product list : ${inquiryProductList.map((e) => e.toJson()).toList()}",
       );
     } catch (e) {
       showlog("error on get inquiry product list : $e");

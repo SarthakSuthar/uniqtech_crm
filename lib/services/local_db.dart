@@ -2,8 +2,9 @@ import 'dart:async';
 import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/screen/contacts/repo/contact_repo.dart';
 import 'package:crm/screen/inquiry/repo/inquiry_repo.dart';
-import 'package:crm/screen/product/repo/product_repo.dart';
-import 'package:crm/screen/terms/repo/terms_repo.dart';
+import 'package:crm/screen/masters/product/repo/product_repo.dart';
+import 'package:crm/screen/quotes/repo/quotation_repo.dart';
+import 'package:crm/screen/masters/terms/repo/terms_repo.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -62,16 +63,33 @@ class DatabaseHelper {
       showlog("after creating terms table");
 
       //MARK: Inquiry Tables
-      await InquiryRepo.createInquiryTable(db);
-      showlog("after creating inquiry table");
+      // await InquiryRepo.createInquiryTable(db);
+      // showlog("after creating inquiry table");
 
-      await InquiryRepo.createinquiryProductTable(db);
-      showlog("after creating inquiryProduct table");
+      // await InquiryRepo.createinquiryProductTable(db);
+      // showlog("after creating inquiryProduct table");
 
-      await InquiryRepo.createInquiryFollowupTable(db);
-      showlog("after creating inquiryFollowup table");
+      // await InquiryRepo.createInquiryFollowupTable(db);
+      // showlog("after creating inquiryFollowup table");
+
+      await InquiryRepo.initializeInquiryDB(db);
 
       //MARK: Quatation Tables
+      await QuotationRepo.createQuotationTable(db);
+      showlog("after creating quotation table");
+
+      await QuotationRepo.createQuotationProductTable(db);
+      showlog("after creating quotationProduct table");
+
+      await QuotationRepo.createQuotationFollowupTable(db);
+      showlog("after creating quotationFollowup table");
+
+      await QuotationRepo.createQuotationTermsTable(db);
+      showlog("after creating quotationTerms table");
+
+      // SEPERATED AGAIN BECAUSE createQuotationTermsTable ISM'T WORKING IN initializeQuotationDB
+      // await QuotationRepo.initializeQuotationDB(db);
+      // showlog("after creating quotation tables");
     } catch (e) {
       // Log the error for debugging or report to an error tracking service
       showlog("Error creating tables: $e");

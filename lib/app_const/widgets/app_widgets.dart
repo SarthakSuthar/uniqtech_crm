@@ -178,25 +178,49 @@ Widget datePickerWidget({
   return expandInRow ? Expanded(child: dateField) : dateField;
 }
 
-Widget termsTile() {
-  bool isChecked = false;
+// Widget termsTile({
+//   required String title,
+//   required bool isChecked,
+//   required VoidCallback onChanged,
+// }) {
+//   // bool isChecked = false;
 
-  return StatefulBuilder(
-    builder: (context, setState) {
-      return Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Card(
-          child: ListTile(
-            leading: Checkbox(
-              value: isChecked,
-              onChanged: (bool? newValue) =>
-                  setState(() => isChecked = newValue!),
-            ),
-            title: Text("terms"),
-          ),
-        ),
-      );
-    },
+//   return StatefulBuilder(
+//     builder: (context, setState) {
+//       bool localChecked = isChecked;
+//       return Padding(
+//         padding: const EdgeInsets.all(8.0),
+//         child: Card(
+//           child: ListTile(
+//             leading: Checkbox(
+//               value: isChecked,
+//               onChanged: (bool? newValue) {
+//                 setState(() => localChecked = newValue ?? false);
+//                 onChanged();
+//               },
+//             ),
+//             title: Text(title),
+//           ),
+//         ),
+//       );
+//     },
+//   );
+// }
+
+Widget termsTile({
+  required String title,
+  required bool isChecked,
+  required VoidCallback onChanged,
+}) {
+  return Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: Card(
+      child: ListTile(
+        leading: Checkbox(value: isChecked, onChanged: (_) => onChanged()),
+        title: Text(title),
+        onTap: onChanged,
+      ),
+    ),
   );
 }
 

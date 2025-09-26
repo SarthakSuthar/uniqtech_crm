@@ -1,5 +1,5 @@
 import 'package:crm/app_const/utils/app_utils.dart';
-import 'package:crm/screen/terms/model/terms_model.dart';
+import 'package:crm/screen/masters/terms/model/terms_model.dart';
 import 'package:crm/services/local_db.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -42,6 +42,17 @@ class TermsRepo {
       return result.map((e) => TermsModel.fromJson(e)).toList();
     } catch (e) {
       showlog('retrieving terms: $e');
+      rethrow;
+    }
+  }
+
+  ///delete term
+  static Future<void> deleteTerm(int id) async {
+    Database db = await DatabaseHelper().database;
+    try {
+      await db.delete(table, where: 'id = ?', whereArgs: [id]);
+    } catch (e) {
+      showlog('deleting terms: $e');
       rethrow;
     }
   }

@@ -2,7 +2,7 @@ import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/app_const/widgets/app_bar.dart';
 import 'package:crm/app_const/widgets/app_drawer.dart';
 import 'package:crm/app_const/widgets/app_widgets.dart';
-import 'package:crm/screen/product/controller/product_controller.dart';
+import 'package:crm/screen/masters/product/controller/product_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

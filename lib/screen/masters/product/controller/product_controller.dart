@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crm/app_const/utils/app_utils.dart';
-import 'package:crm/screen/product/model/product_model.dart';
-import 'package:crm/screen/product/repo/product_repo.dart';
+import 'package:crm/screen/masters/product/model/product_model.dart';
+import 'package:crm/screen/masters/product/repo/product_repo.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

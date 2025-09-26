@@ -82,7 +82,13 @@ class AppRoutes {
     ),
     // GetPage(name: addContactCustomer, page: () => AddCustomerContactScreen()),
     GetPage(name: quote, page: () => const QuoteList()),
-    GetPage(name: addQuote, page: () => const AddQuotes()),
+    GetPage(
+      name: addQuote,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>;
+        return AddQuotes(no: args['no'], isEdit: args['isEdit']);
+      },
+    ),
     GetPage(name: quotesFollowup, page: () => QuotesFollowup()),
     GetPage(name: order, page: () => const OrderList()),
     GetPage(name: addOrder, page: () => const AddOrder()),

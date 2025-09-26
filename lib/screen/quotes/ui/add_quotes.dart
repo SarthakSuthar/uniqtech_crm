@@ -8,7 +8,9 @@ import 'add_quote_customer.dart';
 import 'quotes_terms.dart';
 
 class AddQuotes extends StatelessWidget {
-  const AddQuotes({super.key});
+  final String? no;
+  final bool isEdit;
+  const AddQuotes({super.key, this.no, required this.isEdit});
 
   @override
   Widget build(BuildContext context) {
@@ -52,9 +54,16 @@ class AddQuotes extends StatelessWidget {
               Expanded(
                 child: TabBarView(
                   children: [
-                    SizedBox(child: AddQuoteCustomer()),
+                    SizedBox(
+                      child: AddQuoteCustomer(no: no, isEdit: isEdit),
+                    ),
                     SizedBox(child: AddQuoteProduct()),
-                    SizedBox(child: QuotesTerms()),
+                    SizedBox(
+                      child: QuotesTerms(
+                        quotationId: (no ?? '0'),
+                        isEdit: isEdit,
+                      ),
+                    ),
                   ],
                 ),
               ),

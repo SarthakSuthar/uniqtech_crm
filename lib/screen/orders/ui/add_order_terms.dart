@@ -1,6 +1,6 @@
 import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/app_const/widgets/app_widgets.dart';
-import 'package:crm/screen/terms/widget/add_task_popup.dart';
+import 'package:crm/screen/masters/terms/widget/add_task_popup.dart';
 import 'package:flutter/material.dart';
 
 class AddOrderTerms extends StatelessWidget {
@@ -11,12 +11,11 @@ class AddOrderTerms extends StatelessWidget {
     return SingleChildScrollView(
       child: Column(
         children: [
-          ListView.builder(
-            itemCount: 3,
-            shrinkWrap: true,
-            itemBuilder: (context, index) => termsTile(),
-          ),
-
+          // ListView.builder(
+          //   itemCount: 3,
+          //   shrinkWrap: true,
+          //   itemBuilder: (context, index) => termsTile(),
+          // ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(

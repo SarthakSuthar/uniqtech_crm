@@ -1,7 +1,7 @@
 import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:crm/screen/terms/repo/terms_repo.dart';
-import 'package:crm/screen/terms/model/terms_model.dart';
+import 'package:crm/screen/masters/terms/repo/terms_repo.dart';
+import 'package:crm/screen/masters/terms/model/terms_model.dart';
 
 Future<void> addNewTerms({
   required BuildContext context,

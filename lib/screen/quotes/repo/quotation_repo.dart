@@ -2,6 +2,7 @@ import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/screen/quotes/model/quotation_followup_model.dart';
 import 'package:crm/screen/quotes/model/quotation_model.dart';
 import 'package:crm/screen/quotes/model/quotation_product_model.dart';
+import 'package:crm/screen/quotes/model/quotation_terms_model.dart';
 import 'package:crm/services/local_db.dart';
 import 'package:sqflite/sqlite_api.dart';
 
@@ -9,6 +10,21 @@ class QuotationRepo {
   static const String quotationTable = 'quotation';
   static const String quotationProductTable = 'quotationProduct';
   static const String quotationFollowupTable = 'quotationFollowup';
+  static const String quotationTermsTable = 'quotationTerms';
+
+  static Future<void> initializeQuotationDB(Database db) async {
+    try {
+      // Database db = await DatabaseHelper().database;
+      await createQuotationTable(db);
+      await createQuotationProductTable(db);
+      await createQuotationFollowupTable(db);
+      await createQuotationTermsTable(db);
+    } catch (e) {
+      showlog("Error initializing Quotation DB : $e");
+    }
+  }
+
+  // --------- quotation table -----
 
   /// Creates the 'quotation' table in the database if it doesn't already exist.
   static Future<void> createQuotationTable(Database db) async {
@@ -26,6 +42,8 @@ class QuotationRepo {
             isSynced INTEGER
         )
     ''');
+
+    showlog("Create Quotation Table");
   }
 
   ///insert a new quotation record into the "quotation" table
@@ -96,6 +114,8 @@ class QuotationRepo {
             isSynced INTEGER
         )
     ''');
+
+    showlog("Create Quotation Product Table");
   }
 
   ///Insert a new quotation product record into the 'quotationProduct' table
@@ -183,6 +203,8 @@ class QuotationRepo {
             isSynced INTEGER
         )
     ''');
+
+    showlog("Create Quotation Followup Table");
   }
 
   /// Inserts a new quotation record into the 'quotation table.
@@ -276,5 +298,63 @@ class QuotationRepo {
       showlog("error on get quotation followup by quotationId : $e");
       rethrow;
     }
+  }
+
+  // ------- Quotation terms ---------
+
+  //table
+
+  //create table
+  static Future<void> createQuotationTermsTable(Database db) async {
+    try {
+      await db.execute('''
+    CREATE TABLE IF NOT EXISTS $quotationTermsTable (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          quotationId INTEGER,
+          termId INTEGER,
+          isSynced INTEGER
+      )
+  ''');
+
+      showlog("Create Quotation Terms Table");
+    } catch (e) {
+      showlog("Error creating Quotation Terms Table: $e");
+    }
+  }
+
+  //insert
+  static Future<int> insertQuotationTerms(
+    QuotationTermsModel quotationTermsModel,
+  ) async {
+    Database db = await DatabaseHelper().database;
+    return await db.insert(
+      quotationTermsTable,
+      quotationTermsModel.toJson(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  //get delected term id and return
+  static Future<int> getDeletedTerms(int quotationId) async {
+    Database db = await DatabaseHelper().database;
+    final result = await db.delete(
+      quotationTermsTable,
+      where: 'quotationId = ?',
+      whereArgs: [quotationId],
+    );
+    return result;
+  }
+
+  //get selected term id and return
+  static Future<List<QuotationTermsModel>> getSelectedTerms(
+    int quotationId,
+  ) async {
+    Database db = await DatabaseHelper().database;
+    final result = await db.query(
+      quotationTermsTable,
+      where: 'quotationId = ?',
+      whereArgs: [quotationId],
+    );
+    return result.map((e) => QuotationTermsModel.fromJson(e)).toList();
   }
 }
