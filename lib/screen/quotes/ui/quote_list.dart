@@ -255,8 +255,12 @@ class _QuoteListState extends State<QuoteList> {
 
                   InkWell(
                     onTap: () {
-                      showlog("edit document button taped");
-                      Get.toNamed(AppRoutes.quotesFollowup);
+                      showlog("quote followup button taped");
+                      showlog("Quote id passing from list: $no");
+                      Get.toNamed(
+                        AppRoutes.quotesFollowup,
+                        arguments: {'quotationId': no},
+                      );
                     },
                     child: Container(
                       decoration: BoxDecoration(

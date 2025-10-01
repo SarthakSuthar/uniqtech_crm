@@ -52,7 +52,9 @@ class AddProductScreen extends StatelessWidget {
                       () => dropdownWidget(
                         hintText: "UOM",
                         icon: Icons.abc,
-                        items: ["1", "2", "3"],
+                        items: controller.uomList.isEmpty
+                            ? ["No UOM Available"]
+                            : controller.uomList.map((e) => e.name!).toList(),
                         value: controller.selectedUom?.value.isEmpty == true
                             ? null
                             : controller.selectedUom!.value,

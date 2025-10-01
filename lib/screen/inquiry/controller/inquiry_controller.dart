@@ -6,6 +6,8 @@ import 'package:crm/screen/inquiry/model/inquiry_product_model.dart';
 import 'package:crm/screen/inquiry/repo/inquiry_repo.dart';
 import 'package:crm/screen/masters/product/model/product_model.dart';
 import 'package:crm/screen/masters/product/repo/product_repo.dart';
+import 'package:crm/screen/masters/uom/model/uom_model.dart';
+import 'package:crm/screen/masters/uom/repo/uom_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -53,6 +55,7 @@ class InquiryController extends GetxController {
     await getProductList();
     await getinquiryProductList();
     await getCustomersList();
+    await getUomList();
 
     // Set initial inquiry number based on the total number of inquiries
     if (isEdit == true) {
@@ -140,6 +143,18 @@ class InquiryController extends GetxController {
 
   void updateUOM(String? val) {
     if (val != null) selectedUOM?.value = val;
+  }
+
+  var uomList = <UomModel>[].obs;
+
+  Future<void> getUomList() async {
+    try {
+      final result = await UomRepo.getAllUom();
+      uomList.assignAll(result);
+      showlog("uom list : ${result.map((e) => e.toJson()).toList()}");
+    } catch (e) {
+      showlog("Error getting UOM list : $e");
+    }
   }
 
   final RxList<InquiryModel> inquiryList = <InquiryModel>[].obs;
@@ -391,7 +406,7 @@ class InquiryController extends GetxController {
     }
   }
 
-  // MARK: Inquiry Follow up ---------------- TODO: Hvae to impl
+  // MARK: Inquiry Follow up ----------------
 
   final selectedFollowupDate = "".obs;
   final selectedFollowupType = "".obs;
@@ -410,7 +425,7 @@ class InquiryController extends GetxController {
       );
       showlog("selected followup detail : ${result.toJson()}");
       selectedFollowupAssignedTo.value = result.followupAssignedTo!;
-      selectedFollowupDate.value = result.followupDate!;
+      selectedFollowupDate.value = result.followupDate;
       selectedFollowupRemarks.value = result.followupRemarks!;
       selectedFollowupStatus.value = result.followupStatus!;
       selectedFollowupType.value = result.followupStatus!;
@@ -441,20 +456,43 @@ class InquiryController extends GetxController {
   }
 
   ///ADD FOLLOWUP
-  Future<void> addInquiryFollowup(int inquiryId) async {
+  Future<void> addInquiryFollowup(String inquiryId) async {
     try {
+      int intId = int.parse(inquiryId);
+
       final inquiryFollowup = InquiryFollowupModel(
-        inquiryId: inquiryId,
+        inquiryId: intId,
         followupDate: controllers['followupDate']!.text,
-        followupStatus: controllers['followupStatus']!.text,
+        followupStatus: selectedFollowupStatus.value,
+        followupType: selectedFollowupType.value,
         followupRemarks: controllers['followupRemarks']!.text,
-        followupAssignedTo: controllers['followupAssignedTo']!.text,
+        followupAssignedTo: selectedFollowupAssignedTo.value,
       );
       showlog("added inquiry followup ----> ${inquiryFollowup.toJson()}");
       int result = await InquiryRepo.insertInquiryFollowup(inquiryFollowup);
       showlog("insert inquiry followup ----> $result");
     } catch (e) {
       showlog("Error adding inquiry followup : $e");
+    }
+  }
+
+  Future<void> updateInquiryFollowup(String inquiryId) async {
+    try {
+      int intId = int.parse(inquiryId);
+      final inquiryFollowup = InquiryFollowupModel(
+        inquiryId: intId,
+        followupDate: controllers['followupDate']!.text,
+        followupStatus: controllers['followupStatus']!.text,
+        followupType: selectedFollowupType.value,
+        followupRemarks: controllers['followupRemarks']!.text,
+        followupAssignedTo: controllers['followupAssignedTo']!.text,
+      );
+
+      showlog("updated inquiry followup ----> ${inquiryFollowup.toJson()}");
+      int result = await InquiryRepo.updateInquiryFollowup(inquiryFollowup);
+      showlog("update inquiry followup ----> $result");
+    } catch (e) {
+      showlog("Error update inquiry followup : $e");
     }
   }
 }

@@ -17,15 +17,27 @@ class TasksList extends StatefulWidget {
 class _TasksListState extends State<TasksList> {
   final TasksController controller = Get.put(TasksController());
 
+  final TextEditingController noController = TextEditingController();
+  final TextEditingController workTypeController = TextEditingController();
+
   // FocuseNodes
   FocusNode noFocus = FocusNode();
-  FocusNode searchFocus = FocusNode();
+  FocusNode workTypeFocus = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    controller.getTaskList();
+    controller.getFilesList();
+  }
 
   @override
   void dispose() {
     controller.dispose();
+    noController.dispose();
+    workTypeController.dispose();
     noFocus.dispose();
-    searchFocus.dispose();
+    workTypeFocus.dispose();
     super.dispose();
   }
 
@@ -37,15 +49,15 @@ class _TasksListState extends State<TasksList> {
       body: GestureDetector(
         onTap: () {
           noFocus.unfocus();
-          searchFocus.unfocus();
+          workTypeFocus.unfocus();
         },
         child: Column(
           children: [
             Row(
               children: [
                 inputWidget(
-                  focusNode: controller.focusNodes["noSearch"]!,
-                  controller: controller.controllers["noSearch"]!,
+                  focusNode: noFocus,
+                  controller: noController,
                   hintText: "No..",
                   icon: Icons.numbers,
                   context: context,
@@ -54,8 +66,8 @@ class _TasksListState extends State<TasksList> {
                 dropdownWidget(
                   hintText: "Type of Work",
                   icon: Icons.work,
-                  items: controller.typeOfWorkList.toString().split(","),
-                  onChanged: (value) => controller.updateTypeOfWork,
+                  items: controller.typeOfWorkList,
+                  onChanged: controller.updateTypeOfWork,
                   expandInRow: true,
                 ),
               ],
@@ -78,26 +90,42 @@ class _TasksListState extends State<TasksList> {
                     context: context,
                     onTap: () {
                       // controller.noController.clear();
-                      showlog("Clear button pressed");
+                      if (noController.text.isNotEmpty) {
+                        controller.searchResult(noController.text);
+                      }
+                      //  else if (searchController.text.isNotEmpty) {
+                      //   controller.searchResult(searchController.text);
+                      // }
+                      showlog("Search button pressed");
                     },
                   ),
                 ),
               ],
             ),
-
-            Expanded(
-              child: ListView.builder(
-                itemCount: 2,
-                itemBuilder: (context, index) => tasksListWidget(),
-              ),
+            Obx(
+              () => controller.taskList.isEmpty
+                  ? Text("No Data Found")
+                  : Expanded(
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: controller.filteredList.length,
+                        itemBuilder: (context, index) => tasksListWidget(
+                          no: controller.filteredList[index].id.toString(),
+                          date: controller.filteredList[index].date.toString(),
+                          assignedTo: controller.filteredList[index].assignedTo
+                              .toString(),
+                        ),
+                      ),
+                    ),
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        foregroundColor: Colors.white,
         onPressed: () {
           showlog("Action button pressed");
-          Get.toNamed(AppRoutes.addTask, arguments: false);
+          Get.toNamed(AppRoutes.addTask, arguments: {'isEdit': false});
         },
         backgroundColor: Theme.of(context).primaryColor,
         child: const Icon(Icons.add),
@@ -105,7 +133,11 @@ class _TasksListState extends State<TasksList> {
     );
   }
 
-  Widget tasksListWidget() {
+  Widget tasksListWidget({
+    required String no,
+    required String date,
+    required String assignedTo,
+  }) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Card(
@@ -130,9 +162,9 @@ class _TasksListState extends State<TasksList> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("1"),
-                      Text("12/12/2025"),
-                      Text("Assign 3"),
+                      Text(no),
+                      Text(date),
+                      Text(assignedTo),
                       const SizedBox(height: 40),
                     ],
                   ),
@@ -146,8 +178,12 @@ class _TasksListState extends State<TasksList> {
                 children: [
                   InkWell(
                     onTap: () {
+                      showlog("no from tasks list : $no");
+                      Get.toNamed(
+                        AppRoutes.addTask,
+                        arguments: {'no': no, 'isEdit': true},
+                      );
                       showlog("edit button taped");
-                      Get.toNamed(AppRoutes.addTask, arguments: true);
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -170,7 +206,8 @@ class _TasksListState extends State<TasksList> {
                   const SizedBox(width: 5),
 
                   InkWell(
-                    onTap: () {
+                    onTap: () async {
+                      await controller.deleteTask(int.parse(no));
                       showlog("delete button taped");
                     },
                     child: Container(

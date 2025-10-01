@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/app_const/widgets/app_bar.dart';
 import 'package:crm/app_const/widgets/app_drawer.dart';
@@ -6,99 +8,297 @@ import 'package:crm/screen/tasks/controller/tasks_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class AddTask extends StatelessWidget {
+class AddTask extends StatefulWidget {
+  final String? no;
   final bool isEdit;
 
-  AddTask({super.key, required this.isEdit});
+  const AddTask({super.key, required this.isEdit, this.no});
 
+  @override
+  State<AddTask> createState() => _AddTaskState();
+}
+
+class _AddTaskState extends State<AddTask> {
   final TasksController controller = Get.put(TasksController());
 
   @override
+  void initState() {
+    super.initState();
+
+    if (widget.isEdit) {
+      controller.setEditDetails(widget.no ?? '');
+    } else {
+      controller.controllers["no"]!.text = (controller.taskList.length + 1)
+          .toString();
+      if (widget.no != null) {
+        controller.controllers["no"]!.text = widget.no!;
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: appBar(title: "Tasks"),
-      drawer: AppDrawer(),
-      body: Padding(
-        padding: EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                inputWidget(
-                  hintText: "No",
-                  icon: Icons.numbers,
-                  controller: controller.controllers["no"]!,
-                  context: context,
-                  focusNode: controller.focusNodes["no"]!,
-                  expandInRow: true,
-                ),
-                datePickerWidget(
-                  icon: Icons.calendar_month,
-                  controller: controller.controllers["date"]!,
-                  context: context,
-                  expandInRow: true,
-                ),
-              ],
-            ),
-            inputWidget(
-              hintText: "Task Discription",
-              icon: Icons.work,
-              controller: controller.controllers["taskDiscription"]!,
-              context: context,
-              focusNode: controller.focusNodes["taskDiscription"]!,
-              minLines: 2,
-            ),
-            inputWidget(
-              hintText: "Attached",
-              icon: Icons.person,
-              controller: controller.controllers["attached"]!,
-              context: context,
-              focusNode: controller.focusNodes["attached"]!,
-            ),
+    // widget.isEdit
+    //     ? controller.setEditDetails()
+    //     : controller.controllers["no"]!.text = (controller.taskList.length + 1)
+    //           .toString();
+    // widget.no != null ? controller.controllers["no"]!.text = widget.no! : null;
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          Get.delete<TasksController>();
+          debugPrint("Route popped with result: $result");
+        } else {
+          debugPrint("Pop prevented!");
+        }
+      },
+      child: GestureDetector(
+        onTap: () => controller.focusNodes.forEach((_, node) => node.unfocus()),
+        child: Scaffold(
+          appBar: appBar(title: "Tasks"),
+          drawer: AppDrawer(),
+          body: Padding(
+            padding: EdgeInsets.all(8.0),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      inputWidget(
+                        hintText: "No",
+                        icon: Icons.numbers,
+                        controller: controller.controllers["no"]!,
+                        context: context,
+                        focusNode: controller.focusNodes["no"]!,
+                        expandInRow: true,
+                        readOnly: true,
+                      ),
+                      datePickerWidget(
+                        icon: Icons.calendar_month,
+                        controller: controller.controllers["date"]!,
+                        context: context,
+                        expandInRow: true,
+                      ),
+                    ],
+                  ),
+                  inputWidget(
+                    hintText: "Task Discription",
+                    icon: Icons.work,
+                    controller: controller.controllers["taskDiscription"]!,
+                    context: context,
+                    focusNode: controller.focusNodes["taskDiscription"]!,
+                    minLines: 2,
+                  ),
 
-            // Image view
-            Row(
-              children: [
-                inputWidget(
-                  hintText: "Work",
-                  icon: Icons.chat_rounded,
-                  controller: controller.controllers["work"]!,
-                  context: context,
-                  focusNode: controller.focusNodes["work"]!,
-                  expandInRow: true,
-                ),
-                inputWidget(
-                  hintText: "Work Type",
-                  icon: Icons.task,
-                  controller: controller.controllers["workType"]!,
-                  context: context,
-                  focusNode: controller.focusNodes["workType"]!,
-                  expandInRow: true,
-                ),
-              ],
-            ),
+                  Row(
+                    children: [
+                      dropdownWidget(
+                        hintText: "Work Type",
+                        icon: Icons.work,
+                        items: controller.typeOfWorkList,
+                        // onChanged: controller.updateTypeOfWork,
+                        onChanged: (value) {
+                          controller.selectedTypeOfWork.value = value!;
+                          controller.controllers["workType"]!.text = value;
+                        },
+                        // value: controller.selectedTypeOfWork.value,
+                        value:
+                            controller.selectedTypeOfWork.value.isEmpty == true
+                            ? null
+                            : controller.selectedTypeOfWork.value,
+                        expandInRow: true,
+                      ),
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                buttonWidget(
-                  title: isEdit ? "UPDATE" : "ADD TASK",
-                  onTap: () {
-                    showlog("Tasks : Add task button");
-                  },
-                  context: context,
-                ),
-                buttonWidget(
-                  title: "RESET",
-                  onTap: () {
-                    showlog("Tasks : Add task button");
-                  },
-                  context: context,
-                ),
-              ],
+                      inputWidget(
+                        //TODO: current login user uid
+                        hintText: "Assigned to",
+                        icon: Icons.task,
+                        controller: controller.controllers["assignedTo"]!,
+                        context: context,
+                        focusNode: controller.focusNodes["assignedTo"]!,
+                        expandInRow: true,
+                        readOnly: true,
+                      ),
+                    ],
+                  ),
+
+                  Obx(() {
+                    if (controller.attachedFiles.isEmpty) {
+                      return Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: InkWell(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => fileSelectWidget(context),
+                            );
+                            showlog("file select widget tapped");
+                          },
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: Colors.grey,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(12.0),
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.folder),
+                                        const SizedBox(width: 10),
+                                        Text(
+                                          "Attached",
+                                        ), // change to file name after selecting
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    } else {
+                      return controller.attachedFiles.first.split('.').last ==
+                                  'png' ||
+                              controller.attachedFiles.first.split('.').last ==
+                                  'jpg' ||
+                              controller.attachedFiles.first.split('.').last ==
+                                  'jpeg'
+                          ? Image.file(File(controller.attachedFiles.first))
+                          : Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                          color: Colors.grey,
+                                          width: 2,
+                                        ),
+                                      ),
+                                      padding: const EdgeInsets.all(30.0),
+                                      child: Column(
+                                        children: [
+                                          Icon(
+                                            controller.attachedFiles.first
+                                                        .split('.')
+                                                        .last ==
+                                                    'pdf'
+                                                ? Icons.picture_as_pdf
+                                                : Icons.file_copy,
+                                            size: 50,
+                                            color: Colors.red,
+                                          ),
+                                          const SizedBox(height: 10),
+                                          Text(
+                                            controller.attachedFiles.first
+                                                .split('/')
+                                                .last
+                                                .toString(),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                    }
+                  }),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      buttonWidget(
+                        title: widget.isEdit ? "UPDATE" : "ADD TASK",
+                        onTap: () {
+                          widget.isEdit
+                              ? controller.updateTask()
+                              : controller.addTask();
+                          showlog("Tasks : Add task button");
+                        },
+                        context: context,
+                      ),
+                      buttonWidget(
+                        title: "RESET",
+                        onTap: () {
+                          controller.resetAllFields();
+                          showlog("Tasks : Add task button");
+                        },
+                        context: context,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget fileSelectWidget(BuildContext context) {
+    return AlertDialog(
+      title: const Text("Add File"),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          InkWell(
+            onTap: () async {
+              await controller.pickFile();
+              Get.back();
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Theme.of(context).primaryColor,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  children: const [
+                    Icon(Icons.upload_rounded, color: Colors.white),
+                    SizedBox(width: 10),
+                    Text(
+                      "Upload from File",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          InkWell(
+            onTap: () async {
+              await controller.captureFromCamera();
+              Get.back();
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Row(
+                children: [
+                  Icon(Icons.camera_alt, color: Theme.of(context).primaryColor),
+                  const SizedBox(width: 10),
+                  Text(
+                    "Upload from Camera",
+                    style: TextStyle(color: Theme.of(context).primaryColor),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -195,12 +195,14 @@ class QuotationRepo {
     await db.execute('''
         CREATE TABLE IF NOT EXISTS $quotationFollowupTable (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            inquiryId INTEGER,
+            quotationId INTEGER NOT NULL,
             followupDate TEXT,
+            followupType TEXT,
             followupStatus TEXT,
             followupRemarks TEXT,
             followupAssignedTo TEXT,
-            isSynced INTEGER
+            isSynced INTEGER,
+            FOREIGN KEY (quotationId) REFERENCES $quotationTable(id) ON DELETE CASCADE
         )
     ''');
 
@@ -234,7 +236,7 @@ class QuotationRepo {
       Database db = await DatabaseHelper().database;
       int changedRows = await db.update(
         quotationFollowupTable,
-        quotationFollow.toJson(),
+        quotationFollow.toUpdateJson(),
         where: 'id = ?',
         whereArgs: [quotationFollow.id],
       );

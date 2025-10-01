@@ -89,7 +89,13 @@ class AppRoutes {
         return AddQuotes(no: args['no'], isEdit: args['isEdit']);
       },
     ),
-    GetPage(name: quotesFollowup, page: () => QuotesFollowup()),
+    GetPage(
+      name: quotesFollowup,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>;
+        return QuotesFollowup(quotationId: args['quotationId']);
+      },
+    ),
     GetPage(name: order, page: () => const OrderList()),
     GetPage(
       name: addOrder,
@@ -101,7 +107,10 @@ class AppRoutes {
     GetPage(name: tasks, page: () => const TasksList()),
     GetPage(
       name: addTask,
-      page: () => AddTask(isEdit: Get.arguments ?? false),
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>;
+        return AddTask(no: args['no'], isEdit: args['isEdit']);
+      },
     ),
     GetPage(name: report, page: () => const Reports()),
   ];

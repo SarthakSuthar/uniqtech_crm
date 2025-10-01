@@ -232,6 +232,7 @@ class _InquiryListState extends State<InquiryList> {
                   InkWell(
                     onTap: () {
                       showlog("Follow up : inquiry");
+                      showlog("Inquiry id parsing from list : $no");
                       Get.toNamed(
                         AppRoutes.inquiryFollowup,
                         arguments: {'inquiryId': no},

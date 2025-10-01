@@ -2,6 +2,8 @@ import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/screen/contacts/repo/contact_repo.dart';
 import 'package:crm/screen/masters/product/model/product_model.dart';
 import 'package:crm/screen/masters/product/repo/product_repo.dart';
+import 'package:crm/screen/masters/uom/model/uom_model.dart';
+import 'package:crm/screen/masters/uom/repo/uom_repo.dart';
 import 'package:crm/screen/quotes/model/quotation_followup_model.dart';
 import 'package:crm/screen/quotes/model/quotation_model.dart';
 import 'package:crm/screen/quotes/model/quotation_product_model.dart';
@@ -32,6 +34,8 @@ class QuotesController extends GetxController {
     await getQuotationProductList();
     await getCustomersList();
     await getAllTerms();
+    await getUomList();
+
     // await getSelectedTerms();
 
     // Set initial quotation number based on the total number of quotations
@@ -187,6 +191,7 @@ class QuotesController extends GetxController {
   var selectedCustomer = "".obs;
   var productList = <ProductModel>[].obs;
   var quotationProductList = <QuotationProductModel>[].obs;
+  var uomList = <UomModel>[].obs;
 
   /// Search for customer name or number
   void searchResult(String val) {
@@ -220,6 +225,16 @@ class QuotesController extends GetxController {
       productList.assignAll(result);
     } catch (e) {
       showlog("error on get product list : $e");
+    }
+  }
+
+  Future<void> getUomList() async {
+    try {
+      final result = await UomRepo.getAllUom();
+      uomList.assignAll(result);
+      showlog("uom list : ${result.map((e) => e.toJson()).toList()}");
+    } catch (e) {
+      showlog("Error getting UOM list : $e");
     }
   }
 
@@ -424,8 +439,9 @@ class QuotesController extends GetxController {
       selectedFollowupAssignedTo.value = result.followupAssignedTo!;
       selectedFollowupDate.value = result.followupDate!;
       selectedFollowupRemarks.value = result.followupRemarks!;
-      selectedFollowupStatus.value = result.followupStatus!;
-      selectedFollowupType.value = result.followupStatus!;
+      controllers['followupRemarks']!.text = result.followupRemarks!;
+      controllers['followupDate']!.text = result.followupDate!;
+      controllers['followupAssignedTo']!.text = result.followupAssignedTo!;
     } catch (e) {
       showlog("Error getting selected followup detail : $e");
     }
@@ -453,14 +469,17 @@ class QuotesController extends GetxController {
   }
 
   ///ADD FOLLOWUP
-  Future<void> addQuotationFollowup(int quotationId) async {
+  Future<void> addQuotationFollowup(String quotationId) async {
     try {
+      int intId = int.parse(quotationId);
+
       final quotationFollowup = QuotationFollowupModel(
-        quotationId: quotationId,
+        quotationId: intId,
         followupDate: controllers['followupDate']!.text,
-        followupStatus: controllers['followupStatus']!.text,
+        followupStatus: selectedFollowupStatus.value,
+        followupType: selectedFollowupType.value,
         followupRemarks: controllers['followupRemarks']!.text,
-        followupAssignedTo: controllers['followupAssignedTo']!.text,
+        followupAssignedTo: selectedFollowupAssignedTo.value,
       );
       showlog("added quotation followup ----> ${quotationFollowup.toJson()}");
       int result = await QuotationRepo.insertQuotationFollowup(
@@ -472,7 +491,28 @@ class QuotesController extends GetxController {
     }
   }
 
-  // -------------- Quotes Terms ------------
+  Future<void> updateQuotationFollowup(String quotationId) async {
+    try {
+      int intId = int.parse(quotationId);
+      final quotationFollowup = QuotationFollowupModel(
+        quotationId: intId,
+        followupDate: controllers['followupDate']!.text,
+        followupStatus: controllers['followupStatus']!.text,
+        followupType: selectedFollowupType.value,
+        followupRemarks: controllers['followupRemarks']!.text,
+        followupAssignedTo: controllers['followupAssignedTo']!.text,
+      );
+      showlog("update quotation followup ----> ${quotationFollowup.toJson()}");
+      int result = await QuotationRepo.updateQuotationFollowup(
+        quotationFollowup,
+      );
+      showlog("updated quotation followup ----> $result");
+    } catch (e) {
+      showlog("Error update quotation followup : $e");
+    }
+  }
+
+  // --------------MARK: Quotes Terms ------------
 
   RxList<TermsModel> allTerms = <TermsModel>[].obs;
   RxList<QuotationTermsModel> quotationTermsList = <QuotationTermsModel>[].obs;

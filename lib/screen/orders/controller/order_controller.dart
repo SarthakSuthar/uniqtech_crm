@@ -4,6 +4,8 @@ import 'package:crm/screen/masters/product/model/product_model.dart';
 import 'package:crm/screen/masters/product/repo/product_repo.dart';
 import 'package:crm/screen/masters/terms/model/terms_model.dart';
 import 'package:crm/screen/masters/terms/repo/terms_repo.dart';
+import 'package:crm/screen/masters/uom/model/uom_model.dart';
+import 'package:crm/screen/masters/uom/repo/uom_repo.dart';
 import 'package:crm/screen/orders/models/order_model.dart';
 import 'package:crm/screen/orders/models/order_product_model.dart';
 import 'package:crm/screen/orders/models/order_terms_model.dart';
@@ -25,6 +27,7 @@ class OrderController extends GetxController {
   var selectedCustomer = "".obs;
   var productList = <ProductModel>[].obs;
   var orderProductList = <OrderProductModel>[].obs;
+  var uomList = <UomModel>[].obs;
 
   Map<String, TextEditingController> controllers = {};
   Map<String, FocusNode> focusNodes = {};
@@ -42,6 +45,7 @@ class OrderController extends GetxController {
     await getOrderProductList();
     await getCustomersList();
     await getAllTerms();
+    await getUomList();
 
     // Set initial quotation number based on the total number of quotations
     if (isEdit == true) {
@@ -198,6 +202,16 @@ class OrderController extends GetxController {
       productList.assignAll(result);
     } catch (e) {
       showlog("error on get product list : $e");
+    }
+  }
+
+  Future<void> getUomList() async {
+    try {
+      final result = await UomRepo.getAllUom();
+      uomList.assignAll(result);
+      showlog("uom list : ${result.map((e) => e.toJson()).toList()}");
+    } catch (e) {
+      showlog("Error getting UOM list : $e");
     }
   }
 

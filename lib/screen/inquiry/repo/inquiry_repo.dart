@@ -181,12 +181,14 @@ class InquiryRepo {
     await db.execute('''
         CREATE TABLE IF NOT EXISTS $inquiryFollowupTable (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            inquiryId INTEGER,
+            inquiryId INTEGER NOT NULL,
             followupDate TEXT,
+            followupType TEXT,
             followupStatus TEXT,
             followupRemarks TEXT,
             followupAssignedTo TEXT,
-            isSynced INTEGER
+            isSynced INTEGER,
+            FOREIGN KEY (inquiryId) REFERENCES $table(id) ON DELETE CASCADE
         )
     ''');
   }
@@ -218,7 +220,7 @@ class InquiryRepo {
       Database db = await DatabaseHelper().database;
       int changedRows = await db.update(
         inquiryFollowupTable,
-        inquiryFollow.toJson(),
+        inquiryFollow.toUpdateJson(),
         where: 'id = ?',
         whereArgs: [inquiryFollow.id],
       );

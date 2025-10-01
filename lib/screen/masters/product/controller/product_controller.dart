@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/screen/masters/product/model/product_model.dart';
 import 'package:crm/screen/masters/product/repo/product_repo.dart';
+import 'package:crm/screen/masters/uom/model/uom_model.dart';
+import 'package:crm/screen/masters/uom/repo/uom_repo.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -36,6 +38,7 @@ class ProductController extends GetxController {
       focusNodes[field] = FocusNode();
     }
     await getProducts();
+    await getUomList();
   }
 
   @override
@@ -77,6 +80,18 @@ class ProductController extends GetxController {
       products.value = result;
     } catch (e) {
       showlog("error getting products: $e");
+    }
+  }
+
+  var uomList = <UomModel>[].obs;
+
+  Future<void> getUomList() async {
+    try {
+      final result = await UomRepo.getAllUom();
+      uomList.assignAll(result);
+      showlog("uom list : ${result.map((e) => e.toJson()).toList()}");
+    } catch (e) {
+      showlog("Error getting UOM list : $e");
     }
   }
 

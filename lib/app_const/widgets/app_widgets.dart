@@ -12,6 +12,7 @@ Widget inputWidget({
   int? minLines,
   TextInputType? keyboardType,
   bool expandInRow = false, // default safe for Column
+  bool readOnly = false,
 }) {
   final screenWidth = MediaQuery.of(context).size.width;
 
@@ -20,6 +21,7 @@ Widget inputWidget({
     focusNode: focusNode,
     controller: controller,
     keyboardType: keyboardType ?? TextInputType.text,
+    readOnly: readOnly,
     minLines: minLines ?? 1,
     maxLines: minLines == null ? 1 : minLines + 1,
     decoration: InputDecoration(
@@ -124,13 +126,72 @@ Widget buttonWidget({
   );
 }
 
+// Widget datePickerWidget({
+//   required IconData icon,
+//   required TextEditingController controller,
+//   required BuildContext context,
+//   bool expandInRow = false,
+// }) {
+//   final dateFormat = DateFormat("d/M/yyyy");
+
+//   final dateField = Padding(
+//     padding: const EdgeInsets.all(8.0),
+//     child: TextFormField(
+//       controller: controller,
+//       readOnly: true,
+//       decoration: InputDecoration(
+//         prefixIcon: Icon(icon),
+//         hintText: dateFormat.format(DateTime.now()),
+//         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+//       ),
+//       onTap: () async {
+//         DateTime initialDate;
+
+//         // If controller is empty, set initialDate to today's date
+//         if (controller.text.isEmpty) initialDate = DateTime.now();
+
+//         if (controller.text.isNotEmpty) {
+//           try {
+//             initialDate = dateFormat.parse(controller.text);
+//           } catch (_) {
+//             initialDate = DateTime.now();
+//           }
+//         } else {
+//           initialDate = DateTime.now();
+//         }
+
+//         final DateTime? picked = await showDatePicker(
+//           context: context,
+//           initialDate: initialDate,
+//           firstDate: DateTime(1900),
+//           lastDate: DateTime(2100),
+//         );
+
+//         if (picked != null) {
+//           controller.text = dateFormat.format(picked);
+//         } else if (controller.text.isEmpty) {
+//           // 👇 if user cancels and it's still empty, set today's date
+//           controller.text = dateFormat.format(DateTime.now());
+//         }
+//       },
+//     ),
+//   );
+
+//   return expandInRow ? Expanded(child: dateField) : dateField;
+// }
+
 Widget datePickerWidget({
   required IconData icon,
   required TextEditingController controller,
   required BuildContext context,
   bool expandInRow = false,
 }) {
-  final dateFormat = DateFormat("d/M/yyyy");
+  final dateFormat = DateFormat("dd/MM/yyyy");
+
+  // Set controller text to today if empty
+  if (controller.text.isEmpty) {
+    controller.text = dateFormat.format(DateTime.now());
+  }
 
   final dateField = Padding(
     padding: const EdgeInsets.all(8.0),
@@ -139,22 +200,16 @@ Widget datePickerWidget({
       readOnly: true,
       decoration: InputDecoration(
         prefixIcon: Icon(icon),
-        hintText: dateFormat.format(DateTime.now()),
+        // You can remove hintText now; controller.text will show the date
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       ),
       onTap: () async {
-        DateTime initialDate;
+        DateTime initialDate = DateTime.now();
 
-        // If controller is empty, set initialDate to today's date
-        if (controller.text.isEmpty) initialDate = DateTime.now();
-
-        if (controller.text.isNotEmpty) {
-          try {
-            initialDate = dateFormat.parse(controller.text);
-          } catch (_) {
-            initialDate = DateTime.now();
-          }
-        } else {
+        try {
+          initialDate = dateFormat.parseStrict(controller.text);
+        } catch (e) {
+          debugPrint("Date parse failed: $e");
           initialDate = DateTime.now();
         }
 
@@ -167,9 +222,6 @@ Widget datePickerWidget({
 
         if (picked != null) {
           controller.text = dateFormat.format(picked);
-        } else if (controller.text.isEmpty) {
-          // 👇 if user cancels and it's still empty, set today's date
-          controller.text = dateFormat.format(DateTime.now());
         }
       },
     ),
@@ -177,35 +229,6 @@ Widget datePickerWidget({
 
   return expandInRow ? Expanded(child: dateField) : dateField;
 }
-
-// Widget termsTile({
-//   required String title,
-//   required bool isChecked,
-//   required VoidCallback onChanged,
-// }) {
-//   // bool isChecked = false;
-
-//   return StatefulBuilder(
-//     builder: (context, setState) {
-//       bool localChecked = isChecked;
-//       return Padding(
-//         padding: const EdgeInsets.all(8.0),
-//         child: Card(
-//           child: ListTile(
-//             leading: Checkbox(
-//               value: isChecked,
-//               onChanged: (bool? newValue) {
-//                 setState(() => localChecked = newValue ?? false);
-//                 onChanged();
-//               },
-//             ),
-//             title: Text(title),
-//           ),
-//         ),
-//       );
-//     },
-//   );
-// }
 
 Widget termsTile({
   required String title,

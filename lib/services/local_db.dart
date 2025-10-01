@@ -3,9 +3,11 @@ import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/screen/contacts/repo/contact_repo.dart';
 import 'package:crm/screen/inquiry/repo/inquiry_repo.dart';
 import 'package:crm/screen/masters/product/repo/product_repo.dart';
+import 'package:crm/screen/masters/uom/repo/uom_repo.dart';
 import 'package:crm/screen/orders/repo/order_repo.dart';
 import 'package:crm/screen/quotes/repo/quotation_repo.dart';
 import 'package:crm/screen/masters/terms/repo/terms_repo.dart';
+import 'package:crm/screen/tasks/repo/tasks_repo.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -63,6 +65,9 @@ class DatabaseHelper {
       await TermsRepo.createTermsTable(db);
       showlog("after creating terms table");
 
+      await UomRepo.createUomTable(db);
+      showlog("after creating uom table");
+
       //MARK: Inquiry Tables
       // await InquiryRepo.createInquiryTable(db);
       // showlog("after creating inquiry table");
@@ -100,7 +105,13 @@ class DatabaseHelper {
       showlog("after creating orderProduct tables");
 
       await OrderRepo.createOrderTermsTable(db);
-      showlog("after creating orderTerms tables");
+
+      //MARK: Task repo
+      await TasksRepo.createTaskTable(db);
+      showlog("after creating task tables");
+
+      await TasksRepo.createTaskFilesTable(db);
+      showlog("after creating task file tables");
     } catch (e) {
       // Log the error for debugging or report to an error tracking service
       showlog("Error creating tables: $e");

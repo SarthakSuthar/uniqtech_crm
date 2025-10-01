@@ -13,7 +13,7 @@ class TermsModel {
   int? id;
   String? title;
   String? description;
-  int? isSynced;
+  int? isSynced = 0;
 
   TermsModel({this.id, this.title, this.description, this.isSynced});
 

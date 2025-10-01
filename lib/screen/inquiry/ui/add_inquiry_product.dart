@@ -51,7 +51,9 @@ class AddInquiryProduct extends StatelessWidget {
                         () => dropdownWidget(
                           hintText: "Select UOM",
                           icon: Icons.business,
-                          items: ["1", "2", "3"],
+                          items: controller.uomList.isEmpty
+                              ? ["No UOM Available"]
+                              : controller.uomList.map((e) => e.name!).toList(),
                           value: controller.selectedUOM?.value.isEmpty == true
                               ? null
                               : controller.selectedUOM?.value,
