@@ -8,6 +8,10 @@ import 'package:crm/screen/masters/product/model/product_model.dart';
 import 'package:crm/screen/masters/product/repo/product_repo.dart';
 import 'package:crm/screen/masters/uom/model/uom_model.dart';
 import 'package:crm/screen/masters/uom/repo/uom_repo.dart';
+import 'package:crm/screen/quotes/model/quotation_followup_model.dart';
+import 'package:crm/screen/quotes/model/quotation_model.dart';
+import 'package:crm/screen/quotes/model/quotation_product_model.dart';
+import 'package:crm/screen/quotes/repo/quotation_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -493,6 +497,130 @@ class InquiryController extends GetxController {
       showlog("update inquiry followup ----> $result");
     } catch (e) {
       showlog("Error update inquiry followup : $e");
+    }
+  }
+
+  // --------------------------------------------------------------------
+  //MARK: Convert to Quotation
+
+  //TODO: convert inquiry into quotation
+
+  ///Steps
+  /// 1. get inquiry customer from [table] and add it to quotation table
+  /// 2. on complethin of step 1 -> add data from product table into quotation product table
+  /// 3. on completion of step 2 -> take data from inquiry followup table and add it to quotation followup table
+  ///
+
+  Future<void> convertInquiryToQuotation({
+    required String inquiryId,
+    // required InquiryModel inquiry,
+    // required List<InquiryProductModel> inquiryProducts,
+    // required List<InquiryFollowupModel> inquiryFollowups,
+  }) async {
+    try {
+      // get inquiry data and build Model objects
+
+      // pars them into method calls below
+
+      //get inquiry by id
+      //create model
+      //call convertInquiryCustomerToQuotationCustomer
+
+      ////convertInquiryCustomerToQuotationCustomer
+      final customerInquiry = await InquiryRepo.getInquiryById(inquiryId);
+      showlog("customerInquiry : ${customerInquiry.toJson()}");
+      await convertInquiryCustomerToQuotationCustomer(customerInquiry);
+
+      //get product list for selected inquiry
+      //parse list into convertInquiryProductToQuotationProduct
+
+      final inquiryProductList = await InquiryRepo.getAllInquiryProducts();
+
+      final selectedInquiryProductList = inquiryProductList
+          .where((element) => element.inquiryId == int.parse(inquiryId))
+          .toList();
+      showlog(
+        "inquiryProductList : ${selectedInquiryProductList.map((e) => e.toJson()).toList()}",
+      );
+      await convertInquiryProductToQuotationProduct(inquiryProductList);
+
+      //get followup list for selected inquiry
+
+      final inquiryFollowupList = await InquiryRepo.getAllInquiryFollowups();
+
+      final selectedInquiryFollowupList = inquiryFollowupList
+          .where((element) => element.inquiryId == int.parse(inquiryId))
+          .toList();
+      showlog(
+        "inquiryFollowupList : ${selectedInquiryFollowupList.map((e) => e.toJson()).toList()}",
+      );
+      await convertInquiryFollowupToQuotationFollowup(
+        selectedInquiryFollowupList,
+      );
+    } catch (e) {
+      showlog("Error converting inquiry to quotation: $e");
+    }
+  }
+
+  //convert inq customer to quotation customer
+  static Future<void> convertInquiryCustomerToQuotationCustomer(
+    InquiryModel inquiry,
+  ) async {
+    try {
+      final quotation = QuotationModel(
+        uid: inquiry.uid,
+        custId: inquiry.custId,
+        custName1: inquiry.custName1,
+        custName2: inquiry.custName2,
+        date: inquiry.date,
+        email: inquiry.email,
+        mobileNo: inquiry.mobileNo,
+        source: inquiry.source,
+        isSynced: inquiry.isSynced,
+      );
+      await QuotationRepo.insertQuotation(quotation);
+    } catch (e) {
+      showlog("error converting customer to quotation : $e");
+    }
+  }
+
+  //convert inq product to quotation product
+  static Future<void> convertInquiryProductToQuotationProduct(
+    List<InquiryProductModel> inquiryProduct,
+  ) async {
+    try {
+      for (var inquiryProduct in inquiryProduct) {
+        final quotationProduct = QuotationProductModel(
+          quotationId: inquiryProduct.inquiryId,
+          productId: inquiryProduct.productId,
+          quentity: inquiryProduct.quentity,
+          isSynced: inquiryProduct.isSynced,
+        );
+        await QuotationRepo.insertQuotationProduct(quotationProduct);
+      }
+    } catch (e) {
+      showlog("Error converting inquiry product to quotation product: $e");
+    }
+  }
+
+  static Future<void> convertInquiryFollowupToQuotationFollowup(
+    List<InquiryFollowupModel> inquiryFollowup,
+  ) async {
+    try {
+      for (var inquiryFollowup in inquiryFollowup) {
+        final quotationFollowup = QuotationFollowupModel(
+          quotationId: inquiryFollowup.inquiryId,
+          followupDate: inquiryFollowup.followupDate,
+          followupType: inquiryFollowup.followupType,
+          followupStatus: inquiryFollowup.followupStatus,
+          followupRemarks: inquiryFollowup.followupRemarks,
+          followupAssignedTo: inquiryFollowup.followupAssignedTo,
+          isSynced: inquiryFollowup.isSynced,
+        );
+        await QuotationRepo.insertQuotationFollowup(quotationFollowup);
+      }
+    } catch (e) {
+      showlog("Error converting inquiry followup to quotation followup: $e");
     }
   }
 }

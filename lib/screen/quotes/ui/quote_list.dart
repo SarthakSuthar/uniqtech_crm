@@ -206,8 +206,9 @@ class _QuoteListState extends State<QuoteList> {
                   const SizedBox(width: 5),
 
                   InkWell(
-                    onTap: () {
-                      showlog("2nd button taped");
+                    onTap: () async {
+                      showlog("convert to order button taped");
+                      await controller.convertQuotationToOrder(quotationId: no);
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -231,7 +232,8 @@ class _QuoteListState extends State<QuoteList> {
 
                   InkWell(
                     onTap: () {
-                      showlog("3rd button taped");
+                      showlog("copy quote button taped");
+                      controller.copyQuotation(quotationId: no);
                     },
                     child: Container(
                       decoration: BoxDecoration(

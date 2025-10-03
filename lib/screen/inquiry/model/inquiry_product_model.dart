@@ -15,14 +15,14 @@ class InquiryProductModel {
   int? inquiryId;
   int? productId;
   int? quentity;
-  int? isSynced = 0;
+  int? isSynced;
 
   InquiryProductModel({
     this.id,
     this.inquiryId,
     this.productId,
     this.quentity,
-    this.isSynced,
+    this.isSynced = 0,
   });
 
   factory InquiryProductModel.fromJson(Map<String, dynamic> json) =>
@@ -31,7 +31,7 @@ class InquiryProductModel {
         inquiryId: json["inquiryId"],
         productId: json["productId"],
         quentity: json["quentity"],
-        isSynced: json["isSynced"],
+        isSynced: json["isSynced"] ?? 0,
       );
 
   Map<String, dynamic> toJson() => {

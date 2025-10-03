@@ -4,6 +4,11 @@ import 'package:crm/screen/masters/product/model/product_model.dart';
 import 'package:crm/screen/masters/product/repo/product_repo.dart';
 import 'package:crm/screen/masters/uom/model/uom_model.dart';
 import 'package:crm/screen/masters/uom/repo/uom_repo.dart';
+import 'package:crm/screen/orders/models/order_followuo_model.dart';
+import 'package:crm/screen/orders/models/order_model.dart';
+import 'package:crm/screen/orders/models/order_product_model.dart';
+import 'package:crm/screen/orders/models/order_terms_model.dart';
+import 'package:crm/screen/orders/repo/order_repo.dart';
 import 'package:crm/screen/quotes/model/quotation_followup_model.dart';
 import 'package:crm/screen/quotes/model/quotation_model.dart';
 import 'package:crm/screen/quotes/model/quotation_product_model.dart';
@@ -418,7 +423,8 @@ class QuotesController extends GetxController {
     }
   }
 
-  // MARK: Quotation Follow up ---------------- TODO: Hvae to impl
+  // -------------------------------------------------------------------------
+  // MARK: Quotation Follow up
 
   final selectedFollowupDate = "".obs;
   final selectedFollowupType = "".obs;
@@ -512,7 +518,9 @@ class QuotesController extends GetxController {
     }
   }
 
-  // --------------MARK: Quotes Terms ------------
+  // --------------------------------------------------------------------------
+
+  // MARK: Quotes Terms
 
   RxList<TermsModel> allTerms = <TermsModel>[].obs;
   RxList<QuotationTermsModel> quotationTermsList = <QuotationTermsModel>[].obs;
@@ -605,6 +613,283 @@ class QuotesController extends GetxController {
       }
     } catch (e) {
       showlog("Error adding quotation terms : $e");
+    }
+  }
+
+  // -----------------------------------------------------------------------
+
+  // MARK: Quotes to order
+
+  ///steps
+  ///1. get quotation customer from [Quotation table] and add it to order table
+  ///2. on completion of step 1. add quotation products to order products
+  ///3. on completion of step 2. add quotation terms to order terms
+  ///4. on completion of step 3. add quotation followups to order followup
+  ///
+
+  // convert quotation to order
+  Future<void> convertQuotationToOrder({required String quotationId}) async {
+    try {
+      //quotation to order customer
+      final currentQuotation = await QuotationRepo.getQuotationById(
+        quotationId,
+      );
+      showlog("current quotation : ${currentQuotation.toJson()}");
+      await convertQuotationToOrderCustomer(currentQuotation);
+
+      //quotation to order product
+      final quotationProductList =
+          await QuotationRepo.getAllQuotationProducts();
+
+      final selectedQuotationProductList = quotationProductList
+          .where((element) => element.quotationId == int.parse(quotationId))
+          .toList();
+
+      showlog(
+        "selected quotation product list : ${selectedQuotationProductList.map((e) => e.toJson()).toList()}",
+      );
+      await convertQuotationToOrderProduct(selectedQuotationProductList);
+
+      //quotation to order terms
+      final quotationTermsList = await QuotationRepo.getSelectedTerms(
+        int.parse(quotationId),
+      );
+      showlog(
+        "quotation terms list : ${quotationTermsList.map((e) => e.toJson()).toList()}",
+      );
+      await convertQuotationToOrderTerms(quotationTermsList);
+
+      //quotation to order followup
+      final quotationFollowupList =
+          await QuotationRepo.getQuotationFollowupListByQuotationId(
+            int.parse(quotationId),
+          );
+      showlog(
+        "quotation followup list : ${quotationFollowupList.map((e) => e.toJson()).toList()}",
+      );
+      await convertQuotationToOrderFollowup(quotationFollowupList);
+    } catch (e) {
+      showlog("Error converting quotation to order : $e");
+    }
+  }
+
+  //convert quote to order customer
+  static Future<void> convertQuotationToOrderCustomer(
+    QuotationModel quotation,
+  ) async {
+    try {
+      final orderCustomer = OrderModel(
+        uid: DateTime.now().millisecondsSinceEpoch.toString(),
+        custId: quotation.custId,
+        custName1: quotation.custName1,
+        custName2: quotation.custName2,
+        date: quotation.date,
+        email: quotation.email,
+        mobileNo: quotation.mobileNo,
+        source: quotation.source,
+      );
+      showlog("added order customer ----> ${orderCustomer.toJson()}");
+      int result = await OrderRepo.insertOrder(orderCustomer);
+      showlog("insert order customer ----> $result");
+    } catch (e) {
+      showlog("Error converting quotation to order customer : $e");
+    }
+  }
+
+  // convert quotation to order product
+  static Future<void> convertQuotationToOrderProduct(
+    List<QuotationProductModel> quotationProductList,
+  ) async {
+    try {
+      for (var product in quotationProductList) {
+        final orderProduct = OrderProductModel(
+          orderId: product.quotationId,
+          productId: product.productId,
+          quentity: product.quentity,
+        );
+        showlog("added order product ----> ${orderProduct.toJson()}");
+        int result = await OrderRepo.insertOrderProduct(orderProduct);
+        showlog("insert order product ----> $result");
+      }
+    } catch (e) {
+      showlog("Error converting quotation to order product : $e");
+    }
+  }
+
+  //convert quotation terms to order terms
+  static Future<void> convertQuotationToOrderTerms(
+    List<QuotationTermsModel> termsList,
+  ) async {
+    try {
+      for (var term in termsList) {
+        final orderTerms = OrderTermsModel(
+          orderId: term.quotationId,
+          termId: term.termId,
+        );
+        showlog("added order terms ----> ${orderTerms.toJson()}");
+        int result = await OrderRepo.insertOrderTerms(orderTerms);
+        showlog("insert order terms ----> $result");
+      }
+    } catch (e) {
+      showlog("Error converting quotation to order terms : $e");
+    }
+  }
+
+  //convert quotation followup to order followup
+  static Future<void> convertQuotationToOrderFollowup(
+    List<QuotationFollowupModel> followupList,
+  ) async {
+    try {
+      for (var followup in followupList) {
+        final orderFollowup = OrderFollowupModel(
+          orderId: followup.quotationId,
+          followupDate: followup.followupDate,
+          followupStatus: followup.followupStatus,
+          followupType: followup.followupType,
+          followupRemarks: followup.followupRemarks,
+          followupAssignedTo: followup.followupAssignedTo,
+        );
+        showlog("added order followup ----> ${orderFollowup.toJson()}");
+        int result = await OrderRepo.insertOrderFollowup(orderFollowup);
+        showlog("insert order followup ----> $result");
+      }
+    } catch (e) {
+      showlog("Error converting quotation to order followup : $e");
+    }
+  }
+
+  // ----------------------------------------------------------------------------
+
+  //MARK: Copy Quote
+
+  ///Steps
+  ///1. get customer details
+  ///2. get product details
+  ///3. get terms details
+  ///4. get followup details
+  ///
+
+  Future<void> copyQuotation({required String quotationId}) async {
+    try {
+      //1. get customer details
+      final selectedQuote = await QuotationRepo.getQuotationById(quotationId);
+      showlog("Selected quote : ${selectedQuote.toJson()}");
+      await copyCustomer(selectedQuote);
+
+      //2. get product details
+      final quotationProductList =
+          await QuotationRepo.getAllQuotationProducts();
+
+      final selectedQuotationProductList = quotationProductList
+          .where((element) => element.quotationId == int.parse(quotationId))
+          .toList();
+
+      showlog(
+        "selected quotation product list : ${selectedQuotationProductList.map((e) => e.toJson()).toList()}",
+      );
+      await copyProductList(selectedQuotationProductList);
+
+      //3. get terms details
+      final quotationTermsList = await QuotationRepo.getSelectedTerms(
+        int.parse(quotationId),
+      );
+      showlog(
+        "quotation terms list : ${quotationTermsList.map((e) => e.toJson()).toList()}",
+      );
+      await copyTerms(quotationTermsList);
+
+      //4. get followup details
+      final quotationFollowupList =
+          await QuotationRepo.getQuotationFollowupListByQuotationId(
+            int.parse(quotationId),
+          );
+      showlog(
+        "quotation followup list : ${quotationFollowupList.map((e) => e.toJson()).toList()}",
+      );
+      await copyFollowup(quotationFollowupList);
+    } catch (e) {
+      showlog("Error copying quotation : $e");
+    }
+  }
+
+  //create new customer
+  static Future<void> copyCustomer(QuotationModel quotation) async {
+    try {
+      final newCustomer = QuotationModel(
+        uid: quotation.uid,
+        custId: quotation.custId,
+        custName1: quotation.custName1,
+        custName2: quotation.custName2,
+        date: quotation.date,
+        email: quotation.email,
+        mobileNo: quotation.mobileNo,
+        source: quotation.source,
+      );
+      showlog("added new customer ----> ${newCustomer.toJson()}");
+      int result = await QuotationRepo.insertQuotation(newCustomer);
+      showlog("insert new customer ----> $result");
+    } catch (e) {
+      showlog("Error copying customer : $e");
+    }
+  }
+
+  //create productList
+  static Future<void> copyProductList(
+    List<QuotationProductModel> productList,
+  ) async {
+    try {
+      for (var product in productList) {
+        final newProduct = QuotationProductModel(
+          quotationId: product.quotationId,
+          productId: product.productId,
+          quentity: product.quentity,
+        );
+        showlog("added new product ----> ${newProduct.toJson()}");
+        int result = await QuotationRepo.insertQuotationProduct(newProduct);
+        showlog("insert new product ----> $result");
+      }
+    } catch (e) {
+      showlog("Error copying product list : $e");
+    }
+  }
+
+  //copy terms
+  static Future<void> copyTerms(List<QuotationTermsModel> termsList) async {
+    try {
+      for (var term in termsList) {
+        final newTerm = QuotationTermsModel(
+          quotationId: term.quotationId,
+          termId: term.termId,
+        );
+        showlog("added new term ----> ${newTerm.toJson()}");
+        int result = await QuotationRepo.insertQuotationTerms(newTerm);
+        showlog("insert new term ----> $result");
+      }
+    } catch (e) {
+      showlog("Error copying terms : $e");
+    }
+  }
+
+  //copy followup
+  static Future<void> copyFollowup(
+    List<QuotationFollowupModel> followupList,
+  ) async {
+    try {
+      for (var followup in followupList) {
+        final newFollowup = QuotationFollowupModel(
+          quotationId: followup.quotationId,
+          followupDate: followup.followupDate,
+          followupStatus: followup.followupStatus,
+          followupType: followup.followupType,
+          followupRemarks: followup.followupRemarks,
+          followupAssignedTo: followup.followupAssignedTo,
+        );
+        showlog("added new followup ----> ${newFollowup.toJson()}");
+        int result = await QuotationRepo.insertQuotationFollowup(newFollowup);
+        showlog("insert new followup ----> $result");
+      }
+    } catch (e) {
+      showlog("Error copying followup : $e");
     }
   }
 }

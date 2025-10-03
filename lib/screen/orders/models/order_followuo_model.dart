@@ -1,6 +1,6 @@
-class QuotationFollowupModel {
+class OrderFollowupModel {
   int? id;
-  int? quotationId;
+  int? orderId;
   String? followupDate;
   String? followupStatus;
   String? followupType;
@@ -8,9 +8,9 @@ class QuotationFollowupModel {
   String? followupAssignedTo;
   int? isSynced;
 
-  QuotationFollowupModel({
+  OrderFollowupModel({
     this.id,
-    this.quotationId,
+    this.orderId,
     this.followupDate,
     this.followupStatus,
     this.followupType,
@@ -19,10 +19,10 @@ class QuotationFollowupModel {
     this.isSynced = 0,
   });
 
-  factory QuotationFollowupModel.fromJson(Map<String, dynamic> json) =>
-      QuotationFollowupModel(
+  factory OrderFollowupModel.fromJson(Map<String, dynamic> json) =>
+      OrderFollowupModel(
         id: json["id"],
-        quotationId: json["quotationId"],
+        orderId: json["orderId"],
         followupDate: json["followupDate"],
         followupStatus: json["followupStatus"],
         followupType: json["followupType"],
@@ -34,7 +34,7 @@ class QuotationFollowupModel {
   /// For INSERT (id included only if not null)
   Map<String, dynamic> toJson() => {
     if (id != null) "id": id,
-    "quotationId": quotationId,
+    "orderId": orderId,
     "followupDate": followupDate,
     "followupStatus": followupStatus,
     "followupType": followupType,
@@ -45,7 +45,7 @@ class QuotationFollowupModel {
 
   /// For UPDATE (exclude id, update only fields)
   Map<String, dynamic> toUpdateJson() => {
-    "quotationId": quotationId,
+    "orderId": orderId,
     "followupDate": followupDate,
     "followupStatus": followupStatus,
     "followupType": followupType,

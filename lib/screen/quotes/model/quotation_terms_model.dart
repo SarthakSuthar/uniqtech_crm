@@ -23,13 +23,13 @@ class QuotationTermsModel {
         id: json["id"],
         quotationId: json["quotationId"],
         termId: json["termId"],
-        isSynced: json["isSynced"],
+        isSynced: json["isSynced"] ?? 0,
       );
 
   Map<String, dynamic> toJson() => {
     "id": id,
     "quotationId": quotationId,
     "termId": termId,
-    "isSynced": isSynced,
+    "isSynced": isSynced ?? 0,
   };
 }

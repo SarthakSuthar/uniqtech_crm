@@ -19,7 +19,7 @@ class InquiryModel {
   String? email;
   String? mobileNo;
   String? source;
-  int? isSynced = 0;
+  int? isSynced;
 
   InquiryModel({
     this.id,
@@ -31,7 +31,7 @@ class InquiryModel {
     this.email,
     this.mobileNo,
     this.source,
-    this.isSynced,
+    this.isSynced = 0,
   });
 
   factory InquiryModel.fromJson(Map<String, dynamic> json) => InquiryModel(
@@ -44,7 +44,7 @@ class InquiryModel {
     email: json["email"],
     mobileNo: json["mobile_no"],
     source: json["source"],
-    isSynced: json["isSynced"],
+    isSynced: json["isSynced"] ?? 0,
   );
 
   Map<String, dynamic> toJson() => {

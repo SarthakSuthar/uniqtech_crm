@@ -22,9 +22,9 @@ class AddInquiryCustomer extends StatelessWidget {
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) {
           Get.delete<InquiryController>();
-          debugPrint("Route popped with result: $result");
+          showlog("Route popped with result: $result");
         } else {
-          debugPrint("Pop prevented!");
+          showlog("Pop prevented!");
         }
       },
       child: Padding(

@@ -106,6 +106,9 @@ class DatabaseHelper {
 
       await OrderRepo.createOrderTermsTable(db);
 
+      await OrderRepo.createOrderFollowupTable(db);
+      showlog("after creating orderFollowup tables");
+
       //MARK: Task repo
       await TasksRepo.createTaskTable(db);
       showlog("after creating task tables");

@@ -19,6 +19,7 @@ class QuotationModel {
   String? email;
   String? mobileNo;
   String? source;
+  String? subject;
   int? isSynced = 0;
 
   QuotationModel({
@@ -31,6 +32,7 @@ class QuotationModel {
     this.email,
     this.mobileNo,
     this.source,
+    this.subject,
     this.isSynced,
   });
 
@@ -44,7 +46,8 @@ class QuotationModel {
     email: json["email"],
     mobileNo: json["mobile_no"],
     source: json["source"],
-    isSynced: json["isSynced"],
+    subject: json["subject"],
+    isSynced: json["isSynced"] ?? 0,
   );
 
   Map<String, dynamic> toJson() => {
@@ -57,6 +60,7 @@ class QuotationModel {
     "email": email,
     "mobile_no": mobileNo,
     "source": source,
-    "isSynced": isSynced,
+    "subject": subject,
+    "isSynced": isSynced ?? 0,
   };
 }

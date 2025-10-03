@@ -31,7 +31,7 @@ class QuotationRepo {
     await db.execute('''
         CREATE TABLE IF NOT EXISTS $quotationTable (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            uid TEXT UNIQUE,
+            uid TEXT,
             custId INTEGER,
             cust_name1 TEXT,
             cust_name2 TEXT,
@@ -39,6 +39,7 @@ class QuotationRepo {
             email TEXT,
             mobile_no TEXT,
             source TEXT,
+            subject TEXT,
             isSynced INTEGER
         )
     ''');

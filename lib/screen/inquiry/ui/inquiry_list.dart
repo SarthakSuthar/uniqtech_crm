@@ -206,8 +206,10 @@ class _InquiryListState extends State<InquiryList> {
                   const SizedBox(width: 5),
 
                   InkWell(
-                    onTap: () {
-                      showlog("2nd button taped");
+                    onTap: () async {
+                      // TODO: handle conversion to quote
+                      await controller.convertInquiryToQuotation(inquiryId: no);
+                      showlog("convert to quote button taped");
                     },
                     child: Container(
                       decoration: BoxDecoration(

@@ -1,4 +1,5 @@
 import 'package:crm/app_const/utils/app_utils.dart';
+import 'package:crm/screen/orders/models/order_followuo_model.dart';
 import 'package:crm/screen/orders/models/order_model.dart';
 import 'package:crm/screen/orders/models/order_product_model.dart';
 import 'package:crm/screen/orders/models/order_terms_model.dart';
@@ -9,18 +10,7 @@ class OrderRepo {
   static const String orderTable = 'orders';
   static const String orderProductTable = 'orderProduct';
   static const String orderTermsTable = 'orderTerms';
-
-  //initalize all tables
-  // static Future<void> initializeTables() async {
-  //   try {
-  //     Database db = await DatabaseHelper().database;
-  //     await createOrderTable(db);
-  //     await createOrderProductTable(db);
-  //     await createOrderTermsTable(db);
-  //   } catch (e) {
-  //     showlog("error on initialize orders tables : $e");
-  //   }
-  // }
+  static const String orderFollowupTable = 'orderFollowup';
 
   // ---------- Order Table --------
   /// create 'orders' table
@@ -221,4 +211,116 @@ class OrderRepo {
     );
     return result.map((e) => OrderTermsModel.fromJson(e)).toList();
   }
+
+  //-------- Order Followup table ------------
+  static Future<void> createOrderFollowupTable(Database db) async {
+    await db.execute('''
+        CREATE TABLE IF NOT EXISTS $orderFollowupTable (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            orderId INTEGER NOT NULL,
+            followupDate TEXT,
+            followupType TEXT,
+            followupStatus TEXT,
+            followupRemarks TEXT,
+            followupAssignedTo TEXT,
+            isSynced INTEGER,
+            FOREIGN KEY (orderId) REFERENCES $orderTable(id) ON DELETE CASCADE
+        )
+    ''');
+  }
+
+  ///insert
+  static Future<int> insertOrderFollowup(
+    OrderFollowupModel orderFollowupModel,
+  ) async {
+    try {
+      Database db = await DatabaseHelper().database;
+      int changedRows = await db.insert(
+        orderFollowupTable,
+        orderFollowupModel.toJson(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      return changedRows;
+    } catch (e) {
+      showlog("error on insert order followup : $e");
+      rethrow;
+    }
+  }
+
+  ///update
+  static Future<int> updateOrderFollowup(
+    OrderFollowupModel orderFollowupModel,
+  ) async {
+    try {
+      Database db = await DatabaseHelper().database;
+      int changedRows = await db.update(
+        orderFollowupTable,
+        orderFollowupModel.toUpdateJson(),
+        where: 'id = ?',
+        whereArgs: [orderFollowupModel.id],
+      );
+      return changedRows;
+    } catch (e) {
+      showlog("error on update order followup : $e");
+      rethrow;
+    }
+  }
+
+  ///get all
+  static Future<List<OrderFollowupModel>> getAllOrderFollowups() async {
+    try {
+      Database db = await DatabaseHelper().database;
+      final result = await db.query(orderFollowupTable);
+      return result.map((e) => OrderFollowupModel.fromJson(e)).toList();
+    } catch (e) {
+      showlog("Error on get all order followup : $e");
+      rethrow;
+    }
+  }
+
+  ///get by id
+  static Future<OrderFollowupModel> getOrderFollowupById(int id) async {
+    try {
+      Database db = await DatabaseHelper().database;
+      final result = await db.query(
+        orderFollowupTable,
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+
+      if (result.isNotEmpty) {
+        return OrderFollowupModel.fromJson(result.first);
+      } else {
+        throw Exception('Order followup not found');
+      }
+    } catch (e) {
+      showlog("Error on get order followup by id : $e");
+      rethrow;
+    }
+  }
+
+  ///get order followup list
+  static Future<List<OrderFollowupModel>> getOrderFollowupListByOrderId(
+    int orderId,
+  ) async {
+    try {
+      Database db = await DatabaseHelper().database;
+      final result = await db.query(
+        orderFollowupTable,
+        where: 'orderId = ?',
+        whereArgs: [orderId],
+      );
+
+      if (result.isNotEmpty) {
+        return result.map((e) => OrderFollowupModel.fromJson(e)).toList();
+      } else {
+        throw Exception('Order followup not found');
+      }
+    } catch (e) {
+      showlog("Error on get order followup list : $e");
+      rethrow;
+    }
+  }
+
+  ///delete
 }
