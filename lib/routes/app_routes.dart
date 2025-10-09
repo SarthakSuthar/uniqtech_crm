@@ -8,10 +8,12 @@ import 'package:crm/screen/inquiry/ui/inquiry_list.dart';
 import 'package:crm/screen/login/ui/forgot_password.dart';
 import 'package:crm/screen/login/ui/login_screen.dart';
 import 'package:crm/screen/orders/ui/add_order.dart';
+import 'package:crm/screen/orders/ui/order_invoice.dart';
 import 'package:crm/screen/orders/ui/order_list.dart';
 import 'package:crm/screen/quotes/ui/add_quotes.dart';
 import 'package:crm/screen/quotes/ui/quote_list.dart';
 import 'package:crm/screen/quotes/ui/quotes_followup.dart';
+import 'package:crm/screen/quotes/ui/quotes_invoice.dart';
 import 'package:crm/screen/report/ui/reports.dart';
 import 'package:crm/screen/tasks/ui/add_task.dart';
 import 'package:crm/screen/tasks/ui/tasks_list.dart';
@@ -32,8 +34,10 @@ class AppRoutes {
   static const quote = '/quote';
   static const addQuote = '/add_quote';
   static const quotesFollowup = '/quotes_followup';
+  static const quotesInvoice = '/quotes_invoice';
   static const order = '/order';
   static const addOrder = '/add_order';
+  static const orderInvoice = '/order_invoice';
   static const tasks = '/tasks';
   static const addTask = '/add_task';
   static const report = '/report';
@@ -96,12 +100,26 @@ class AppRoutes {
         return QuotesFollowup(quotationId: args['quotationId']);
       },
     ),
+    GetPage(
+      name: quotesInvoice,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>;
+        return QuotesInvoice(quotationId: args['quotationId']);
+      },
+    ),
     GetPage(name: order, page: () => const OrderList()),
     GetPage(
       name: addOrder,
       page: () {
         final args = Get.arguments as Map<String, dynamic>;
         return AddOrder(no: args['no'], isEdit: args['isEdit']);
+      },
+    ),
+    GetPage(
+      name: orderInvoice,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>;
+        return OrderInvoice(orderId: args['orderId']);
       },
     ),
     GetPage(name: tasks, page: () => const TasksList()),

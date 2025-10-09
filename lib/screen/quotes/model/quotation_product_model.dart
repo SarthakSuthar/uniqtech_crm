@@ -1,44 +1,50 @@
-// To parse this JSON data, do
-//
-//     final quotationProductModel = quotationProductModelFromJson(jsonString);
-
-import 'dart:convert';
-
-QuotationProductModel quotationProductModelFromJson(String str) =>
-    QuotationProductModel.fromJson(json.decode(str));
-
-String quotationProductModelToJson(QuotationProductModel data) =>
-    json.encode(data.toJson());
-
 class QuotationProductModel {
   int? id;
-  int? quotationId;
-  int? productId;
-  int? quentity;
-  int? isSynced = 0;
+  int quotationId;
+  int productId;
+  int? quantity;
+  double discount;
+  String? remark;
+  int isSynced;
 
   QuotationProductModel({
     this.id,
-    this.quotationId,
-    this.productId,
-    this.quentity,
-    this.isSynced,
+    required this.quotationId,
+    required this.productId,
+    this.quantity,
+    this.discount = 0.0,
+    this.remark,
+    this.isSynced = 0,
   });
 
-  factory QuotationProductModel.fromJson(Map<String, dynamic> json) =>
-      QuotationProductModel(
-        id: json["id"],
-        quotationId: json["quotationId"],
-        productId: json["productId"],
-        quentity: json["quentity"],
-        isSynced: json["isSynced"],
-      );
+  /// Convert model to JSON (for database or API)
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'quotationId': quotationId,
+      'productId': productId,
+      'quantity': quantity,
+      'discount': discount,
+      'remark': remark,
+      'isSynced': isSynced,
+    };
+  }
 
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "quotationId": quotationId,
-    "productId": productId,
-    "quentity": quentity,
-    "isSynced": isSynced,
-  };
+  /// Create model from JSON (from API or database)
+  factory QuotationProductModel.fromJson(Map<String, dynamic> json) {
+    return QuotationProductModel(
+      id: json['id'],
+      quotationId: json['quotationId'],
+      productId: json['productId'],
+      quantity: json['quantity'],
+      discount: (json['discount'] ?? 0.0).toDouble(),
+      remark: json['remark'],
+      isSynced: json['isSynced'] ?? 0,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'QuotationProductModel(id: $id, quotationId: $quotationId, productId: $productId, quantity: $quantity, discount: $discount, remark: $remark, isSynced: $isSynced)';
+  }
 }

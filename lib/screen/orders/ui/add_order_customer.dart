@@ -22,9 +22,9 @@ class AddOrderCustomer extends StatelessWidget {
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) {
           Get.delete<OrderController>();
-          debugPrint("Route popped with result: $result");
+          showlog("Route popped with result: $result");
         } else {
-          debugPrint("Pop prevented!");
+          showlog("Pop prevented!");
         }
       },
       child: GestureDetector(
@@ -68,17 +68,17 @@ class AddOrderCustomer extends StatelessWidget {
                       expandInRow: true,
                     ),
                   ),
-                  //TODO: Go to add customer page
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(14.0),
-                      child: Icon(Icons.add),
-                    ),
-                  ),
+                  //Go to add customer page
+                  // Container(
+                  //   decoration: BoxDecoration(
+                  //     borderRadius: BorderRadius.circular(10),
+                  //     color: Theme.of(context).primaryColor,
+                  //   ),
+                  //   child: Padding(
+                  //     padding: const EdgeInsets.all(14.0),
+                  //     child: Icon(Icons.add),
+                  //   ),
+                  // ),
                 ],
               ),
               // Row(

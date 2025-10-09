@@ -16,9 +16,9 @@ class AddOrderProduct extends StatelessWidget {
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) {
           Get.delete<OrderController>();
-          debugPrint("Route popped with result: $result");
+          showlog("Route popped with result: $result");
         } else {
-          debugPrint("Pop prevented!");
+          showlog("Pop prevented!");
         }
       },
       child: Padding(
@@ -65,9 +65,9 @@ class AddOrderProduct extends StatelessWidget {
                       inputWidget(
                         hintText: "Quentity",
                         icon: Icons.numbers_outlined,
-                        controller: controller.controllers["quntity"]!,
+                        controller: controller.controllers["quantity"]!,
                         context: context,
-                        focusNode: controller.focusNodes["quntity"]!,
+                        focusNode: controller.focusNodes["quantity"]!,
                         keyboardType: TextInputType.number,
                         expandInRow: true,
                         onChanged: (val) => controller.calculateAmount(),
@@ -135,35 +135,31 @@ class AddOrderProduct extends StatelessWidget {
                             itemCount: controller.orderProductList.length,
                             shrinkWrap: true,
                             physics: NeverScrollableScrollPhysics(),
-                            itemBuilder: (context, index) => addedProductListItem(
-                              productName: controller.productList
-                                  .firstWhere(
-                                    (element) =>
-                                        element.productId ==
-                                        controller
-                                            .orderProductList[index]
-                                            .productId,
-                                  )
-                                  .productName!,
-                              quentity: controller.productList
-                                  .firstWhere(
-                                    (element) =>
-                                        element.productId ==
-                                        controller
-                                            .orderProductList[index]
-                                            .productId,
-                                  )
-                                  .productUom!, // TODO: Add quentity and amount to QuotationProductModel
-                              amount: controller.productList
-                                  .firstWhere(
-                                    (element) =>
-                                        element.productId ==
-                                        controller
-                                            .orderProductList[index]
-                                            .productId,
-                                  )
-                                  .productRate!,
-                            ),
+                            itemBuilder: (context, index) =>
+                                addedProductListItem(
+                                  productName: controller.productList
+                                      .firstWhere(
+                                        (element) =>
+                                            element.productId ==
+                                            controller
+                                                .orderProductList[index]
+                                                .productId,
+                                      )
+                                      .productName!,
+                                  quentity: controller
+                                      .orderProductList[index]
+                                      .quantity
+                                      .toString(),
+                                  amount: controller.productList
+                                      .firstWhere(
+                                        (element) =>
+                                            element.productId ==
+                                            controller
+                                                .orderProductList[index]
+                                                .productId,
+                                      )
+                                      .productRate!,
+                                ),
                           ),
                   ),
                 ],

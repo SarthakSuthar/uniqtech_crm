@@ -1,14 +1,3 @@
-// To parse this JSON data, do
-//
-//     final orderModel = orderModelFromJson(jsonString);
-
-import 'dart:convert';
-
-OrderModel orderModelFromJson(String str) =>
-    OrderModel.fromJson(json.decode(str));
-
-String orderModelToJson(OrderModel data) => json.encode(data.toJson());
-
 class OrderModel {
   int? id;
   String? uid;
@@ -19,7 +8,12 @@ class OrderModel {
   String? email;
   String? mobileNo;
   String? source;
-  int? isSynced = 0;
+  String? supplierRef;
+  String? otherRef;
+  double? extraDiscount;
+  String? freightAmount;
+  String? loadingCharges;
+  int isSynced;
 
   OrderModel({
     this.id,
@@ -31,32 +25,58 @@ class OrderModel {
     this.email,
     this.mobileNo,
     this.source,
-    this.isSynced,
+    this.supplierRef,
+    this.otherRef,
+    this.extraDiscount = 0.0,
+    this.freightAmount,
+    this.loadingCharges,
+    this.isSynced = 0,
   });
 
-  factory OrderModel.fromJson(Map<String, dynamic> json) => OrderModel(
-    id: json["id"],
-    uid: json["uid"],
-    custId: json["custId"],
-    custName1: json["cust_name1"],
-    custName2: json["cust_name2"],
-    date: json["date"],
-    email: json["email"],
-    mobileNo: json["mobile_no"],
-    source: json["source"],
-    isSynced: json["isSynced"],
-  );
+  /// Convert model to JSON (for database or API)
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'uid': uid,
+      'custId': custId,
+      'cust_name1': custName1,
+      'cust_name2': custName2,
+      'date': date,
+      'email': email,
+      'mobile_no': mobileNo,
+      'source': source,
+      'supplier_ref': supplierRef,
+      'other_ref': otherRef,
+      'extra_discount': extraDiscount,
+      'freight_amount': freightAmount,
+      'loading_charges': loadingCharges,
+      'isSynced': isSynced,
+    };
+  }
 
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "uid": uid,
-    "custId": custId,
-    "cust_name1": custName1,
-    "cust_name2": custName2,
-    "date": date,
-    "email": email,
-    "mobile_no": mobileNo,
-    "source": source,
-    "isSynced": isSynced,
-  };
+  /// Create model instance from JSON (from API or database)
+  factory OrderModel.fromJson(Map<String, dynamic> json) {
+    return OrderModel(
+      id: json['id'],
+      uid: json['uid'],
+      custId: json['custId'],
+      custName1: json['cust_name1'],
+      custName2: json['cust_name2'],
+      date: json['date'],
+      email: json['email'],
+      mobileNo: json['mobile_no'],
+      source: json['source'],
+      supplierRef: json['supplier_ref'],
+      otherRef: json['other_ref'],
+      extraDiscount: (json['extra_discount'] ?? 0.0).toDouble(),
+      freightAmount: json['freight_amount'],
+      loadingCharges: json['loading_charges'],
+      isSynced: json['isSynced'] ?? 0,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'OrderModel(id: $id, uid: $uid, custId: $custId, custName1: $custName1, custName2: $custName2, date: $date, email: $email, mobileNo: $mobileNo, source: $source, supplierRef: $supplierRef, otherRef: $otherRef, extraDiscount: $extraDiscount, freightAmount: $freightAmount, loadingCharges: $loadingCharges, isSynced: $isSynced)';
+  }
 }

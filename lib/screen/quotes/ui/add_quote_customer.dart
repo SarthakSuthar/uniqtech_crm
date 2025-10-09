@@ -23,9 +23,9 @@ class AddQuoteCustomer extends StatelessWidget {
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) {
           Get.delete<QuotesController>();
-          debugPrint("Route popped with result: $result");
+          showlog("Route popped with result: $result");
         } else {
-          debugPrint("Pop prevented!");
+          showlog("Pop prevented!");
         }
       },
       child: Padding(
@@ -72,17 +72,17 @@ class AddQuoteCustomer extends StatelessWidget {
                         expandInRow: true,
                       ),
                     ),
-                    //TODO: Go to add customer page
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Theme.of(context).primaryColor,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(14.0),
-                        child: Icon(Icons.add),
-                      ),
-                    ),
+                    //Go to add customer page
+                    // Container(
+                    //   decoration: BoxDecoration(
+                    //     borderRadius: BorderRadius.circular(10),
+                    //     color: Theme.of(context).primaryColor,
+                    //   ),
+                    //   child: Padding(
+                    //     padding: const EdgeInsets.all(14.0),
+                    //     child: Icon(Icons.add),
+                    //   ),
+                    // ),
                   ],
                 ),
                 // Row(
@@ -135,6 +135,14 @@ class AddQuoteCustomer extends StatelessWidget {
                       expandInRow: true,
                     ),
                   ],
+                ),
+
+                inputWidget(
+                  hintText: "Subject",
+                  icon: Icons.subject,
+                  controller: controller.controllers["subject"]!,
+                  context: context,
+                  focusNode: controller.focusNodes["subject"]!,
                 ),
 
                 Row(

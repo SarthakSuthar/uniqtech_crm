@@ -207,7 +207,6 @@ class _InquiryListState extends State<InquiryList> {
 
                   InkWell(
                     onTap: () async {
-                      // TODO: handle conversion to quote
                       await controller.convertInquiryToQuotation(inquiryId: no);
                       showlog("convert to quote button taped");
                     },

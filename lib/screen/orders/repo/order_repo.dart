@@ -4,6 +4,7 @@ import 'package:crm/screen/orders/models/order_model.dart';
 import 'package:crm/screen/orders/models/order_product_model.dart';
 import 'package:crm/screen/orders/models/order_terms_model.dart';
 import 'package:crm/services/local_db.dart';
+import 'package:crm/services/shred_pref.dart';
 import 'package:sqflite/sqlite_api.dart';
 
 class OrderRepo {
@@ -16,19 +17,24 @@ class OrderRepo {
   /// create 'orders' table
   static Future<void> createOrderTable(Database db) async {
     await db.execute('''
-        CREATE TABLE IF NOT EXISTS $orderTable (
-             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            uid TEXT UNIQUE,
-            custId INTEGER,
-            cust_name1 TEXT,
-            cust_name2 TEXT,
-            date TEXT,
-            email TEXT,
-            mobile_no TEXT,
-            source TEXT,
-            isSynced INTEGER
-        )
-    ''');
+  CREATE TABLE IF NOT EXISTS $orderTable (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    uid TEXT UNIQUE,
+    custId INTEGER,
+    cust_name1 TEXT,
+    cust_name2 TEXT,
+    date TEXT,
+    email TEXT,
+    mobile_no TEXT,
+    source TEXT,
+    supplier_ref TEXT,
+    other_ref TEXT,
+    extra_discount REAL DEFAULT 0.0,
+    freight_amount TEXT,
+    loading_charges TEXT,
+    isSynced INTEGER DEFAULT 0
+  )
+''');
 
     showlog("after createOrderTable");
   }
@@ -36,11 +42,15 @@ class OrderRepo {
   ///inser a new order in [orderTable]
   static Future<int> insertOrder(OrderModel order) async {
     Database db = await DatabaseHelper().database;
-    return await db.insert(
+    int newId = await db.insert(
       orderTable,
       order.toJson(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+
+    await SharedPrefHelper.setInt('lastOrderId', newId);
+
+    return newId;
   }
 
   ///get all orders from the [orderTable]
@@ -87,14 +97,18 @@ class OrderRepo {
   // ---------- Order Product Table --------
   static Future<void> createOrderProductTable(Database db) async {
     await db.execute('''
-        CREATE TABLE IF NOT EXISTS $orderProductTable (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            orderId INTEGER,
-            productId INTEGER,
-            quentity INTEGER,
-            isSynced INTEGER
-        )
-    ''');
+  CREATE TABLE IF NOT EXISTS $orderProductTable (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    orderId INTEGER NOT NULL,
+    productId INTEGER NOT NULL,
+    quantity INTEGER NOT NULL,
+    discount REAL DEFAULT 0.0,
+    remark TEXT,
+    isSynced INTEGER DEFAULT 0,
+    FOREIGN KEY (orderId) REFERENCES $orderTable(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (productId) REFERENCES product(id) ON DELETE CASCADE ON UPDATE CASCADE
+  )
+''');
 
     showlog("after createOrderProductTable");
   }
@@ -229,18 +243,28 @@ class OrderRepo {
     ''');
   }
 
+  Future<int> getNextOrderId() async {
+    Database db = await DatabaseHelper().database;
+    final result = await db.rawQuery(
+      'SELECT MAX(id) as maxId FROM $orderTable',
+    );
+    int? maxId = result.first['maxId'] as int?;
+    return (maxId ?? 0) + 1;
+  }
+
   ///insert
   static Future<int> insertOrderFollowup(
     OrderFollowupModel orderFollowupModel,
   ) async {
     try {
       Database db = await DatabaseHelper().database;
-      int changedRows = await db.insert(
+      int newId = await db.insert(
         orderFollowupTable,
         orderFollowupModel.toJson(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
-      return changedRows;
+      showlog("orderFollowup inserted : $newId");
+      return newId;
     } catch (e) {
       showlog("error on insert order followup : $e");
       rethrow;

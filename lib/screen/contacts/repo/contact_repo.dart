@@ -1,6 +1,7 @@
 import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/screen/contacts/model/contact_model.dart';
 import 'package:crm/services/local_db.dart';
+import 'package:crm/services/shred_pref.dart';
 import 'package:sqflite/sqlite_api.dart';
 
 class ContactsRepo {
@@ -18,8 +19,8 @@ class ContactsRepo {
         district TEXT,
         country TEXT,
         pincode TEXT,
-        mobile_no TEXT,
-        email TEXT,
+        mobile_no TEXT UNIQUE,
+        email TEXT UNIQUE,
         website TEXT,
         business_type TEXT,
         industry_type TEXT,
@@ -40,11 +41,13 @@ class ContactsRepo {
   ///insert new record into "contact" table
   static Future<int> insertContact(ContactModel contact) async {
     Database db = await DatabaseHelper().database;
-    return await db.insert(
+    int newId = await db.insert(
       table,
       contact.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
+      conflictAlgorithm: ConflictAlgorithm.ignore,
     );
+    await SharedPrefHelper.setInt('lastContactId', newId);
+    return newId;
   }
 
   ///select all the rows of "contact" table

@@ -1,6 +1,7 @@
 import 'package:crm/app_const/widgets/app_bar.dart';
 import 'package:crm/app_const/widgets/app_drawer.dart';
 import 'package:crm/screen/orders/ui/add_order_customer.dart';
+import 'package:crm/screen/orders/ui/add_order_other.dart';
 import 'package:crm/screen/orders/ui/add_order_product.dart';
 import 'package:crm/screen/orders/ui/add_order_terms.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +21,7 @@ class AddOrder extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: DefaultTabController(
-          length: 3,
+          length: 4,
           child: Column(
             children: [
               TabBar(
@@ -30,6 +31,10 @@ class AddOrder extends StatelessWidget {
                   SizedBox(
                     width: MediaQuery.of(context).size.width / 2,
                     child: const Tab(text: "Customer"),
+                  ),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width / 2,
+                    child: const Tab(text: "Other"),
                   ),
                   SizedBox(
                     width: MediaQuery.of(context).size.width / 2,
@@ -56,6 +61,7 @@ class AddOrder extends StatelessWidget {
                     SizedBox(
                       child: AddOrderCustomer(no: no, isEdit: isEdit),
                     ),
+                    SizedBox(child: AddOrderOther()),
                     SizedBox(child: AddOrderProduct()),
                     SizedBox(
                       child: AddOrderTerms(orderId: no, isEdit: isEdit),

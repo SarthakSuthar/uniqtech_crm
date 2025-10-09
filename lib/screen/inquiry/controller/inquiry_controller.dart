@@ -35,7 +35,7 @@ class InquiryController extends GetxController {
     "email",
     "mobile",
     "social",
-    "quntity",
+    "quantity",
     "rate",
     "amount",
     "remarks",
@@ -65,7 +65,11 @@ class InquiryController extends GetxController {
     if (isEdit == true) {
       await setEditDetails();
     } else {
-      controllers['num']!.text = (inquiryList.length + 1).toString();
+      //get last id from table
+      controllers['num']!.text = (await InquiryRepo().getNextInquiryId())
+          .toString();
+
+      // controllers['num']!.text = (inquiryList.length + 1).toString();
       controllers['date']!.text = dateFormat.format(DateTime.now());
     }
   }
@@ -116,7 +120,7 @@ class InquiryController extends GetxController {
   }
 
   void calculateAmount() {
-    final quntityText = controllers["quntity"]!.text;
+    final quntityText = controllers["quantity"]!.text;
     final rateText = controllers["rate"]!.text;
 
     if (quntityText.isNotEmpty && rateText.isNotEmpty) {
@@ -220,7 +224,7 @@ class InquiryController extends GetxController {
     try {
       final result = await InquiryRepo.getAllInquiryProducts();
       showlog(
-        "-------------- result : ${result.map((e) => e.toJson()).toList()}",
+        "getinquiryProductList result : ${result.map((e) => e.toJson()).toList()}",
       );
 
       final numText = controllers['num']?.text ?? "";
@@ -345,10 +349,15 @@ class InquiryController extends GetxController {
   ///add inquiry & product id to table so we have track of for a customer how many products inquiry we have
   Future<void> addInquiryProductID() async {
     try {
+      final inquiryId = int.parse(controllers['num']!.text);
+
+      showlog("Inquiry Id in addInquiryProductID : $inquiryId");
+
       final inqProdId = InquiryProductModel(
-        inquiryId: inquiryList.length + 1,
+        inquiryId: inquiryId,
         productId: getProductId(selectedProduct!.value),
-        quentity: int.parse(controllers["quntity"]!.text),
+        quantity: int.parse(controllers["quantity"]!.text),
+        remark: controllers["remarks"]!.text,
       );
 
       showlog("inquiry id : ${inqProdId.inquiryId}");
@@ -366,8 +375,7 @@ class InquiryController extends GetxController {
   Future<void> submitInquiry() async {
     try {
       await addInquiryCustomer(); // customer
-      // await addProduct(); // product
-      // await addInquiryProductID(); // both's id // already adding on ADD button
+      await getInquiryList();
     } catch (e) {
       showlog("Error submitting inquiry : $e");
     }
@@ -503,20 +511,13 @@ class InquiryController extends GetxController {
   // --------------------------------------------------------------------
   //MARK: Convert to Quotation
 
-  //TODO: convert inquiry into quotation
-
   ///Steps
   /// 1. get inquiry customer from [table] and add it to quotation table
   /// 2. on complethin of step 1 -> add data from product table into quotation product table
   /// 3. on completion of step 2 -> take data from inquiry followup table and add it to quotation followup table
   ///
 
-  Future<void> convertInquiryToQuotation({
-    required String inquiryId,
-    // required InquiryModel inquiry,
-    // required List<InquiryProductModel> inquiryProducts,
-    // required List<InquiryFollowupModel> inquiryFollowups,
-  }) async {
+  Future<void> convertInquiryToQuotation({required String inquiryId}) async {
     try {
       // get inquiry data and build Model objects
 
@@ -593,8 +594,8 @@ class InquiryController extends GetxController {
         final quotationProduct = QuotationProductModel(
           quotationId: inquiryProduct.inquiryId,
           productId: inquiryProduct.productId,
-          quentity: inquiryProduct.quentity,
-          isSynced: inquiryProduct.isSynced,
+          quantity: inquiryProduct.quantity,
+          remark: inquiryProduct.remark,
         );
         await QuotationRepo.insertQuotationProduct(quotationProduct);
       }

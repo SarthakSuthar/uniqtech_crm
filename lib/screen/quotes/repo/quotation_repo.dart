@@ -40,11 +40,21 @@ class QuotationRepo {
             mobile_no TEXT,
             source TEXT,
             subject TEXT,
-            isSynced INTEGER
+            isSynced INTEGER DEFAULT 0
         )
     ''');
 
     showlog("Create Quotation Table");
+  }
+
+  Future<int> getNextQuotationId() async {
+    Database db = await DatabaseHelper().database;
+    final result = await db.rawQuery(
+      'SELECT MAX(id) as maxId FROM $quotationTable',
+    );
+    int? maxId = result.first['maxId'] as int?;
+    showlog("MAX id = $maxId");
+    return (maxId ?? 0) + 1;
   }
 
   ///insert a new quotation record into the "quotation" table
@@ -109,10 +119,15 @@ class QuotationRepo {
     await db.execute('''
         CREATE TABLE IF NOT EXISTS $quotationProductTable (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            quotationId INTEGER,
-            productId INTEGER,
-            quentity INTEGER,
-            isSynced INTEGER
+            quotationId INTEGER NOT NULL,
+            productId INTEGER NOT NULL,
+            quantity INTEGER,
+            discount REAL DEFAULT 0.0,
+            remark TEXT,
+            isSynced INTEGER DEFAULT 0,
+            FOREIGN KEY (quotationId) REFERENCES $quotationTable(id) ON DELETE CASCADE ON UPDATE CASCADE,
+            FOREIGN KEY (productId) REFERENCES product(id) ON DELETE CASCADE ON UPDATE CASCADE
+  
         )
     ''');
 

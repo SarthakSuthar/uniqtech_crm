@@ -17,9 +17,9 @@ class AddQuoteProduct extends StatelessWidget {
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) {
           Get.delete<QuotesController>();
-          debugPrint("Route popped with result: $result");
+          showlog("Route popped with result: $result");
         } else {
-          debugPrint("Pop prevented!");
+          showlog("Pop prevented!");
         }
       },
       child: Padding(
@@ -63,11 +63,11 @@ class AddQuoteProduct extends StatelessWidget {
                         ),
                       ),
                       inputWidget(
-                        hintText: "Quentity",
+                        hintText: "Quantity",
                         icon: Icons.numbers_outlined,
-                        controller: controller.controllers["quntity"]!,
+                        controller: controller.controllers["quantity"]!,
                         context: context,
-                        focusNode: controller.focusNodes["quntity"]!,
+                        focusNode: controller.focusNodes["quantity"]!,
                         keyboardType: TextInputType.number,
                         expandInRow: true,
                         onChanged: (val) => controller.calculateAmount(),
@@ -134,35 +134,31 @@ class AddQuoteProduct extends StatelessWidget {
                             itemCount: controller.quotationProductList.length,
                             shrinkWrap: true,
                             physics: NeverScrollableScrollPhysics(),
-                            itemBuilder: (context, index) => addedProductListItem(
-                              productName: controller.productList
-                                  .firstWhere(
-                                    (element) =>
-                                        element.productId ==
-                                        controller
-                                            .quotationProductList[index]
-                                            .productId,
-                                  )
-                                  .productName!,
-                              quentity: controller.productList
-                                  .firstWhere(
-                                    (element) =>
-                                        element.productId ==
-                                        controller
-                                            .quotationProductList[index]
-                                            .productId,
-                                  )
-                                  .productUom!, // TODO: Add quentity and amount to QuotationProductModel
-                              amount: controller.productList
-                                  .firstWhere(
-                                    (element) =>
-                                        element.productId ==
-                                        controller
-                                            .quotationProductList[index]
-                                            .productId,
-                                  )
-                                  .productRate!,
-                            ),
+                            itemBuilder: (context, index) =>
+                                addedProductListItem(
+                                  productName: controller.productList
+                                      .firstWhere(
+                                        (element) =>
+                                            element.productId ==
+                                            controller
+                                                .quotationProductList[index]
+                                                .productId,
+                                      )
+                                      .productName!,
+                                  quantity: controller
+                                      .quotationProductList[index]
+                                      .quantity
+                                      .toString(),
+                                  amount: controller.productList
+                                      .firstWhere(
+                                        (element) =>
+                                            element.productId ==
+                                            controller
+                                                .quotationProductList[index]
+                                                .productId,
+                                      )
+                                      .productRate!,
+                                ),
                           ),
                   ),
                 ],
@@ -191,7 +187,7 @@ class AddQuoteProduct extends StatelessWidget {
 
   Widget addedProductListItem({
     required String productName,
-    required String quentity,
+    required String quantity,
     required String amount,
   }) {
     return Card(
@@ -217,7 +213,7 @@ class AddQuoteProduct extends StatelessWidget {
                   style: TextStyle(overflow: TextOverflow.ellipsis),
                 ),
                 Text(
-                  quentity,
+                  quantity,
                   style: TextStyle(overflow: TextOverflow.ellipsis),
                 ),
                 Text(amount, style: TextStyle(overflow: TextOverflow.ellipsis)),

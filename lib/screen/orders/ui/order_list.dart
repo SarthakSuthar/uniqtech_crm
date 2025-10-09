@@ -215,6 +215,10 @@ class _OrderListState extends State<OrderList> {
 
                   InkWell(
                     onTap: () {
+                      Get.toNamed(
+                        AppRoutes.orderInvoice,
+                        arguments: {'orderId': no},
+                      );
                       showlog("print button taped");
                     },
                     child: Container(

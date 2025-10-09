@@ -10,11 +10,11 @@ class UomRepo {
   static Future<void> createUomTable(Database db) async {
     await db.execute('''
         CREATE TABLE IF NOT EXISTS $table (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            code TEXT,
-            isSynced INTEGER
-        )
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT UNIQUE,
+          code TEXT UNIQUE,
+          isSynced INTEGER DEFAULT 0
+        );
     ''');
   }
 
@@ -25,11 +25,10 @@ class UomRepo {
       return await db.insert(
         table,
         uom.toJson(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
+        conflictAlgorithm: ConflictAlgorithm.ignore,
       );
     } catch (e) {
-      // Handle the error, e.g., log it or rethrow a custom exception
-      showlog('inserting uom: $e');
+      showlog('Error inserting uom: $e');
       rethrow;
     }
   }

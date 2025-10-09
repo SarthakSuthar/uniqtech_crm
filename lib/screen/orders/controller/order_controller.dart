@@ -6,13 +6,17 @@ import 'package:crm/screen/masters/terms/model/terms_model.dart';
 import 'package:crm/screen/masters/terms/repo/terms_repo.dart';
 import 'package:crm/screen/masters/uom/model/uom_model.dart';
 import 'package:crm/screen/masters/uom/repo/uom_repo.dart';
+import 'package:crm/screen/orders/models/order_invoice_model.dart';
 import 'package:crm/screen/orders/models/order_model.dart';
 import 'package:crm/screen/orders/models/order_product_model.dart';
 import 'package:crm/screen/orders/models/order_terms_model.dart';
 import 'package:crm/screen/orders/repo/order_repo.dart';
+import 'package:crm/services/local_db.dart';
+import 'package:crm/services/shred_pref.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:sqflite/sqlite_api.dart';
 
 class OrderController extends GetxController {
   RxString? selectedProduct = RxString("");
@@ -39,6 +43,15 @@ class OrderController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
+
+    final args = Get.arguments;
+    if (args != null) {
+      isEdit = args['isEdit'] ?? false;
+      // selectedOrder = args['selectedOrder'];
+    }
+
+    // final lastId = SharedPrefHelper.getInt('lastOrderId') ?? 0;
+
     _initializeControllersAndFocusNodes();
     await getOrderList();
     await getProductList();
@@ -48,10 +61,15 @@ class OrderController extends GetxController {
     await getUomList();
 
     // Set initial quotation number based on the total number of quotations
-    if (isEdit == true) {
+    if (isEdit) {
       await setEditDetails();
-    } else {
-      controllers['num']!.text = (orderList.length + 1).toString();
+    } else if (controllers['num']?.text.isEmpty ?? true) {
+      // final lastId = SharedPrefHelper.getInt('lastOrderId') ?? 0;
+
+      // controllers['num']!.text = lastId.toString();
+
+      showlog("Order -- Last id in controller : ${controllers['num']!.text}");
+
       controllers['date']!.text = dateFormat.format(DateTime.now());
     }
   }
@@ -65,12 +83,17 @@ class OrderController extends GetxController {
       "email",
       "mobile",
       "social",
-      "quntity",
+      "quantity",
       "rate",
       "amount",
       "discount",
       "remarks",
       "termsAndConditions",
+      "supplier_ref",
+      "other_ref",
+      "extra_discount",
+      "freight_amount",
+      "loading_charges",
     ];
 
     for (var field in fields) {
@@ -135,21 +158,37 @@ class OrderController extends GetxController {
     controllers['social']!.text = orderList
         .firstWhereOrNull((element) => element.id == intNo)!
         .source!;
+    controllers['supplier_ref']!.text = orderList
+        .firstWhereOrNull((element) => element.id == intNo)!
+        .supplierRef!;
+    controllers['other_ref']!.text = orderList
+        .firstWhereOrNull((element) => element.id == intNo)!
+        .otherRef!;
+    controllers['extra_discount']!.text = orderList
+        .firstWhereOrNull((element) => element.id == intNo)!
+        .extraDiscount
+        .toString();
+    controllers['freight_amount']!.text = orderList
+        .firstWhereOrNull((element) => element.id == intNo)!
+        .freightAmount!;
+    controllers['loading_charges']!.text = orderList
+        .firstWhereOrNull((element) => element.id == intNo)!
+        .loadingCharges!;
     await getOrderProductList();
   }
 
   void calculateAmount() {
-    final quntityText = controllers["quntity"]!.text;
+    final quantityText = controllers["quantity"]!.text;
     final rateText = controllers["rate"]!.text;
     final discountText = controllers["discount"]!.text;
 
-    if (quntityText.isNotEmpty &&
+    if (quantityText.isNotEmpty &&
         rateText.isNotEmpty &&
         discountText.isNotEmpty) {
-      final quntity = double.tryParse(quntityText) ?? 0.0;
+      final quantity = double.tryParse(quantityText) ?? 0.0;
       final rate = double.tryParse(rateText) ?? 0.0;
       final discount = double.tryParse(discountText) ?? 0.0;
-      final amount = quntity * rate * (1 - discount / 100);
+      final amount = quantity * rate * (1 - discount / 100);
       controllers["amount"]!.text = amount.toStringAsFixed(2);
     } else {
       controllers["amount"]!.text = "";
@@ -298,6 +337,11 @@ class OrderController extends GetxController {
         email: controllers["email"]!.text,
         mobileNo: controllers["mobile"]!.text,
         source: controllers["social"]!.text,
+        supplierRef: controllers["supplier_ref"]!.text,
+        otherRef: controllers["other_ref"]!.text,
+        extraDiscount: double.parse(controllers["extra_discount"]!.text),
+        freightAmount: controllers["freight_amount"]!.text,
+        loadingCharges: controllers["loading_charges"]!.text,
       );
 
       showlog("added order customer ----> ${orderCustomer.toJson()}");
@@ -329,7 +373,9 @@ class OrderController extends GetxController {
       final orderProdId = OrderProductModel(
         orderId: orderList.length + 1,
         productId: getProductId(selectedProduct!.value),
-        quentity: int.parse(controllers["quntity"]!.text),
+        quantity: int.parse(controllers["quantity"]!.text),
+        discount: double.parse(controllers['discount']!.text),
+        remark: controllers['remarks']!.text,
       );
 
       showlog("quotation id : ${orderProdId.orderId}");
@@ -346,9 +392,8 @@ class OrderController extends GetxController {
   ///save order
   Future<void> submitQuotation() async {
     try {
-      await addOrderCustomer(); // customer
-      // await addProduct(); // product
-      // await addQuotationProductID(); // both's id // already adding on ADD button
+      await addOrderCustomer();
+      await getOrderList();
     } catch (e) {
       showlog("Error submitting order : $e");
     }
@@ -382,6 +427,11 @@ class OrderController extends GetxController {
         email: controllers['email']!.text,
         mobileNo: controllers['mobile']!.text,
         source: controllers['social']!.text,
+        supplierRef: controllers['supplier_ref']!.text,
+        otherRef: controllers['other_ref']!.text,
+        extraDiscount: double.parse(controllers['extra_discount']!.text),
+        freightAmount: controllers['freight_amount']!.text,
+        loadingCharges: controllers['loading_charges']!.text,
       );
       showlog("update order ----> ${order.toJson()}");
       // int result = await QuotationRepo.updateQuotation(quotation);
@@ -480,6 +530,91 @@ class OrderController extends GetxController {
       }
     } catch (e) {
       showlog("Error adding Order terms : $e");
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------
+  //-------------------- MARK: Invoice
+  // ------------------------------------------------------------------------------------------
+
+  final invoiceCustName = "".obs;
+  final invoiceCustContact = "".obs;
+  final invoiceCustEmail = "".obs;
+  final extraDiscount = "".obs;
+  final freightAmount = "".obs;
+  final loadingCharges = "".obs;
+  final suppRef = "".obs;
+  final otherRef = "".obs;
+  final invoiceProductList = <ProductItem>[].obs;
+  final invoiceTermsList = <OrderTermsModel>[].obs;
+
+  Future<OrderInvoiceModel> setOrderInvoiceDetails(String orderId) async {
+    try {
+      showlog("order ID : $orderId");
+      final currentOrder = await OrderRepo.getOrderById(orderId);
+      showlog("contact id : ${currentOrder.custId}");
+      final customerDetails = await ContactsRepo.getContactById(
+        currentOrder.custId.toString(),
+      );
+
+      invoiceCustName.value = currentOrder.custName1!;
+      invoiceCustContact.value = customerDetails.mobileNo!;
+      invoiceCustEmail.value = customerDetails.email!;
+      extraDiscount.value = currentOrder.extraDiscount.toString();
+      freightAmount.value = currentOrder.freightAmount!;
+      loadingCharges.value = currentOrder.loadingCharges!;
+      suppRef.value = currentOrder.supplierRef!;
+      otherRef.value = currentOrder.otherRef!;
+
+      final productList = await OrderRepo.getAllOrderProducts();
+
+      final selectedProductList = productList
+          .where((element) => element.orderId == int.parse(orderId))
+          .toList();
+
+      List<ProductItem> productItems = [];
+      invoiceProductList.value = productItems;
+
+      //get selected product details from product repo
+      final allProducts = await ProductRepo.getAllProducts();
+
+      for (var product in selectedProductList) {
+        productItems.add(
+          ProductItem(
+            qty: product.quantity,
+            rate: product.discount,
+            amount: 0,
+            itemName: allProducts
+                .where((e) => e.productId == product.productId)
+                .first
+                .productName,
+            altAmt: 0,
+            disc1: 0,
+            disc2: 0,
+          ),
+        );
+      }
+
+      final selectedTerms = await OrderRepo.getSelectedTerms(
+        int.parse(orderId),
+      );
+      invoiceTermsList.value = selectedTerms;
+
+      final orderInvoice = OrderInvoiceModel(
+        custName: invoiceCustName.value,
+        custContact: invoiceCustContact.value,
+        custEmail: invoiceCustEmail.value,
+        extraDiscount: double.parse(extraDiscount.value),
+        freightAmount: double.parse(freightAmount.value),
+        loadCharges: double.parse(loadingCharges.value),
+        supplierRef: suppRef.value,
+        otherRef: otherRef.value,
+      );
+
+      return orderInvoice;
+    } catch (e) {
+      showlog("Error setting order invoice details : $e");
+      rethrow;
     }
   }
 }

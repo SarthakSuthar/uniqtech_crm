@@ -25,7 +25,7 @@ Widget inputWidget({
     minLines: minLines ?? 1,
     maxLines: minLines == null ? 1 : minLines + 1,
     decoration: InputDecoration(
-      hintText: hintText,
+      labelText: hintText,
       prefixIcon: Icon(icon),
       contentPadding: EdgeInsets.symmetric(
         horizontal: screenWidth * 0.04,

@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  static const Color _primaryColor = Color(0xFF0074AA);
+  static const Color primaryColor = Color(0xFF0074AA);
 
   // Light Theme
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: _primaryColor,
+      seedColor: primaryColor,
       brightness: Brightness.light,
-      primary: _primaryColor,
-      secondary: _primaryColor,
+      primary: primaryColor,
+      secondary: primaryColor,
       surface: Colors.white,
       error: Colors.redAccent,
       onPrimary: Colors.white,
@@ -20,7 +20,7 @@ class AppTheme {
     ),
     scaffoldBackgroundColor: Colors.grey[100],
     appBarTheme: AppBarTheme(
-      backgroundColor: _primaryColor,
+      backgroundColor: primaryColor,
       foregroundColor: Colors.white,
       elevation: 0,
       iconTheme: const IconThemeData(color: Colors.white),
@@ -46,7 +46,7 @@ class AppTheme {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         foregroundColor: Colors.white,
-        backgroundColor: _primaryColor,
+        backgroundColor: primaryColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     ),
@@ -61,10 +61,10 @@ class AppTheme {
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: _primaryColor,
+      seedColor: primaryColor,
       brightness: Brightness.dark,
-      primary: _primaryColor,
-      secondary: _primaryColor,
+      primary: primaryColor,
+      secondary: primaryColor,
       surface: Colors.grey[900],
       error: Colors.redAccent,
       onPrimary: Colors.white,
@@ -100,7 +100,7 @@ class AppTheme {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         foregroundColor: Colors.white,
-        backgroundColor: _primaryColor,
+        backgroundColor: primaryColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     ),

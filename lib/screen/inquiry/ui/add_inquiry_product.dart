@@ -16,9 +16,9 @@ class AddInquiryProduct extends StatelessWidget {
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) {
           Get.delete<InquiryController>();
-          debugPrint("Route popped with result: $result");
+          showlog("Route popped with result: $result");
         } else {
-          debugPrint("Pop prevented!");
+          showlog("Pop prevented!");
         }
       },
       child: Padding(
@@ -62,11 +62,11 @@ class AddInquiryProduct extends StatelessWidget {
                         ),
                       ),
                       inputWidget(
-                        hintText: "Quentity",
+                        hintText: "Quantity",
                         icon: Icons.numbers_outlined,
-                        controller: controller.controllers["quntity"]!,
+                        controller: controller.controllers["quantity"]!,
                         context: context,
-                        focusNode: controller.focusNodes["quntity"]!,
+                        focusNode: controller.focusNodes["quantity"]!,
                         keyboardType: TextInputType.number,
                         expandInRow: true,
                         onChanged: (val) => controller.calculateAmount(),
@@ -127,35 +127,31 @@ class AddInquiryProduct extends StatelessWidget {
                             itemCount: controller.inquiryProductList.length,
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            itemBuilder: (context, index) => addedProductListItem(
-                              productName: controller.productList
-                                  .firstWhere(
-                                    (element) =>
-                                        element.productId ==
-                                        controller
-                                            .inquiryProductList[index]
-                                            .productId,
-                                  )
-                                  .productName!,
-                              quentity: controller.productList
-                                  .firstWhere(
-                                    (element) =>
-                                        element.productId ==
-                                        controller
-                                            .inquiryProductList[index]
-                                            .productId,
-                                  )
-                                  .productUom!, // TODO: Add quentity and amount to InquiryProductModel
-                              amount: controller.productList
-                                  .firstWhere(
-                                    (element) =>
-                                        element.productId ==
-                                        controller
-                                            .inquiryProductList[index]
-                                            .productId,
-                                  )
-                                  .productRate!,
-                            ),
+                            itemBuilder: (context, index) =>
+                                addedProductListItem(
+                                  productName: controller.productList
+                                      .firstWhere(
+                                        (element) =>
+                                            element.productId ==
+                                            controller
+                                                .inquiryProductList[index]
+                                                .productId,
+                                      )
+                                      .productName!,
+                                  quantity: controller
+                                      .inquiryProductList[index]
+                                      .quantity
+                                      .toString(),
+                                  amount: controller.productList
+                                      .firstWhere(
+                                        (element) =>
+                                            element.productId ==
+                                            controller
+                                                .inquiryProductList[index]
+                                                .productId,
+                                      )
+                                      .productRate!,
+                                ),
                           ),
                   ),
                 ],
@@ -184,7 +180,7 @@ class AddInquiryProduct extends StatelessWidget {
 
   Widget addedProductListItem({
     required String productName,
-    required String quentity,
+    required String quantity,
     required String amount,
   }) {
     return Card(
@@ -195,7 +191,7 @@ class AddInquiryProduct extends StatelessWidget {
           children: [
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [Text("Product Name"), Text("Quentity"), Text("Rate")],
+              children: [Text("Product Name"), Text("Quantity"), Text("Rate")],
             ),
             const SizedBox(width: 30),
             Column(
@@ -206,7 +202,7 @@ class AddInquiryProduct extends StatelessWidget {
                   style: TextStyle(overflow: TextOverflow.ellipsis),
                 ),
                 Text(
-                  quentity,
+                  quantity,
                   style: TextStyle(overflow: TextOverflow.ellipsis),
                 ),
                 Text(amount, style: TextStyle(overflow: TextOverflow.ellipsis)),

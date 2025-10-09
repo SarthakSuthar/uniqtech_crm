@@ -48,6 +48,14 @@ class InquiryRepo {
     );
   }
 
+  Future<int> getNextInquiryId() async {
+    Database db = await DatabaseHelper().database;
+    final result = await db.rawQuery('SELECT MAX(id) as maxId FROM $table');
+    int? maxId = result.first['maxId'] as int?;
+    showlog("MAX id = $maxId");
+    return (maxId ?? 0) + 1;
+  }
+
   /// Retrieves all inquiry records from the 'inquiry' table.
   static Future<List<InquiryModel>> getAllInquiries() async {
     Database db = await DatabaseHelper().database;
@@ -99,7 +107,8 @@ class InquiryRepo {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             inquiryId INTEGER,
             productId INTEGER,
-            quentity INTEGER,
+            quantity INTEGER,
+            remark TEXT,
             isSynced INTEGER
         )
     ''');
@@ -287,91 +296,4 @@ class InquiryRepo {
       rethrow;
     }
   }
-
-  // // ----------------------
-
-  // ///Steps
-  // /// 1.  get inquiry customer from [table] and add itto quotation table
-  // /// 2. on complethin of step 1 -> add data from product table into quotation product table
-  // /// 3. on completion of step 2 -> take data from inquiry followup table and add it to quotation followup table
-  // ///
-
-  // static Future<void> convertInquiryToQuotation({
-  //   required InquiryModel inquiry,
-  //   required List<InquiryProductModel> inquiryProducts,
-  //   required List<InquiryFollowupModel> inquiryFollowups,
-  // }) async {
-  //   try {
-  //     //convertInquiryCustomerToQuotationCustomer
-  //     await convertInquiryCustomerToQuotationCustomer(inquiry);
-  //     //convertInquiryProductToQuotationProduct
-  //     await convertInquiryProductToQuotationProduct(inquiryProducts);
-  //     //convertInquiryFollowupToQuotationFollowup
-  //     await convertInquiryFollowupToQuotationFollowup(inquiryFollowups);
-  //   } catch (e) {
-  //     showlog("Error converting inquiry to quotation: $e");
-  //   }
-  // }
-
-  // //convert inq customer to quotation customer
-  // static Future<void> convertInquiryCustomerToQuotationCustomer(
-  //   InquiryModel inquiry,
-  // ) async {
-  //   try {
-  //     final quotation = QuotationModel(
-  //       uid: inquiry.uid,
-  //       custId: inquiry.custId,
-  //       custName1: inquiry.custName1,
-  //       custName2: inquiry.custName2,
-  //       date: inquiry.date,
-  //       email: inquiry.email,
-  //       mobileNo: inquiry.mobileNo,
-  //       source: inquiry.source,
-  //       isSynced: inquiry.isSynced,
-  //     );
-  //     await QuotationRepo.insertQuotation(quotation);
-  //   } catch (e) {
-  //     showlog("error converting customer to quotation : $e");
-  //   }
-  // }
-
-  // //convert inq product to quotation product
-  // static Future<void> convertInquiryProductToQuotationProduct(
-  //   List<InquiryProductModel> inquiryProduct,
-  // ) async {
-  //   try {
-  //     for (var inquiryProduct in inquiryProduct) {
-  //       final quotationProduct = QuotationProductModel(
-  //         quotationId: inquiryProduct.inquiryId,
-  //         productId: inquiryProduct.productId,
-  //         quentity: inquiryProduct.quentity,
-  //         isSynced: inquiryProduct.isSynced,
-  //       );
-  //       await QuotationRepo.insertQuotationProduct(quotationProduct);
-  //     }
-  //   } catch (e) {
-  //     showlog("Error converting inquiry product to quotation product: $e");
-  //   }
-  // }
-
-  // static Future<void> convertInquiryFollowupToQuotationFollowup(
-  //   List<InquiryFollowupModel> inquiryFollowup,
-  // ) async {
-  //   try {
-  //     for (var inquiryFollowup in inquiryFollowup) {
-  //       final quotationFollowup = QuotationFollowupModel(
-  //         quotationId: inquiryFollowup.inquiryId,
-  //         followupDate: inquiryFollowup.followupDate,
-  //         followupType: inquiryFollowup.followupType,
-  //         followupStatus: inquiryFollowup.followupStatus,
-  //         followupRemarks: inquiryFollowup.followupRemarks,
-  //         followupAssignedTo: inquiryFollowup.followupAssignedTo,
-  //         isSynced: inquiryFollowup.isSynced,
-  //       );
-  //       await QuotationRepo.insertQuotationFollowup(quotationFollowup);
-  //     }
-  //   } catch (e) {
-  //     showlog("Error converting inquiry followup to quotation followup: $e");
-  //   }
-  // }
 }

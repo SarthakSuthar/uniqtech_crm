@@ -1,7 +1,14 @@
+import 'package:crm/screen/quotes/model/quote_invoice_model.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+
 import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/screen/contacts/repo/contact_repo.dart';
 import 'package:crm/screen/masters/product/model/product_model.dart';
 import 'package:crm/screen/masters/product/repo/product_repo.dart';
+import 'package:crm/screen/masters/terms/model/terms_model.dart';
+import 'package:crm/screen/masters/terms/repo/terms_repo.dart';
 import 'package:crm/screen/masters/uom/model/uom_model.dart';
 import 'package:crm/screen/masters/uom/repo/uom_repo.dart';
 import 'package:crm/screen/orders/models/order_followuo_model.dart';
@@ -14,11 +21,6 @@ import 'package:crm/screen/quotes/model/quotation_model.dart';
 import 'package:crm/screen/quotes/model/quotation_product_model.dart';
 import 'package:crm/screen/quotes/model/quotation_terms_model.dart';
 import 'package:crm/screen/quotes/repo/quotation_repo.dart';
-import 'package:crm/screen/masters/terms/model/terms_model.dart';
-import 'package:crm/screen/masters/terms/repo/terms_repo.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 
 class QuotesController extends GetxController {
   RxString? selectedProduct = "".obs;
@@ -47,7 +49,9 @@ class QuotesController extends GetxController {
     if (isEdit == true) {
       await setEditDetails();
     } else {
-      controllers['num']!.text = (quotationList.length + 1).toString();
+      // controllers['num']!.text = (quotationList.length + 1).toString();
+      controllers['num']!.text = (await QuotationRepo().getNextQuotationId())
+          .toString();
       controllers['date']!.text = dateFormat.format(DateTime.now());
     }
   }
@@ -61,7 +65,8 @@ class QuotesController extends GetxController {
       "email",
       "mobile",
       "social",
-      "quntity",
+      "subject",
+      "quantity",
       "rate",
       "amount",
       "discount",
@@ -99,7 +104,7 @@ class QuotesController extends GetxController {
     }).toList();
   }
 
-  final dateFormat = DateFormat("d/M/yyyy");
+  final dateFormat = DateFormat("dd/MM/yyyy");
 
   // void updateProduct(String? value) {
   //   selectedProduct?.value = value ?? "";
@@ -152,21 +157,24 @@ class QuotesController extends GetxController {
     controllers['social']!.text = quotationList
         .firstWhereOrNull((element) => element.id == intNo)!
         .source!;
+    controllers['subject']!.text = quotationList
+        .firstWhereOrNull((element) => element.id == intNo)!
+        .subject!;
     await getQuotationProductList();
   }
 
   void calculateAmount() {
-    final quntityText = controllers["quntity"]!.text;
+    final quantityText = controllers["quantity"]!.text;
     final rateText = controllers["rate"]!.text;
     final discountText = controllers["discount"]!.text;
 
-    if (quntityText.isNotEmpty &&
+    if (quantityText.isNotEmpty &&
         rateText.isNotEmpty &&
         discountText.isNotEmpty) {
-      final quntity = double.tryParse(quntityText) ?? 0.0;
+      final quantity = double.tryParse(quantityText) ?? 0.0;
       final rate = double.tryParse(rateText) ?? 0.0;
       final discount = double.tryParse(discountText) ?? 0.0;
-      final amount = quntity * rate * (1 - discount / 100);
+      final amount = quantity * rate * (1 - discount / 100);
       controllers["amount"]!.text = amount.toStringAsFixed(2);
     } else {
       controllers["amount"]!.text = "";
@@ -330,6 +338,7 @@ class QuotesController extends GetxController {
         email: controllers["email"]!.text,
         mobileNo: controllers["mobile"]!.text,
         source: controllers["social"]!.text,
+        subject: controllers["subject"]!.text,
       );
 
       showlog("added quotation customer ----> ${quotationCustomer.toJson()}");
@@ -358,10 +367,14 @@ class QuotesController extends GetxController {
   ///add quotation & product id to table so we have track of for a customer how many products quotation we have
   Future<void> addQuotationProductID() async {
     try {
+      final quoteId = int.parse(controllers['num']!.text);
+
       final quotProdId = QuotationProductModel(
-        quotationId: quotationList.length + 1,
+        quotationId: quoteId,
         productId: getProductId(selectedProduct!.value),
-        quentity: int.parse(controllers["quntity"]!.text),
+        quantity: int.parse(controllers["quantity"]!.text),
+        remark: controllers['remarks']!.text,
+        discount: double.parse(controllers['discount']!.text),
       );
 
       showlog("quotation id : ${quotProdId.quotationId}");
@@ -414,6 +427,7 @@ class QuotesController extends GetxController {
         email: controllers['email']!.text,
         mobileNo: controllers['mobile']!.text,
         source: controllers['social']!.text,
+        subject: controllers['subject']!.text,
       );
       showlog("update quotation ----> ${quotation.toJson()}");
       // int result = await QuotationRepo.updateQuotation(quotation);
@@ -705,7 +719,9 @@ class QuotesController extends GetxController {
         final orderProduct = OrderProductModel(
           orderId: product.quotationId,
           productId: product.productId,
-          quentity: product.quentity,
+          quantity: product.quantity ?? 0,
+          discount: product.discount,
+          remark: product.remark,
         );
         showlog("added order product ----> ${orderProduct.toJson()}");
         int result = await OrderRepo.insertOrderProduct(orderProduct);
@@ -842,7 +858,9 @@ class QuotesController extends GetxController {
         final newProduct = QuotationProductModel(
           quotationId: product.quotationId,
           productId: product.productId,
-          quentity: product.quentity,
+          quantity: product.quantity,
+          discount: product.discount,
+          remark: product.remark,
         );
         showlog("added new product ----> ${newProduct.toJson()}");
         int result = await QuotationRepo.insertQuotationProduct(newProduct);
@@ -890,6 +908,101 @@ class QuotesController extends GetxController {
       }
     } catch (e) {
       showlog("Error copying followup : $e");
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------
+  //-------------------- MARK: Invoice
+  // ------------------------------------------------------------------------------------------
+
+  final invoiceCustName = "".obs;
+  final invoiceCustAddress = "".obs;
+  final invoiceSubject = "".obs;
+  final invoiceProductList = <ProductItem>[].obs;
+  final invoiceTermsList = <QuotationTermsModel>[].obs;
+
+  Future<QuotationInvoiceModel> setQuoteInvoiceData(String quotationId) async {
+    try {
+      showlog("quotation id : $quotationId");
+
+      final currentQuotation = await QuotationRepo.getQuotationById(
+        quotationId,
+      );
+
+      showlog("current quotation : ${currentQuotation.toJson()}");
+
+      final customerDetails = await ContactsRepo.getContactById(
+        currentQuotation.custId.toString(),
+      );
+
+      //get customer name & address
+      invoiceCustName.value = currentQuotation.custName1 ?? '';
+      invoiceCustAddress.value =
+          "${customerDetails.address}, ${customerDetails.city}, ${customerDetails.state}, ${customerDetails.country}";
+      invoiceSubject.value = currentQuotation.subject ?? '';
+
+      //get products
+      final productList = await QuotationRepo.getAllQuotationProducts();
+      final selectedProductList = productList.where((element) {
+        return element.quotationId == int.parse(quotationId);
+      }).toList();
+
+      showlog(
+        "Invoice product list : ${invoiceProductList.map((e) => e.toJson()).toList()}",
+      );
+      List<ProductItem> productItems = [];
+
+      //get selected product details from product repo
+      final allProducts = await ProductRepo.getAllProducts();
+
+      for (var product in selectedProductList) {
+        productItems.add(
+          ProductItem(
+            itemQty: product.quantity,
+            itemAmount: double.parse(
+              allProducts
+                      .where((e) => e.productId == product.productId)
+                      .first
+                      .productRate ??
+                  '0',
+            ),
+            itemRate: double.parse(
+              allProducts
+                      .where((e) => e.productId == product.productId)
+                      .first
+                      .productRate ??
+                  '0',
+            ),
+            itemName:
+                allProducts
+                    .where((e) => e.productId == product.productId)
+                    .first
+                    .productName ??
+                '',
+            itemHsn: "What is HSN ?",
+          ),
+        );
+      }
+
+      invoiceProductList.value = productItems;
+      //get terms
+      final selectedTerms = await QuotationRepo.getSelectedTerms(
+        int.parse(quotationId),
+      );
+
+      invoiceTermsList.value = selectedTerms;
+
+      final QuotationInvoiceModel invoiceData = QuotationInvoiceModel(
+        custName: invoiceCustName.value,
+        custAddress: invoiceCustAddress.value,
+        subject: invoiceSubject.value,
+        // productList: invoiceProductList.mapMany()
+        // termsList: invoiceTermsList.map((e) => allTerms.firstWhere((term) => term.id == e.termId).title!).toList(),
+      );
+      return invoiceData;
+    } catch (e) {
+      showlog("Error setting quote invoice data : $e");
+      rethrow;
     }
   }
 }

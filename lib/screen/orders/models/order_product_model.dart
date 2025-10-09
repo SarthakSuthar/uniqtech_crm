@@ -1,44 +1,50 @@
-// To parse this JSON data, do
-//
-//     final orderProductModel = orderProductModelFromJson(jsonString);
-
-import 'dart:convert';
-
-OrderProductModel orderProductModelFromJson(String str) =>
-    OrderProductModel.fromJson(json.decode(str));
-
-String orderProductModelToJson(OrderProductModel data) =>
-    json.encode(data.toJson());
-
 class OrderProductModel {
   int? id;
-  int? orderId;
-  int? productId;
-  int? quentity;
-  int? isSynced = 0;
+  int orderId;
+  int productId;
+  int quantity;
+  double discount;
+  String? remark;
+  int isSynced;
 
   OrderProductModel({
     this.id,
-    this.orderId,
-    this.productId,
-    this.quentity,
-    this.isSynced,
+    required this.orderId,
+    required this.productId,
+    required this.quantity,
+    this.discount = 0.0,
+    this.remark,
+    this.isSynced = 0,
   });
 
-  factory OrderProductModel.fromJson(Map<String, dynamic> json) =>
-      OrderProductModel(
-        id: json["id"],
-        orderId: json["orderId"],
-        productId: json["productId"],
-        quentity: json["quentity"],
-        isSynced: json["isSynced"],
-      );
+  /// Convert model to JSON (for database or API)
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'orderId': orderId,
+      'productId': productId,
+      'quantity': quantity,
+      'discount': discount,
+      'remark': remark,
+      'isSynced': isSynced,
+    };
+  }
 
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "orderId": orderId,
-    "productId": productId,
-    "quentity": quentity,
-    "isSynced": isSynced,
-  };
+  /// Create model from JSON (from API or database)
+  factory OrderProductModel.fromJson(Map<String, dynamic> json) {
+    return OrderProductModel(
+      id: json['id'],
+      orderId: json['orderId'],
+      productId: json['productId'],
+      quantity: json['quantity'],
+      discount: (json['discount'] ?? 0.0).toDouble(),
+      remark: json['remark'],
+      isSynced: json['isSynced'] ?? 0,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'OrderProductModel(id: $id, orderId: $orderId, productId: $productId, quantity: $quantity, discount: $discount, remark: $remark, isSynced: $isSynced)';
+  }
 }

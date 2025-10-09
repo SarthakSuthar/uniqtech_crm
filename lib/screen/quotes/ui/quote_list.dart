@@ -286,6 +286,11 @@ class _QuoteListState extends State<QuoteList> {
 
                   InkWell(
                     onTap: () {
+                      Get.toNamed(
+                        AppRoutes.quotesInvoice,
+                        arguments: {'quotationId': no},
+                      );
+                      // Get.toNamed(AppRoutes.quotesInvoice);
                       showlog("print document button taped");
                     },
                     child: Container(

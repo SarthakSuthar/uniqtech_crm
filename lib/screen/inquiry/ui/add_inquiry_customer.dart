@@ -71,17 +71,17 @@ class AddInquiryCustomer extends StatelessWidget {
                         expandInRow: true,
                       ),
                     ),
-                    //TODO: Go to add customer page
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Theme.of(context).primaryColor,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(14.0),
-                        child: Icon(Icons.add),
-                      ),
-                    ),
+                    // Go to add customer page
+                    // Container(
+                    //   decoration: BoxDecoration(
+                    //     borderRadius: BorderRadius.circular(10),
+                    //     color: Theme.of(context).primaryColor,
+                    //   ),
+                    //   child: Padding(
+                    //     padding: const EdgeInsets.all(14.0),
+                    //     child: Icon(Icons.add),
+                    //   ),
+                    // ),
                   ],
                 ),
                 // Row(
