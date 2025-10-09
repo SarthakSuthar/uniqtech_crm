@@ -89,11 +89,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: 'CRM',
+      debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
       getPages: AppRoutes.routes,
-      home: const LoginScreen(),
+      initialRoute: AppRoutes.splash,
     );
   }
 }

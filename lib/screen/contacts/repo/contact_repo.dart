@@ -1,7 +1,6 @@
 import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/screen/contacts/model/contact_model.dart';
 import 'package:crm/services/local_db.dart';
-import 'package:crm/services/shred_pref.dart';
 import 'package:sqflite/sqlite_api.dart';
 
 class ContactsRepo {
@@ -46,7 +45,6 @@ class ContactsRepo {
       contact.toMap(),
       conflictAlgorithm: ConflictAlgorithm.ignore,
     );
-    await SharedPrefHelper.setInt('lastContactId', newId);
     return newId;
   }
 

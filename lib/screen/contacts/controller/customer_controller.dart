@@ -3,9 +3,14 @@ import 'package:crm/screen/contacts/model/contact_model.dart';
 import 'package:crm/screen/contacts/repo/contact_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class AddCustomerController extends GetxController {
   RxBool isLoading = false.obs;
+
+  bool isEdit = false;
+  String? no;
+  final dateFormat = DateFormat("d/M/yyyy");
 
   /// Store text controllers & focus nodes in maps
   final Map<String, TextEditingController> controllers = {};
@@ -52,6 +57,10 @@ class AddCustomerController extends GetxController {
       controllers[field] = TextEditingController();
       focusNodes[field] = FocusNode();
     }
+
+    // if (isEdit) {
+    //   await setEditValues();
+    // }
     await getAllContacts();
   }
 
@@ -82,6 +91,38 @@ class AddCustomerController extends GetxController {
   /// Radio button change
   void updateRadio(String? val) {
     if (val != null) radioValue.value = val;
+  }
+
+  Future<void> setEditValues() async {
+    isLoading.value = true;
+
+    final intNo = int.parse(no ?? '');
+    final contactToEdit = contacts.firstWhereOrNull(
+      (element) => element.id == intNo,
+    );
+
+    if (contactToEdit != null) {
+      controllers['name']!.text = contactToEdit.custName ?? '';
+      controllers['address']!.text = contactToEdit.address ?? '';
+      controllers['city']!.text = contactToEdit.city ?? '';
+      controllers['state']!.text = contactToEdit.state ?? '';
+      controllers['district']!.text = contactToEdit.district ?? '';
+      controllers['country']!.text = contactToEdit.country ?? '';
+      controllers['pincode']!.text = contactToEdit.pincode ?? '';
+      controllers['mobile']!.text = contactToEdit.mobileNo ?? '';
+      controllers['email']!.text = contactToEdit.email ?? '';
+      controllers['website']!.text = contactToEdit.website ?? '';
+      controllers['businessType']!.text = contactToEdit.businessType ?? '';
+      controllers['industryType']!.text = contactToEdit.industryType ?? '';
+      controllers['contactName']!.text = contactToEdit.contactName ?? '';
+      controllers['contactPhoneNo']!.text = contactToEdit.contPhoneNo ?? '';
+      controllers['contactMobileNo']!.text = contactToEdit.contMobileNo ?? '';
+      controllers['contactEmail']!.text = contactToEdit.contEmail ?? '';
+      selectedBusinessType?.value = contactToEdit.businessType ?? '';
+      selectedDepartmentType?.value = contactToEdit.department ?? '';
+      selectedDesignationType?.value = contactToEdit.designation ?? '';
+      selectedIndustryType?.value = contactToEdit.industryType ?? '';
+    }
   }
 
   /// Search for customer name or number

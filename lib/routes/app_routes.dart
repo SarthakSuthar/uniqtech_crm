@@ -15,6 +15,7 @@ import 'package:crm/screen/quotes/ui/quote_list.dart';
 import 'package:crm/screen/quotes/ui/quotes_followup.dart';
 import 'package:crm/screen/quotes/ui/quotes_invoice.dart';
 import 'package:crm/screen/report/ui/reports.dart';
+import 'package:crm/screen/splash_screen/ui/splash_screen.dart';
 import 'package:crm/screen/tasks/ui/add_task.dart';
 import 'package:crm/screen/tasks/ui/tasks_list.dart';
 import 'package:get/get.dart';
@@ -43,7 +44,7 @@ class AppRoutes {
   static const report = '/report';
 
   static final routes = [
-    // GetPage(name: splash, page: () => const SplashScreen()),
+    GetPage(name: splash, page: () => const SplashScreen()),
     GetPage(name: login, page: () => const LoginScreen()),
     GetPage(name: forgotPassword, page: () => const ForgotPassword()),
     GetPage(name: dashboard, page: () => const DashboardScreen()),
