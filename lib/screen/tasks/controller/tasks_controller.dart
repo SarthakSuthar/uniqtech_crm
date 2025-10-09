@@ -36,12 +36,18 @@ class TasksController extends GetxController {
   ];
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
     for (var field in fields) {
       controllers[field] = TextEditingController();
       focusNodes[field] = FocusNode();
     }
+
+    // if (isEdit) {
+    //   await setEditDetails();
+    // } else {
+    //   controllers['no']!.text = (await TasksRepo().getNextTaskId()).toString();
+    // }
   }
 
   @override
@@ -71,48 +77,71 @@ class TasksController extends GetxController {
     showlog("No set edit details: $no");
     int intNo = int.parse(no);
 
-    controllers['no']!.text = no;
-    // final task = taskList.firstWhereOrNull((element) => element.id == intNo);
-    // if (task != null) {
-    //   controllers['date']!.text = task.date;
-    //   controllers['taskDiscription']!.text = task.description;
-    //   controllers['work']!.text = task.work;
-    //   controllers['workType']!.text = task.work;
-    //   selectedTypeOfWork.value = task.work;
-    //   controllers['assignedTo']!.text = task.assignedTo.toString();
-    // }
+    // Ensure the list is loaded before accessing
+    if (taskList.isEmpty) {
+      await getTaskList();
+    }
 
-    controllers['date']!.text = taskList
-        .firstWhereOrNull((element) => element.id == intNo)!
-        .date;
-    controllers['taskDiscription']!.text = taskList
-        .firstWhereOrNull((element) => element.id == intNo)!
-        .description;
-    controllers['work']!.text = taskList
-        .firstWhereOrNull((element) => element.id == intNo)!
-        .work;
-    controllers['workType']!.text = taskList
-        .firstWhereOrNull((element) => element.id == intNo)!
-        .work;
-    selectedTypeOfWork.value = taskList
-        .firstWhereOrNull((element) => element.id == intNo)!
-        .work;
-    controllers['assignedTo']!.text = taskList
-        .firstWhereOrNull((element) => element.id == intNo)!
-        .assignedTo
-        .toString();
+    final task = taskList.firstWhereOrNull((e) => e.id == intNo);
+
+    if (task == null) {
+      showlog("⚠️ Task not found for id: $intNo");
+      return;
+    }
+
+    controllers['no']!.text = no;
+    controllers['date']!.text = task.date;
+    controllers['taskDiscription']!.text = task.description;
+    controllers['work']!.text = task.work;
+    controllers['workType']!.text = task.work;
+    selectedTypeOfWork.value = task.work;
+    controllers['assignedTo']!.text = task.assignedTo.toString();
 
     // Fetch and set the attached file path
     final file = await getFileDetailsById(intNo);
     if (file.filePath.isNotEmpty) {
       attachedFiles.assign(file.filePath);
     }
-    controllers['attached']!.text = await getFileDetailsById(
-      intNo,
-    ).then((value) => value.filePath);
-
-    await getTaskList();
+    controllers['attached']!.text = file.filePath;
   }
+
+  // Future<void> setEditDetails(String no) async {
+  //   showlog("No set edit details: $no");
+  //   int intNo = int.parse(no);
+
+  //   controllers['no']!.text = no;
+
+  //   controllers['date']!.text = taskList
+  //       .firstWhereOrNull((element) => element.id == intNo)!
+  //       .date;
+  //   controllers['taskDiscription']!.text = taskList
+  //       .firstWhereOrNull((element) => element.id == intNo)!
+  //       .description;
+  //   controllers['work']!.text = taskList
+  //       .firstWhereOrNull((element) => element.id == intNo)!
+  //       .work;
+  //   controllers['workType']!.text = taskList
+  //       .firstWhereOrNull((element) => element.id == intNo)!
+  //       .work;
+  //   selectedTypeOfWork.value = taskList
+  //       .firstWhereOrNull((element) => element.id == intNo)!
+  //       .work;
+  //   controllers['assignedTo']!.text = taskList
+  //       .firstWhereOrNull((element) => element.id == intNo)!
+  //       .assignedTo
+  //       .toString();
+
+  //   // Fetch and set the attached file path
+  //   final file = await getFileDetailsById(intNo);
+  //   if (file.filePath.isNotEmpty) {
+  //     attachedFiles.assign(file.filePath);
+  //   }
+  //   controllers['attached']!.text = await getFileDetailsById(
+  //     intNo,
+  //   ).then((value) => value.filePath);
+
+  //   await getTaskList();
+  // }
 
   void searchResult(String val) {
     showlog("search for number : $val");

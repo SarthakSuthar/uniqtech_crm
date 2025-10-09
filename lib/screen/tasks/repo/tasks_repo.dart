@@ -38,6 +38,13 @@ class TasksRepo {
     }
   }
 
+  Future<int> getNextTaskId() async {
+    Database db = await DatabaseHelper().database;
+    final result = await db.rawQuery('SELECT MAX(id) FROM $taskTable');
+    int? maxId = result.first['MAX(id)'] as int?;
+    return (maxId ?? 0) + 1;
+  }
+
   ///get all task list
   static Future<List<TasksModel>> getAllTasks() async {
     try {

@@ -5,6 +5,7 @@ import 'package:crm/app_const/widgets/app_bar.dart';
 import 'package:crm/app_const/widgets/app_drawer.dart';
 import 'package:crm/app_const/widgets/app_widgets.dart';
 import 'package:crm/screen/tasks/controller/tasks_controller.dart';
+import 'package:crm/screen/tasks/repo/tasks_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -25,15 +26,17 @@ class _AddTaskState extends State<AddTask> {
   void initState() {
     super.initState();
 
-    if (widget.isEdit) {
-      controller.setEditDetails(widget.no ?? '');
-    } else {
-      controller.controllers["no"]!.text = (controller.taskList.length + 1)
-          .toString();
-      if (widget.no != null) {
-        controller.controllers["no"]!.text = widget.no!;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (widget.isEdit) {
+        await controller.setEditDetails(widget.no ?? '0');
+      } else {
+        controller.controllers["no"]!.text = (await TasksRepo().getNextTaskId())
+            .toString();
+        if (widget.no != null) {
+          controller.controllers["no"]!.text = widget.no!;
+        }
       }
-    }
+    });
   }
 
   @override

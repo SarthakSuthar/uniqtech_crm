@@ -11,12 +11,9 @@ import 'package:crm/screen/orders/models/order_model.dart';
 import 'package:crm/screen/orders/models/order_product_model.dart';
 import 'package:crm/screen/orders/models/order_terms_model.dart';
 import 'package:crm/screen/orders/repo/order_repo.dart';
-import 'package:crm/services/local_db.dart';
-import 'package:crm/services/shred_pref.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:sqflite/sqlite_api.dart';
 
 class OrderController extends GetxController {
   RxString? selectedProduct = RxString("");
