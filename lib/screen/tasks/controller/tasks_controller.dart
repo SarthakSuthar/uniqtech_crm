@@ -132,7 +132,7 @@ class TasksController extends GetxController {
     }).toList();
   }
 
-  // ------ database handling --------
+  // ---------- database handling ---------------------------------
 
   // get task lisk
   Future<void> getTaskList() async {
@@ -341,7 +341,7 @@ class TasksController extends GetxController {
     }
   }
 
-  // ------ doc handling -------
+  // ------------------------- doc handling -----------------------------
 
   CameraController? cameraController;
   late Future<void> initializeControllerFuture;

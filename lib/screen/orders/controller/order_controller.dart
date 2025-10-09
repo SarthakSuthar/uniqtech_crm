@@ -50,8 +50,6 @@ class OrderController extends GetxController {
       // selectedOrder = args['selectedOrder'];
     }
 
-    // final lastId = SharedPrefHelper.getInt('lastOrderId') ?? 0;
-
     _initializeControllersAndFocusNodes();
     await getOrderList();
     await getProductList();
@@ -64,9 +62,8 @@ class OrderController extends GetxController {
     if (isEdit) {
       await setEditDetails();
     } else if (controllers['num']?.text.isEmpty ?? true) {
-      // final lastId = SharedPrefHelper.getInt('lastOrderId') ?? 0;
-
-      // controllers['num']!.text = lastId.toString();
+      controllers['num']!.text = (await OrderRepo().getNextOrderId())
+          .toString();
 
       showlog("Order -- Last id in controller : ${controllers['num']!.text}");
 
@@ -370,8 +367,9 @@ class OrderController extends GetxController {
   ///add order & product id to table so we have track of for a customer how many products order we have
   Future<void> addOrderProductID() async {
     try {
+      final orderId = int.parse(controllers['num']!.text);
       final orderProdId = OrderProductModel(
-        orderId: orderList.length + 1,
+        orderId: orderId,
         productId: getProductId(selectedProduct!.value),
         quantity: int.parse(controllers["quantity"]!.text),
         discount: double.parse(controllers['discount']!.text),

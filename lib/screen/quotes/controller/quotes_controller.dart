@@ -47,7 +47,7 @@ class QuotesController extends GetxController {
 
     // Set initial quotation number based on the total number of quotations
     if (isEdit == true) {
-      await setEditDetails();
+      setEditDetails();
     } else {
       // controllers['num']!.text = (quotationList.length + 1).toString();
       controllers['num']!.text = (await QuotationRepo().getNextQuotationId())
@@ -318,7 +318,7 @@ class QuotesController extends GetxController {
     }
   }
 
-  // ------------------------
+  // ----------------------------------------------------------------------------------------
 
   ///add Customer
   Future<void> addQuotationCustomer() async {

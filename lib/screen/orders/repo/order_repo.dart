@@ -53,6 +53,15 @@ class OrderRepo {
     return newId;
   }
 
+  Future<int> getNextOrderId() async {
+    Database db = await DatabaseHelper().database;
+    final result = await db.rawQuery(
+      'SELECT MAX(id) as maxId FROM $orderTable',
+    );
+    int? maxId = result.first['maxId'] as int?;
+    return (maxId ?? 0) + 1;
+  }
+
   ///get all orders from the [orderTable]
   static Future<List<OrderModel>> getAllOrders() async {
     Database db = await DatabaseHelper().database;
@@ -241,15 +250,6 @@ class OrderRepo {
             FOREIGN KEY (orderId) REFERENCES $orderTable(id) ON DELETE CASCADE
         )
     ''');
-  }
-
-  Future<int> getNextOrderId() async {
-    Database db = await DatabaseHelper().database;
-    final result = await db.rawQuery(
-      'SELECT MAX(id) as maxId FROM $orderTable',
-    );
-    int? maxId = result.first['maxId'] as int?;
-    return (maxId ?? 0) + 1;
   }
 
   ///insert
