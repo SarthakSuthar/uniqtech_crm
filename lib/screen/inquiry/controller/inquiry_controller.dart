@@ -465,7 +465,10 @@ class InquiryController extends GetxController {
   final selectedFollowupRemarks = "".obs;
   final selectedFollowupAssignedTo = "".obs;
 
-  final RxList<InquiryFollowupModel> inquiryFollowupList =
+  RxList<InquiryFollowupModel> inquiryFollowupList =
+      <InquiryFollowupModel>[].obs;
+
+  RxList<InquiryFollowupModel> tempInquiryFollowupList =
       <InquiryFollowupModel>[].obs;
 
   ///GET SELECTED Followup DETAIL's
@@ -521,6 +524,7 @@ class InquiryController extends GetxController {
       );
       showlog("added inquiry followup ----> ${inquiryFollowup.toJson()}");
       int result = await InquiryRepo.insertInquiryFollowup(inquiryFollowup);
+      await getInquiryFollowupList(intId);
       showSuccessSnackBar("Followup added successfully");
       showlog("insert inquiry followup ----> $result");
     } catch (e) {

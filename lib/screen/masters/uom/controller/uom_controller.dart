@@ -14,12 +14,12 @@ class UomController extends GetxController {
     getAllUoms();
   }
 
-  @override
-  void onClose() {
-    uomNameController.dispose();
-    uomCodeController.dispose();
-    super.onClose();
-  }
+  // @override
+  // void onClose() {
+  //   uomNameController.dispose();
+  //   uomCodeController.dispose();
+  //   super.onClose();
+  // }
 
   final TextEditingController uomNameController = TextEditingController();
   final TextEditingController uomCodeController = TextEditingController();

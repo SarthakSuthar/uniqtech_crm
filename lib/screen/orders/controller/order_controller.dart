@@ -120,16 +120,16 @@ class OrderController extends GetxController {
     if (val != null) selectedUOM?.value = val;
   }
 
-  @override
-  void onClose() {
-    _disposeControllersAndFocusNodes();
-    super.onClose();
-  }
+  // @override
+  // void onClose() {
+  //   _disposeControllersAndFocusNodes();
+  //   super.onClose();
+  // }
 
-  void _disposeControllersAndFocusNodes() {
-    controllers.forEach((key, controller) => controller.dispose());
-    focusNodes.forEach((key, focusNode) => focusNode.dispose());
-  }
+  // void _disposeControllersAndFocusNodes() {
+  //   controllers.forEach((key, controller) => controller.dispose());
+  //   focusNodes.forEach((key, focusNode) => focusNode.dispose());
+  // }
 
   Future<void> setEditDetails() async {
     int intNo = int.parse(no ?? '');

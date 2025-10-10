@@ -115,26 +115,26 @@ class QuotesController extends GetxController {
     selectedUOM?.value = value ?? "";
   }
 
-  void _disposeControllersAndFocusNodes() {
-    controllers.forEach((key, controller) => controller.dispose());
-    focusNodes.forEach((key, focusNode) => focusNode.dispose());
-  }
+  // void _disposeControllersAndFocusNodes() {
+  //   controllers.forEach((key, controller) => controller.dispose());
+  //   focusNodes.forEach((key, focusNode) => focusNode.dispose());
+  // }
 
-  @override
-  void onClose() {
-    _disposeControllersAndFocusNodes();
-    selectedTerms.clear();
-    super.onClose();
-  }
+  // @override
+  // void onClose() {
+  //   _disposeControllersAndFocusNodes();
+  //   selectedTerms.clear();
+  //   super.onClose();
+  // }
 
-  @override
-  void dispose() {
-    _disposeControllersAndFocusNodes();
-    selectedCustomer.value = '';
-    selectedProduct?.value = '';
-    selectedUOM?.value = '';
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   _disposeControllersAndFocusNodes();
+  //   selectedCustomer.value = '';
+  //   selectedProduct?.value = '';
+  //   selectedUOM?.value = '';
+  //   super.dispose();
+  // }
 
   Future<void> setEditDetails() async {
     int intNo = int.parse(no ?? '');
@@ -502,7 +502,7 @@ class QuotesController extends GetxController {
   final selectedFollowupRemarks = "".obs;
   final selectedFollowupAssignedTo = "".obs;
 
-  final RxList<QuotationFollowupModel> quotationFollowupList =
+  RxList<QuotationFollowupModel> quotationFollowupList =
       <QuotationFollowupModel>[].obs;
 
   ///GET SELECTED Followup DETAIL's
@@ -561,6 +561,7 @@ class QuotesController extends GetxController {
       int result = await QuotationRepo.insertQuotationFollowup(
         quotationFollowup,
       );
+      await getQuotationFollowupList(intId);
       showSuccessSnackBar("Quotation followup added successfully");
       showlog("insert quotation followup ----> $result");
     } catch (e) {

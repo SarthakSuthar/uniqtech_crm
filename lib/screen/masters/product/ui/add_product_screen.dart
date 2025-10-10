@@ -96,36 +96,38 @@ class AddProductScreen extends StatelessWidget {
                       }).toList(),
                     ),
                   ),
-                  fileSelectWidget(
-                    title: "Document",
-                    icon: Icons.file_copy_outlined,
-                    context: context,
-                    onTap: () => controller.selectFiles(),
+
+                  // fileSelectWidget(
+                  //   title: "Document",
+                  //   icon: Icons.file_copy_outlined,
+                  //   context: context,
+                  //   onTap: () => controller.selectFiles(),
+                  // ),
+                  Obx(
+                    () => controller.selectedImages.isEmpty
+                        ? SizedBox()
+                        : Column(
+                            children: controller.selectedImages.map((file) {
+                              return Card(
+                                child: ListTile(
+                                  title: Image.file(file),
+                                  subtitle: Text(
+                                    "${((file.lengthSync()) / (1024 * 1024)).toStringAsFixed(2)} MB",
+                                    style: TextStyle(fontSize: 12),
+                                  ),
+                                  trailing: IconButton(
+                                    icon: Icon(Icons.delete),
+                                    onPressed: () =>
+                                        controller.selectedImages.remove(file),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
                   ),
-                  if (controller.selectedImages.isNotEmpty)
-                    Obx(
-                      () => Column(
-                        children: controller.selectedImages.map((file) {
-                          return Card(
-                            child: ListTile(
-                              title: Text(file.path.split('/').last),
-                              subtitle: Text(
-                                "${((file.lengthSync()) / (1024 * 1024)).toStringAsFixed(2)} MB",
-                                style: TextStyle(fontSize: 12),
-                              ),
-                              trailing: IconButton(
-                                icon: Icon(Icons.delete),
-                                onPressed: () =>
-                                    controller.selectedImages.remove(file),
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
                   fileSelectWidget(
-                    title: "Image",
-                    icon: Icons.image_outlined,
+                    title: "File",
+                    icon: Icons.file_copy_outlined,
                     context: context,
                     onTap: () => controller.selectFiles(),
                   ),

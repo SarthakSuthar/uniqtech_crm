@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crm/app_const/utils/app_utils.dart';
+import 'package:crm/app_const/widgets/app_snackbars.dart';
 import 'package:crm/screen/masters/product/model/product_model.dart';
 import 'package:crm/screen/masters/product/repo/product_repo.dart';
 import 'package:crm/screen/masters/uom/model/uom_model.dart';
@@ -107,33 +108,54 @@ class ProductController extends GetxController {
   }
 
   // ----------- File Selection ----------
-  RxList selectedFiles = [].obs; // New list to store selected files
-  RxList selectedImages = [].obs; // New list to store selected images
+  final RxList<File> selectedFiles = <File>[].obs;
+  final RxList<File> selectedImages = <File>[].obs;
 
   Future<void> selectFiles() async {
     try {
+      // Open File Picker (allow both docs & images)
       final result = await FilePicker.platform.pickFiles(
         allowMultiple: false,
-        // type: FileType.custom,
-        // allowedExtensions: ['jpg', 'png', 'pdf', 'jpeg'],
+        type: FileType.custom,
+        allowedExtensions: [
+          // Common mobile document formats
+          'pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'txt',
+          // Common image formats
+          'jpg', 'jpeg', 'png', 'heic', 'webp',
+        ],
       );
 
-      if (result != null) {
-        final file = File(result.files.single.path!);
-        if (file.path.endsWith('.pdf') ||
-            file.path.endsWith('.word') ||
-            file.path.endsWith('.excel')) {
-          selectedFiles.add(file);
-          controllers["product_document"]!.text = file.path;
-          showlog("Selected file: ${file.path}");
-        } else {
-          selectedImages.add(file);
-          controllers["product_image"]!.text = file.path;
-          showlog("Selected image: ${file.path}");
-        }
+      if (result == null) return;
+
+      final file = File(result.files.single.path!);
+      final ext = file.path.split('.').last.toLowerCase();
+
+      // Define allowed document and image extensions
+      const docExtensions = [
+        'pdf',
+        'doc',
+        'docx',
+        'ppt',
+        'pptx',
+        'xls',
+        'xlsx',
+        'txt',
+      ];
+      const imageExtensions = ['jpg', 'jpeg', 'png', 'heic', 'webp'];
+
+      if (docExtensions.contains(ext)) {
+        selectedFiles.add(file);
+        controllers["product_document"]?.text = file.path;
+        showlog("📄 Selected document: ${file.path}");
+      } else if (imageExtensions.contains(ext)) {
+        selectedImages.add(file);
+        controllers["product_image"]?.text = file.path;
+        showlog("🖼️ Selected image: ${file.path}");
+      } else {
+        showErrorSnackBar("Unsupported file type: .$ext");
       }
     } catch (e) {
-      showlog("Error selecting files: $e");
+      showlog("❌ Error selecting files: $e");
     }
   }
 }

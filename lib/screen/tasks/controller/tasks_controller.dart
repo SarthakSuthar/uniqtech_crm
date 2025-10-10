@@ -16,7 +16,7 @@ class TasksController extends GetxController {
 
   final RxString noSearchController = ''.obs;
   final RxString selectedTypeOfWork = ''.obs;
-  final RxList<TasksModel> filteredList = <TasksModel>[].obs;
+  RxList<TasksModel> filteredList = <TasksModel>[].obs;
   final RxList<TasksModel> taskList = <TasksModel>[].obs;
 
   bool isEdit = false;
@@ -51,13 +51,13 @@ class TasksController extends GetxController {
     // }
   }
 
-  @override
-  void onClose() {
-    controllers.forEach((_, controller) => controller.dispose());
-    focusNodes.forEach((_, node) => node.dispose());
-    cameraController?.dispose();
-    super.onClose();
-  }
+  // @override
+  // void onClose() {
+  //   controllers.forEach((_, controller) => controller.dispose());
+  //   focusNodes.forEach((_, node) => node.dispose());
+  //   cameraController?.dispose();
+  //   super.onClose();
+  // }
 
   void updateTypeOfWork(String? newValue) {
     if (newValue != null) {
@@ -131,7 +131,8 @@ class TasksController extends GetxController {
     try {
       final result = await TasksRepo.getAllTasks();
       taskList.assignAll(result);
-      filteredList.value = taskList;
+      // filteredList.value = taskList;
+      filteredList.assignAll(result);
       showlog("task list : ${result.map((e) => e.toMap()).toList()}");
     } catch (e) {
       showlog("Error getting task list : $e");
@@ -199,6 +200,7 @@ class TasksController extends GetxController {
         await addFile();
       }
       showSuccessSnackBar("Task added successfully");
+      Get.back();
       showlog("insert task ----> $result");
       await getTaskList();
     } catch (e) {
