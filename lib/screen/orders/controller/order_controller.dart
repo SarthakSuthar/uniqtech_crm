@@ -1,4 +1,5 @@
 import 'package:crm/app_const/utils/app_utils.dart';
+import 'package:crm/app_const/widgets/app_snackbars.dart';
 import 'package:crm/screen/contacts/repo/contact_repo.dart';
 import 'package:crm/screen/masters/product/model/product_model.dart';
 import 'package:crm/screen/masters/product/repo/product_repo.dart';
@@ -27,7 +28,7 @@ class OrderController extends GetxController {
   var customerList = <String, String>{}.obs;
   var selectedCustomer = "".obs;
   var productList = <ProductModel>[].obs;
-  var orderProductList = <OrderProductModel>[].obs;
+  RxList<OrderProductModel> orderProductList = <OrderProductModel>[].obs;
   var uomList = <UomModel>[].obs;
 
   Map<String, TextEditingController> controllers = {};
@@ -152,22 +153,30 @@ class OrderController extends GetxController {
     controllers['social']!.text = orderList
         .firstWhereOrNull((element) => element.id == intNo)!
         .source!;
-    controllers['supplier_ref']!.text = orderList
-        .firstWhereOrNull((element) => element.id == intNo)!
-        .supplierRef!;
-    controllers['other_ref']!.text = orderList
-        .firstWhereOrNull((element) => element.id == intNo)!
-        .otherRef!;
+    controllers['supplier_ref']!.text =
+        orderList
+            .firstWhereOrNull((element) => element.id == intNo)!
+            .supplierRef ??
+        '';
+    controllers['other_ref']!.text =
+        orderList
+            .firstWhereOrNull((element) => element.id == intNo)!
+            .otherRef ??
+        '';
     controllers['extra_discount']!.text = orderList
         .firstWhereOrNull((element) => element.id == intNo)!
         .extraDiscount
         .toString();
-    controllers['freight_amount']!.text = orderList
-        .firstWhereOrNull((element) => element.id == intNo)!
-        .freightAmount!;
-    controllers['loading_charges']!.text = orderList
-        .firstWhereOrNull((element) => element.id == intNo)!
-        .loadingCharges!;
+    controllers['freight_amount']!.text =
+        orderList
+            .firstWhereOrNull((element) => element.id == intNo)!
+            .freightAmount ??
+        '';
+    controllers['loading_charges']!.text =
+        orderList
+            .firstWhereOrNull((element) => element.id == intNo)!
+            .loadingCharges ??
+        '';
     await getOrderProductList();
   }
 
@@ -341,9 +350,11 @@ class OrderController extends GetxController {
       showlog("added order customer ----> ${orderCustomer.toJson()}");
 
       int result = await OrderRepo.insertOrder(orderCustomer);
+      // showSuccessSnackBar("Customer added successfully");
       showlog("insert order customer ----> $result");
       await getOrderList();
     } catch (e) {
+      // showErrorSnackBar("Error adding customer $e");
       showlog("error on add customer : $e");
     }
   }
@@ -362,7 +373,7 @@ class OrderController extends GetxController {
   }
 
   ///add order & product id to table so we have track of for a customer how many products order we have
-  Future<void> addOrderProductID() async {
+  /*  Future<void> addOrderProductID() async {
     try {
       final orderId = int.parse(controllers['num']!.text);
       final orderProdId = OrderProductModel(
@@ -378,9 +389,50 @@ class OrderController extends GetxController {
 
       int result = await OrderRepo.insertOrderProduct(orderProdId);
       showlog("insert order product ----> $result");
+      showSuccessSnackBar("Product added successfully");
       await getOrderProductList();
     } catch (e) {
+      showErrorSnackBar("Error adding product: $e");
       showlog("Error adding product & quotation ID : $e");
+    }
+  }
+*/
+
+  RxList<OrderProductModel> tempProductList = <OrderProductModel>[].obs;
+
+  void addtempProductList() {
+    final orderId = int.parse(controllers['num']!.text);
+    showlog("order id in temp list : $orderId");
+
+    try {
+      tempProductList.add(
+        OrderProductModel(
+          orderId: orderId,
+          productId: getProductId(selectedProduct!.value),
+          quantity: int.parse(controllers["quantity"]!.text),
+          discount: double.parse(controllers['discount']!.text),
+          remark: controllers['remarks']!.text,
+        ),
+      );
+
+      orderProductList.addAll(tempProductList);
+
+      showSuccessSnackBar("Product added successfully");
+    } catch (e) {
+      showErrorSnackBar("Error adding product: $e");
+      showlog("Error adding product & quotation ID : $e");
+    }
+  }
+
+  Future<void> addOrderProduct() async {
+    try {
+      for (var product in orderProductList) {
+        int result = await OrderRepo.insertOrderProduct(product);
+        showlog("insert order product ----> $result");
+      }
+    } catch (e) {
+      showErrorSnackBar("Error adding product");
+      showlog("Error adding product : $e");
     }
   }
 
@@ -389,7 +441,9 @@ class OrderController extends GetxController {
     try {
       await addOrderCustomer();
       await getOrderList();
+      showSuccessSnackBar("Order submitted successfully");
     } catch (e) {
+      showErrorSnackBar("Error submitting order : $e");
       showlog("Error submitting order : $e");
     }
   }
@@ -400,14 +454,16 @@ class OrderController extends GetxController {
       await getOrderList();
       await OrderRepo.deleteOrderProduct(id);
       await getOrderProductList();
+      showSuccessSnackBar("Order deleted successfully");
     } catch (e) {
+      showErrorSnackBar("Error deleting order : $e");
       showlog("Error deleting order : $e");
     }
   }
 
   Future<void> updateOrder() async {
     try {
-      //TODO: implement update logic
+      //FIXME: implement update logic
       /* 
       If we re getting contact details & product details from their different masters
       What we need to update ????
@@ -430,8 +486,10 @@ class OrderController extends GetxController {
       );
       showlog("update order ----> ${order.toJson()}");
       // int result = await QuotationRepo.updateQuotation(quotation);
+      showSuccessSnackBar("Order updated successfully");
       // showlog("updated quotation ----> $result");
     } catch (e) {
+      showErrorSnackBar("Error updating order : $e");
       showlog("Error update order : $e");
     }
   }
@@ -523,7 +581,9 @@ class OrderController extends GetxController {
         int result = await OrderRepo.insertOrderTerms(orderTerms);
         showlog("insert Order terms ----> $result");
       }
+      showSuccessSnackBar("Order terms added successfully");
     } catch (e) {
+      showErrorSnackBar("Error adding Order terms : $e");
       showlog("Error adding Order terms : $e");
     }
   }
@@ -552,14 +612,14 @@ class OrderController extends GetxController {
         currentOrder.custId.toString(),
       );
 
-      invoiceCustName.value = currentOrder.custName1!;
-      invoiceCustContact.value = customerDetails.mobileNo!;
-      invoiceCustEmail.value = customerDetails.email!;
+      invoiceCustName.value = currentOrder.custName1 ?? '';
+      invoiceCustContact.value = customerDetails.mobileNo ?? '';
+      invoiceCustEmail.value = customerDetails.email ?? '';
       extraDiscount.value = currentOrder.extraDiscount.toString();
-      freightAmount.value = currentOrder.freightAmount!;
-      loadingCharges.value = currentOrder.loadingCharges!;
-      suppRef.value = currentOrder.supplierRef!;
-      otherRef.value = currentOrder.otherRef!;
+      freightAmount.value = currentOrder.freightAmount ?? '0';
+      loadingCharges.value = currentOrder.loadingCharges ?? '0';
+      suppRef.value = currentOrder.supplierRef ?? '';
+      otherRef.value = currentOrder.otherRef ?? '';
 
       final productList = await OrderRepo.getAllOrderProducts();
 

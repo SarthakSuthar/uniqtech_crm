@@ -34,18 +34,18 @@ Widget inputWidget({
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
     ),
     validator: (value) {
-      if (value == null || value.isEmpty) return "This field is required";
+      if (value == null || value.isEmpty || value.trim().isEmpty) {
+        return "This field is required";
+      }
       return null;
     },
   );
 
   if (expandInRow) {
-    // ✅ Expanded directly in Row
     return Expanded(
       child: Padding(padding: const EdgeInsets.all(8.0), child: field),
     );
   } else {
-    // ✅ Safe for Column / ScrollView
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: SizedBox(width: screenWidth * 0.9, child: field),
@@ -87,10 +87,13 @@ Widget dropdownWidget({
         );
       }).toList(),
       onChanged: onChanged,
+      validator: (value) {
+        if (value == null || value.isEmpty) return "This field is required";
+        return null;
+      },
     ),
   );
 
-  // ✅ Prevents unbounded width issues in Row
   return expandInRow ? Expanded(child: dropdown) : dropdown;
 }
 

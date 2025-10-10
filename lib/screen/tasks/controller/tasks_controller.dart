@@ -1,5 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:crm/app_const/utils/app_utils.dart';
+import 'package:crm/app_const/widgets/app_snackbars.dart';
 import 'package:crm/screen/tasks/model/task_files_model.dart';
 import 'package:crm/screen/tasks/model/tasks_model.dart';
 import 'package:crm/screen/tasks/repo/tasks_repo.dart';
@@ -105,44 +106,6 @@ class TasksController extends GetxController {
     controllers['attached']!.text = file.filePath;
   }
 
-  // Future<void> setEditDetails(String no) async {
-  //   showlog("No set edit details: $no");
-  //   int intNo = int.parse(no);
-
-  //   controllers['no']!.text = no;
-
-  //   controllers['date']!.text = taskList
-  //       .firstWhereOrNull((element) => element.id == intNo)!
-  //       .date;
-  //   controllers['taskDiscription']!.text = taskList
-  //       .firstWhereOrNull((element) => element.id == intNo)!
-  //       .description;
-  //   controllers['work']!.text = taskList
-  //       .firstWhereOrNull((element) => element.id == intNo)!
-  //       .work;
-  //   controllers['workType']!.text = taskList
-  //       .firstWhereOrNull((element) => element.id == intNo)!
-  //       .work;
-  //   selectedTypeOfWork.value = taskList
-  //       .firstWhereOrNull((element) => element.id == intNo)!
-  //       .work;
-  //   controllers['assignedTo']!.text = taskList
-  //       .firstWhereOrNull((element) => element.id == intNo)!
-  //       .assignedTo
-  //       .toString();
-
-  //   // Fetch and set the attached file path
-  //   final file = await getFileDetailsById(intNo);
-  //   if (file.filePath.isNotEmpty) {
-  //     attachedFiles.assign(file.filePath);
-  //   }
-  //   controllers['attached']!.text = await getFileDetailsById(
-  //     intNo,
-  //   ).then((value) => value.filePath);
-
-  //   await getTaskList();
-  // }
-
   void searchResult(String val) {
     showlog("search for number : $val");
 
@@ -235,9 +198,11 @@ class TasksController extends GetxController {
         //add file to file table
         await addFile();
       }
+      showSuccessSnackBar("Task added successfully");
       showlog("insert task ----> $result");
       await getTaskList();
     } catch (e) {
+      showErrorSnackBar("Error adding task");
       showlog("Error adding task : $e");
     }
   }
@@ -299,8 +264,10 @@ class TasksController extends GetxController {
         await updateFile();
       }
       await getTaskList();
+      showSuccessSnackBar("Task updated successfully");
       showlog("updated task ----> $result");
     } catch (e) {
+      showErrorSnackBar("Error updating task");
       showlog("Error update task : $e");
     }
   }
@@ -350,9 +317,11 @@ class TasksController extends GetxController {
         await deleteFile(id);
       }
       await getTaskList();
+      showSuccessSnackBar("Task deleted successfully");
       showlog("deleted task ----> $result");
       return result;
     } catch (e) {
+      showErrorSnackBar("Error deleting task");
       showlog("Error deleting task : $e");
       rethrow;
     }

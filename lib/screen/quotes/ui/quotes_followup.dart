@@ -17,6 +17,8 @@ class QuotesFollowup extends StatefulWidget {
 class _QuotesFollowupState extends State<QuotesFollowup> {
   final QuotesController controller = Get.put(QuotesController());
 
+  final _formKey = GlobalKey<FormState>();
+
   @override
   initState() {
     super.initState();
@@ -48,143 +50,151 @@ class _QuotesFollowupState extends State<QuotesFollowup> {
           child: Padding(
             padding: EdgeInsets.all(8.0),
             child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Followup",
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  SizedBox(height: 10),
-                  Row(
-                    children: [
-                      datePickerWidget(
-                        icon: Icons.calendar_month,
-                        controller: controller.controllers["followupDate"]!,
-                        context: context,
-                        expandInRow: true,
-                      ),
-                      dropdownWidget(
-                        hintText: "Select Followup",
-                        icon: Icons.folder_outlined,
-                        items: ["1", "2", "3"],
-                        onChanged: (val) {
-                          if (val != null) {
-                            controller.selectedFollowupType.value = val;
-                          }
-                          showlog(
-                            "selected value : ${controller.selectedFollowupType.value}",
-                          );
-                        },
-                        value: controller.selectedFollowupType.isEmpty == true
-                            ? null
-                            : controller.selectedFollowupType.value,
-                        expandInRow: true,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      dropdownWidget(
-                        hintText: "Select Status",
-                        icon: Icons.bar_chart_outlined,
-                        items: ["1", "2", "3"],
-                        onChanged: (value) {
-                          if (value != null) {
-                            controller.selectedFollowupStatus.value = value;
-                          }
-                          showlog(
-                            "selected value : ${controller.selectedFollowupStatus.value}",
-                          );
-                        },
-                        value: controller.selectedFollowupStatus.isEmpty == true
-                            ? null
-                            : controller.selectedFollowupStatus.value,
-                        expandInRow: true,
-                      ),
-                      dropdownWidget(
-                        hintText: "Select Assigned to",
-                        icon: Icons.bar_chart_outlined,
-                        items: ["1", "2", "3"],
-                        onChanged: (value) {
-                          if (value != null) {
-                            controller.selectedFollowupAssignedTo.value = value;
-                          }
-                          showlog(
-                            "selected value : ${controller.selectedFollowupAssignedTo.value}",
-                          );
-                        },
-                        value:
-                            controller.selectedFollowupAssignedTo.isEmpty ==
-                                true
-                            ? null
-                            : controller.selectedFollowupAssignedTo.value,
-                        expandInRow: true,
-                      ),
-                    ],
-                  ),
-                  inputWidget(
-                    hintText: "Remark",
-                    icon: Icons.note,
-                    controller: controller.controllers["followupRemarks"]!,
-                    context: context,
-                    focusNode: controller.focusNodes["followupRemarks"]!,
-                    minLines: 2,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      buttonWidget(
-                        title: "ADD",
-                        onTap: () async {
-                          await controller.addQuotationFollowup(
-                            widget.quotationId,
-                          );
-                          showlog("ADD: Inquoiry follow up");
-                        },
-                        context: context,
-                      ),
-                      buttonWidget(
-                        title: "SAVE",
-                        onTap: () async {
-                          await controller.updateQuotationFollowup(
-                            widget.quotationId,
-                          );
-                          showlog("SAVE: Inquoiry follow up");
-                        },
-                        context: context,
-                      ),
-                    ],
-                  ),
-                  Obx(
-                    () => controller.quotationFollowupList.isEmpty
-                        ? Text("No data found")
-                        : ListView.builder(
-                            itemCount: controller.quotationFollowupList.length,
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemBuilder: (context, index) => followupItem(
-                              followupDate: controller
-                                  .quotationFollowupList[index]
-                                  .followupDate!,
-                              followupType: controller
-                                  .quotationFollowupList[index]
-                                  .followupStatus!,
-                              followupAssignedTo: controller
-                                  .quotationFollowupList[index]
-                                  .followupAssignedTo!,
-                              followupRemarks: controller
-                                  .quotationFollowupList[index]
-                                  .followupRemarks!,
-                              followupStatus: controller
-                                  .quotationFollowupList[index]
-                                  .followupStatus!,
-                              followupId:
-                                  controller.quotationFollowupList[index].id!,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Followup",
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      children: [
+                        datePickerWidget(
+                          icon: Icons.calendar_month,
+                          controller: controller.controllers["followupDate"]!,
+                          context: context,
+                          expandInRow: true,
+                        ),
+                        dropdownWidget(
+                          hintText: "Select Followup",
+                          icon: Icons.folder_outlined,
+                          items: ["1", "2", "3"],
+                          onChanged: (val) {
+                            if (val != null) {
+                              controller.selectedFollowupType.value = val;
+                            }
+                            showlog(
+                              "selected value : ${controller.selectedFollowupType.value}",
+                            );
+                          },
+                          value: controller.selectedFollowupType.isEmpty == true
+                              ? null
+                              : controller.selectedFollowupType.value,
+                          expandInRow: true,
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        dropdownWidget(
+                          hintText: "Select Status",
+                          icon: Icons.bar_chart_outlined,
+                          items: ["1", "2", "3"],
+                          onChanged: (value) {
+                            if (value != null) {
+                              controller.selectedFollowupStatus.value = value;
+                            }
+                            showlog(
+                              "selected value : ${controller.selectedFollowupStatus.value}",
+                            );
+                          },
+                          value:
+                              controller.selectedFollowupStatus.isEmpty == true
+                              ? null
+                              : controller.selectedFollowupStatus.value,
+                          expandInRow: true,
+                        ),
+                        dropdownWidget(
+                          hintText: "Select Assigned to",
+                          icon: Icons.bar_chart_outlined,
+                          items: ["1", "2", "3"],
+                          onChanged: (value) {
+                            if (value != null) {
+                              controller.selectedFollowupAssignedTo.value =
+                                  value;
+                            }
+                            showlog(
+                              "selected value : ${controller.selectedFollowupAssignedTo.value}",
+                            );
+                          },
+                          value:
+                              controller.selectedFollowupAssignedTo.isEmpty ==
+                                  true
+                              ? null
+                              : controller.selectedFollowupAssignedTo.value,
+                          expandInRow: true,
+                        ),
+                      ],
+                    ),
+                    inputWidget(
+                      hintText: "Remark",
+                      icon: Icons.note,
+                      controller: controller.controllers["followupRemarks"]!,
+                      context: context,
+                      focusNode: controller.focusNodes["followupRemarks"]!,
+                      minLines: 2,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        buttonWidget(
+                          title: "ADD",
+                          onTap: () async {
+                            if (_formKey.currentState!.validate()) {
+                              await controller.addQuotationFollowup(
+                                widget.quotationId,
+                              );
+                            }
+                            showlog("ADD: Inquoiry follow up");
+                          },
+                          context: context,
+                        ),
+                        // buttonWidget(
+                        //   title: "SAVE",
+                        //   onTap: () async {
+                        //     await controller.updateQuotationFollowup(
+                        //       widget.quotationId,
+                        //     );
+                        //     showlog("SAVE: Inquoiry follow up");
+                        //   },
+                        //   context: context,
+                        // ),
+                      ],
+                    ),
+                    Obx(
+                      () => controller.quotationFollowupList.isEmpty
+                          ? Text("No data found")
+                          : ListView.builder(
+                              itemCount:
+                                  controller.quotationFollowupList.length,
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemBuilder: (context, index) => followupItem(
+                                followupDate: controller
+                                    .quotationFollowupList[index]
+                                    .followupDate!,
+                                followupType: controller
+                                    .quotationFollowupList[index]
+                                    .followupStatus!,
+                                followupAssignedTo: controller
+                                    .quotationFollowupList[index]
+                                    .followupAssignedTo!,
+                                followupRemarks: controller
+                                    .quotationFollowupList[index]
+                                    .followupRemarks!,
+                                followupStatus: controller
+                                    .quotationFollowupList[index]
+                                    .followupStatus!,
+                                followupId:
+                                    controller.quotationFollowupList[index].id!,
+                              ),
                             ),
-                          ),
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

@@ -95,7 +95,7 @@ class _InquiryListState extends State<InquiryList> {
             ),
 
             Obx(
-              () => controller.inquiryList.isEmpty
+              () => controller.filterendList.isEmpty
                   ? Text(" No data found")
                   : Expanded(
                       child: ListView.builder(

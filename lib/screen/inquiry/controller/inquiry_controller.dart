@@ -1,4 +1,5 @@
 import 'package:crm/app_const/utils/app_utils.dart';
+import 'package:crm/app_const/widgets/app_snackbars.dart';
 import 'package:crm/screen/contacts/repo/contact_repo.dart';
 import 'package:crm/screen/inquiry/model/inquiry_followup_model.dart';
 import 'package:crm/screen/inquiry/model/inquiry_model.dart';
@@ -102,22 +103,22 @@ class InquiryController extends GetxController {
     }
   }
 
-  @override
-  void onClose() {
-    controllers.forEach((_, controller) => controller.dispose());
-    focusNodes.forEach((_, node) => node.dispose());
-    super.onClose();
-  }
+  // @override
+  // void onClose() {
+  //   controllers.forEach((_, controller) => controller.dispose());
+  //   focusNodes.forEach((_, node) => node.dispose());
+  //   super.onClose();
+  // }
 
-  @override
-  void dispose() {
-    controllers.forEach((_, controller) => controller.dispose());
-    focusNodes.forEach((_, node) => node.dispose());
-    selectedCustomer.value = '';
-    selectedProduct?.value = '';
-    selectedUOM?.value = '';
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   controllers.forEach((_, controller) => controller.dispose());
+  //   focusNodes.forEach((_, node) => node.dispose());
+  //   selectedCustomer.value = '';
+  //   selectedProduct?.value = '';
+  //   selectedUOM?.value = '';
+  //   super.dispose();
+  // }
 
   void calculateAmount() {
     final quntityText = controllers["quantity"]!.text;
@@ -217,7 +218,7 @@ class InquiryController extends GetxController {
     }
   }
 
-  var inquiryProductList = <InquiryProductModel>[].obs;
+  RxList<InquiryProductModel> inquiryProductList = <InquiryProductModel>[].obs;
 
   /// get inquiry product list
   Future<void> getinquiryProductList() async {
@@ -311,27 +312,13 @@ class InquiryController extends GetxController {
 
       int result = await InquiryRepo.insertInquiry(inquiryCustomer);
       showlog("insert inquiry customer ----> $result");
+      showSuccessSnackBar("Customer added successfully");
       await getInquiryList();
     } catch (e) {
+      showErrorSnackBar("Error adding customer");
       showlog("error on add customer : $e");
     }
   }
-
-  /*
-  do not need this as we not need to add new product 
-  but we need to map product id with customer id in InquiryProductModel table
-   */
-  //add Product
-  // Future<void> addProduct() async {
-  //   try {
-
-  //     showlog("added product ----> ${product.toJson()}");
-
-  //     // int result = await ProductRepo.insertProduct(product);
-  //   } catch (e) {
-  //     showlog("Error adding product : $e");
-  //   }
-  // }
 
   /// Retrive product id of selected product
   int getProductId(String productName) {
@@ -346,8 +333,37 @@ class InquiryController extends GetxController {
     }
   }
 
+  //create temp list, display it in ui
+  //when new product addede by "ADD" button, add that to temp
+  // on save button press save it to db
+
+  RxList<InquiryProductModel> tempProductList = <InquiryProductModel>[].obs;
+
+  void addtempProductList() {
+    final inquiryId = int.parse(controllers['num']!.text);
+
+    showlog("Inquiry Id in addInquiryProductID : $inquiryId");
+
+    try {
+      tempProductList.add(
+        InquiryProductModel(
+          inquiryId: inquiryId,
+          productId: getProductId(selectedProduct!.value),
+          quantity: int.parse(controllers["quantity"]!.text),
+          remark: controllers["remarks"]!.text,
+        ),
+      );
+
+      inquiryProductList.addAll(tempProductList);
+      showSuccessSnackBar("Product added successfully");
+    } catch (e) {
+      showErrorSnackBar("Error adding product");
+      showlog("Error adding product : $e");
+    }
+  }
+
   ///add inquiry & product id to table so we have track of for a customer how many products inquiry we have
-  Future<void> addInquiryProductID() async {
+  /*Future<void> addInquiryProductID() async {
     try {
       final inquiryId = int.parse(controllers['num']!.text);
 
@@ -364,9 +380,25 @@ class InquiryController extends GetxController {
       showlog("product id : ${inqProdId.productId}");
 
       int result = await InquiryRepo.insertInquiryProduct(inqProdId);
+      showSuccessSnackBar("Product added successfully");
       showlog("insert inquiry product ----> $result");
       await getinquiryProductList();
     } catch (e) {
+      showErrorSnackBar("Error adding Product");
+      showlog("Error adding product & inquiry ID : $e");
+    }
+  }*/
+
+  Future<void> addInquiryProductID() async {
+    try {
+      for (var element in tempProductList) {
+        int result = await InquiryRepo.insertInquiryProduct(element);
+        // showSuccessSnackBar("Product added successfully");
+        showlog("insert inquiry product ----> $result");
+        await getinquiryProductList();
+      }
+    } catch (e) {
+      showErrorSnackBar("Error adding Product");
       showlog("Error adding product & inquiry ID : $e");
     }
   }
@@ -375,7 +407,9 @@ class InquiryController extends GetxController {
   Future<void> submitInquiry() async {
     try {
       await addInquiryCustomer(); // customer
+      await addInquiryProductID();
       await getInquiryList();
+      // Get.back(result: true);
     } catch (e) {
       showlog("Error submitting inquiry : $e");
     }
@@ -386,15 +420,17 @@ class InquiryController extends GetxController {
       await InquiryRepo.deleteInquiry(id);
       await getInquiryList();
       await InquiryRepo.deleteInquiryProduct(id);
+      showSuccessSnackBar("Inquiry deleted successfully");
       await getinquiryProductList();
     } catch (e) {
+      showErrorSnackBar("Error deleting inquiry");
       showlog("Error deleting inquiry : $e");
     }
   }
 
   Future<void> updateInquiry() async {
     try {
-      //TODO: implement update logic
+      //FIXME: implement update logic
       /* 
       If we re getting contact details & product details from their different masters
       What we need to update ????
@@ -412,13 +448,16 @@ class InquiryController extends GetxController {
       );
       showlog("updated inquiry ----> ${inquiry.toJson()}");
       // int result = await InquiryRepo.updateInquiry(inquiry);
+      showSuccessSnackBar("Inquiry updated successfully");
       // showlog("update inquiry ----> $result");
+      Get.back();
     } catch (e) {
+      showErrorSnackBar("Error updating inquiry");
       showlog("Error update inquiry : $e");
     }
   }
 
-  // MARK: Inquiry Follow up ----------------
+  // MARK: Inquiry Follow up
 
   final selectedFollowupDate = "".obs;
   final selectedFollowupType = "".obs;
@@ -482,8 +521,10 @@ class InquiryController extends GetxController {
       );
       showlog("added inquiry followup ----> ${inquiryFollowup.toJson()}");
       int result = await InquiryRepo.insertInquiryFollowup(inquiryFollowup);
+      showSuccessSnackBar("Followup added successfully");
       showlog("insert inquiry followup ----> $result");
     } catch (e) {
+      showErrorSnackBar("Error adding inquiry followup");
       showlog("Error adding inquiry followup : $e");
     }
   }
@@ -502,8 +543,10 @@ class InquiryController extends GetxController {
 
       showlog("updated inquiry followup ----> ${inquiryFollowup.toJson()}");
       int result = await InquiryRepo.updateInquiryFollowup(inquiryFollowup);
+      showSuccessSnackBar("Followup updated successfully");
       showlog("update inquiry followup ----> $result");
     } catch (e) {
+      showErrorSnackBar("Error updating inquiry followup");
       showlog("Error update inquiry followup : $e");
     }
   }
@@ -516,6 +559,8 @@ class InquiryController extends GetxController {
   /// 2. on complethin of step 1 -> add data from product table into quotation product table
   /// 3. on completion of step 2 -> take data from inquiry followup table and add it to quotation followup table
   ///
+
+  int newQuotationId = 0;
 
   Future<void> convertInquiryToQuotation({required String inquiryId}) async {
     try {
@@ -558,13 +603,16 @@ class InquiryController extends GetxController {
       await convertInquiryFollowupToQuotationFollowup(
         selectedInquiryFollowupList,
       );
+
+      showSuccessSnackBar("Inquiry converted to quotation successfully");
     } catch (e) {
+      showErrorSnackBar("Error converting inquiry to quotation");
       showlog("Error converting inquiry to quotation: $e");
     }
   }
 
   //convert inq customer to quotation customer
-  static Future<void> convertInquiryCustomerToQuotationCustomer(
+  Future<void> convertInquiryCustomerToQuotationCustomer(
     InquiryModel inquiry,
   ) async {
     try {
@@ -579,20 +627,26 @@ class InquiryController extends GetxController {
         source: inquiry.source,
         isSynced: inquiry.isSynced,
       );
-      await QuotationRepo.insertQuotation(quotation);
+      newQuotationId = await QuotationRepo.insertQuotation(quotation);
     } catch (e) {
       showlog("error converting customer to quotation : $e");
     }
   }
 
   //convert inq product to quotation product
-  static Future<void> convertInquiryProductToQuotationProduct(
+  Future<void> convertInquiryProductToQuotationProduct(
     List<InquiryProductModel> inquiryProduct,
   ) async {
+    final int quotationId;
+    if (newQuotationId != 0) {
+      quotationId = newQuotationId;
+    } else {
+      quotationId = await QuotationRepo().getNextQuotationId() - 1;
+    }
     try {
       for (var inquiryProduct in inquiryProduct) {
         final quotationProduct = QuotationProductModel(
-          quotationId: inquiryProduct.inquiryId,
+          quotationId: quotationId,
           productId: inquiryProduct.productId,
           quantity: inquiryProduct.quantity,
           remark: inquiryProduct.remark,
@@ -604,13 +658,19 @@ class InquiryController extends GetxController {
     }
   }
 
-  static Future<void> convertInquiryFollowupToQuotationFollowup(
+  Future<void> convertInquiryFollowupToQuotationFollowup(
     List<InquiryFollowupModel> inquiryFollowup,
   ) async {
+    final int quotationId;
+    if (newQuotationId != 0) {
+      quotationId = newQuotationId;
+    } else {
+      quotationId = await QuotationRepo().getNextQuotationId() - 1;
+    }
     try {
       for (var inquiryFollowup in inquiryFollowup) {
         final quotationFollowup = QuotationFollowupModel(
-          quotationId: inquiryFollowup.inquiryId,
+          quotationId: quotationId,
           followupDate: inquiryFollowup.followupDate,
           followupType: inquiryFollowup.followupType,
           followupStatus: inquiryFollowup.followupStatus,

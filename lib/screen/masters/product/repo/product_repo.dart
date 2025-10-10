@@ -27,7 +27,7 @@ class ProductRepo {
     return await db.insert(
       table,
       product.toJson(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
+      conflictAlgorithm: ConflictAlgorithm.ignore,
     );
   }
 

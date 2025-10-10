@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-void showSuccessSnackBar(String title, String message) {
+void showSuccessSnackBar(String message) {
   Get.snackbar(
-    title,
+    "Success",
     message,
     snackPosition: SnackPosition.BOTTOM,
     backgroundColor: Colors.green,
@@ -14,9 +14,9 @@ void showSuccessSnackBar(String title, String message) {
   );
 }
 
-void showErrorSnackBar(String title, String message) {
+void showErrorSnackBar(String message) {
   Get.snackbar(
-    title,
+    "Error",
     message,
     snackPosition: SnackPosition.BOTTOM,
     backgroundColor: Colors.red,

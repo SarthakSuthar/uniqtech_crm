@@ -2,7 +2,6 @@ import 'package:crm/app_const/theme/app_theme.dart';
 import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/screen/contacts/model/contact_model.dart';
 import 'package:crm/screen/contacts/repo/contact_repo.dart';
-import 'package:crm/screen/login/ui/login_screen.dart';
 import 'package:crm/screen/masters/product/model/product_model.dart';
 import 'package:crm/screen/masters/product/repo/product_repo.dart';
 import 'package:crm/screen/masters/uom/model/uom_model.dart';

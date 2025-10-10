@@ -22,6 +22,8 @@ class AddTask extends StatefulWidget {
 class _AddTaskState extends State<AddTask> {
   final TasksController controller = Get.put(TasksController());
 
+  final _formKey = GlobalKey<FormState>();
+
   @override
   void initState() {
     super.initState();
@@ -64,184 +66,199 @@ class _AddTaskState extends State<AddTask> {
           body: Padding(
             padding: EdgeInsets.all(8.0),
             child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      inputWidget(
-                        hintText: "No",
-                        icon: Icons.numbers,
-                        controller: controller.controllers["no"]!,
-                        context: context,
-                        focusNode: controller.focusNodes["no"]!,
-                        expandInRow: true,
-                        readOnly: true,
-                      ),
-                      datePickerWidget(
-                        icon: Icons.calendar_month,
-                        controller: controller.controllers["date"]!,
-                        context: context,
-                        expandInRow: true,
-                      ),
-                    ],
-                  ),
-                  inputWidget(
-                    hintText: "Task Discription",
-                    icon: Icons.work,
-                    controller: controller.controllers["taskDiscription"]!,
-                    context: context,
-                    focusNode: controller.focusNodes["taskDiscription"]!,
-                    minLines: 2,
-                  ),
-
-                  Row(
-                    children: [
-                      dropdownWidget(
-                        hintText: "Work Type",
-                        icon: Icons.work,
-                        items: controller.typeOfWorkList,
-                        // onChanged: controller.updateTypeOfWork,
-                        onChanged: (value) {
-                          controller.selectedTypeOfWork.value = value!;
-                          controller.controllers["workType"]!.text = value;
-                        },
-                        // value: controller.selectedTypeOfWork.value,
-                        value:
-                            controller.selectedTypeOfWork.value.isEmpty == true
-                            ? null
-                            : controller.selectedTypeOfWork.value,
-                        expandInRow: true,
-                      ),
-
-                      inputWidget(
-                        //TODO: current login user uid
-                        hintText: "Assigned to",
-                        icon: Icons.task,
-                        controller: controller.controllers["assignedTo"]!,
-                        context: context,
-                        focusNode: controller.focusNodes["assignedTo"]!,
-                        expandInRow: true,
-                        readOnly: true,
-                      ),
-                    ],
-                  ),
-
-                  Obx(() {
-                    if (controller.attachedFiles.isEmpty) {
-                      return Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: InkWell(
-                          onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => fileSelectWidget(context),
-                            );
-                            showlog("file select widget tapped");
-                          },
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: Colors.grey,
-                                      width: 2,
-                                    ),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(12.0),
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.folder),
-                                        const SizedBox(width: 10),
-                                        Text(
-                                          "Attached",
-                                        ), // change to file name after selecting
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        inputWidget(
+                          hintText: "No",
+                          icon: Icons.numbers,
+                          controller: controller.controllers["no"]!,
+                          context: context,
+                          focusNode: controller.focusNodes["no"]!,
+                          expandInRow: true,
+                          readOnly: true,
                         ),
-                      );
-                    } else {
-                      return controller.attachedFiles.first.split('.').last ==
-                                  'png' ||
-                              controller.attachedFiles.first.split('.').last ==
-                                  'jpg' ||
-                              controller.attachedFiles.first.split('.').last ==
-                                  'jpeg'
-                          ? Image.file(File(controller.attachedFiles.first))
-                          : Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
-                                          color: Colors.grey,
-                                          width: 2,
-                                        ),
+                        datePickerWidget(
+                          icon: Icons.calendar_month,
+                          controller: controller.controllers["date"]!,
+                          context: context,
+                          expandInRow: true,
+                        ),
+                      ],
+                    ),
+                    inputWidget(
+                      hintText: "Task Discription",
+                      icon: Icons.work,
+                      controller: controller.controllers["taskDiscription"]!,
+                      context: context,
+                      focusNode: controller.focusNodes["taskDiscription"]!,
+                      minLines: 2,
+                    ),
+
+                    Row(
+                      children: [
+                        dropdownWidget(
+                          hintText: "Work Type",
+                          icon: Icons.work,
+                          items: controller.typeOfWorkList,
+                          // onChanged: controller.updateTypeOfWork,
+                          onChanged: (value) {
+                            controller.selectedTypeOfWork.value = value!;
+                            controller.controllers["workType"]!.text = value;
+                          },
+                          // value: controller.selectedTypeOfWork.value,
+                          value:
+                              controller.selectedTypeOfWork.value.isEmpty ==
+                                  true
+                              ? null
+                              : controller.selectedTypeOfWork.value,
+                          expandInRow: true,
+                        ),
+
+                        inputWidget(
+                          //TODO: current login user uid
+                          hintText: "Assigned to",
+                          icon: Icons.task,
+                          controller: controller.controllers["assignedTo"]!,
+                          context: context,
+                          focusNode: controller.focusNodes["assignedTo"]!,
+                          expandInRow: true,
+                          readOnly: true,
+                        ),
+                      ],
+                    ),
+
+                    Obx(() {
+                      if (controller.attachedFiles.isEmpty) {
+                        return Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: InkWell(
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => fileSelectWidget(context),
+                              );
+                              showlog("file select widget tapped");
+                            },
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: Colors.grey,
+                                        width: 2,
                                       ),
-                                      padding: const EdgeInsets.all(30.0),
-                                      child: Column(
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(12.0),
+                                      child: Row(
                                         children: [
-                                          Icon(
-                                            controller.attachedFiles.first
-                                                        .split('.')
-                                                        .last ==
-                                                    'pdf'
-                                                ? Icons.picture_as_pdf
-                                                : Icons.file_copy,
-                                            size: 50,
-                                            color: Colors.red,
-                                          ),
-                                          const SizedBox(height: 10),
+                                          Icon(Icons.folder),
+                                          const SizedBox(width: 10),
                                           Text(
-                                            controller.attachedFiles.first
-                                                .split('/')
-                                                .last
-                                                .toString(),
-                                          ),
+                                            "Attached",
+                                          ), // change to file name after selecting
                                         ],
                                       ),
                                     ),
                                   ),
-                                ],
-                              ),
-                            );
-                    }
-                  }),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      } else {
+                        return controller.attachedFiles.first.split('.').last ==
+                                    'png' ||
+                                controller.attachedFiles.first
+                                        .split('.')
+                                        .last ==
+                                    'jpg' ||
+                                controller.attachedFiles.first
+                                        .split('.')
+                                        .last ==
+                                    'jpeg'
+                            ? Image.file(File(controller.attachedFiles.first))
+                            : Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          border: Border.all(
+                                            color: Colors.grey,
+                                            width: 2,
+                                          ),
+                                        ),
+                                        padding: const EdgeInsets.all(30.0),
+                                        child: Column(
+                                          children: [
+                                            Icon(
+                                              controller.attachedFiles.first
+                                                          .split('.')
+                                                          .last ==
+                                                      'pdf'
+                                                  ? Icons.picture_as_pdf
+                                                  : Icons.file_copy,
+                                              size: 50,
+                                              color: Colors.red,
+                                            ),
+                                            const SizedBox(height: 10),
+                                            Text(
+                                              controller.attachedFiles.first
+                                                  .split('/')
+                                                  .last
+                                                  .toString(),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                      }
+                    }),
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      buttonWidget(
-                        title: widget.isEdit ? "UPDATE" : "ADD TASK",
-                        onTap: () {
-                          widget.isEdit
-                              ? controller.updateTask()
-                              : controller.addTask();
-                          showlog("Tasks : Add task button");
-                        },
-                        context: context,
-                      ),
-                      buttonWidget(
-                        title: "RESET",
-                        onTap: () {
-                          controller.resetAllFields();
-                          showlog("Tasks : Add task button");
-                        },
-                        context: context,
-                      ),
-                    ],
-                  ),
-                ],
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        buttonWidget(
+                          title: widget.isEdit ? "UPDATE" : "ADD TASK",
+                          onTap: () {
+                            // if (_formKey.currentState!.validate()) {
+                            //   widget.isEdit
+                            //       ? controller.updateTask()
+                            //       : controller.addTask();
+                            // }
+                            widget.isEdit
+                                ? controller.updateTask()
+                                : controller.addTask();
+                            showlog("Tasks : Add task button");
+                          },
+                          context: context,
+                        ),
+                        buttonWidget(
+                          title: "RESET",
+                          onTap: () {
+                            controller.resetAllFields();
+                            showlog("Tasks : Add task button");
+                          },
+                          context: context,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

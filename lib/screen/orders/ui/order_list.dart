@@ -103,7 +103,7 @@ class _OrderListState extends State<OrderList> {
             ),
 
             Obx(
-              () => controller.orderList.isEmpty
+              () => controller.filterendList.isEmpty
                   ? Text("No Data found")
                   : Expanded(
                       child: ListView.builder(

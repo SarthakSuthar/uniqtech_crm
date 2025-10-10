@@ -9,6 +9,8 @@ class AddUomScreen extends StatelessWidget {
 
   final UomController controller = Get.put(UomController());
 
+  final _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,53 +24,58 @@ class AddUomScreen extends StatelessWidget {
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                inputWidget(
-                  hintText: "UOM Name",
-                  icon: Icons.abc,
-                  controller: controller.uomNameController,
-                  context: context,
-                  focusNode: controller.uomNameFocusNode,
-                ),
-                inputWidget(
-                  hintText: "UOM Code",
-                  icon: Icons.abc,
-                  controller: controller.uomCodeController,
-                  context: context,
-                  focusNode: controller.uomCodeFocusNode,
-                ),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  inputWidget(
+                    hintText: "UOM Name",
+                    icon: Icons.abc,
+                    controller: controller.uomNameController,
+                    context: context,
+                    focusNode: controller.uomNameFocusNode,
+                  ),
+                  inputWidget(
+                    hintText: "UOM Code",
+                    icon: Icons.abc,
+                    controller: controller.uomCodeController,
+                    context: context,
+                    focusNode: controller.uomCodeFocusNode,
+                  ),
 
-                buttonWidget(
-                  title: "Add",
-                  onTap: () {
-                    controller.insertUom();
-                  },
-                  context: context,
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  "Available UOM",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                Obx(
-                  () => controller.allUoms.isEmpty
-                      ? Text("No Data Found")
-                      : ListView.builder(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemCount: controller.allUoms.length,
-                          itemBuilder: (context, index) {
-                            return uomList(
-                              id: controller.allUoms[index].id!,
-                              name: controller.allUoms[index].name!,
-                              code: controller.allUoms[index].code!,
-                            );
-                          },
-                        ),
-                ),
-              ],
+                  buttonWidget(
+                    title: "Add",
+                    onTap: () {
+                      if (_formKey.currentState!.validate()) {
+                        controller.insertUom();
+                      }
+                    },
+                    context: context,
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    "Available UOM",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  Obx(
+                    () => controller.allUoms.isEmpty
+                        ? Text("No Data Found")
+                        : ListView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: controller.allUoms.length,
+                            itemBuilder: (context, index) {
+                              return uomList(
+                                id: controller.allUoms[index].id!,
+                                name: controller.allUoms[index].name!,
+                                code: controller.allUoms[index].code!,
+                              );
+                            },
+                          ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

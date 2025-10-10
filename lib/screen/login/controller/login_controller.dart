@@ -13,10 +13,10 @@ class LoginController extends GetxController {
     await Future.delayed(const Duration(seconds: 2));
     if (email == "123@abc.com" && password == "123") {
       await SharedPrefHelper.setBool("isLoggedIn", true);
-      showSuccessSnackBar("Success", "Logged in successfully!");
+      showSuccessSnackBar("Logged in successfully!");
       Get.offAllNamed(AppRoutes.dashboard);
     } else {
-      showErrorSnackBar("Login Failed", "Invalid credentials");
+      showErrorSnackBar("Invalid credentials");
     }
     isLoading.value = false;
   }

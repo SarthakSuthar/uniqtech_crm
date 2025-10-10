@@ -1,6 +1,6 @@
 import 'package:crm/app_const/widgets/app_bar.dart';
 import 'package:crm/screen/masters/terms/controller/terms_controller.dart';
-import 'package:crm/screen/masters/terms/widget/add_task_popup.dart';
+import 'package:crm/screen/masters/terms/widget/add_term_popup.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

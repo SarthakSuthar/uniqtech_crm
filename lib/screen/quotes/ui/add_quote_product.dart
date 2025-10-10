@@ -5,10 +5,17 @@ import 'package:get/get.dart';
 import '../../../app_const/utils/app_utils.dart';
 import '../../../app_const/widgets/app_widgets.dart';
 
-class AddQuoteProduct extends StatelessWidget {
-  AddQuoteProduct({super.key});
+class AddQuoteProduct extends StatefulWidget {
+  const AddQuoteProduct({super.key});
 
+  @override
+  State<AddQuoteProduct> createState() => _AddQuoteProductState();
+}
+
+class _AddQuoteProductState extends State<AddQuoteProduct> {
   final QuotesController controller = Get.put(QuotesController());
+
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -28,148 +35,157 @@ class AddQuoteProduct extends StatelessWidget {
           body: GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),
             child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Obx(
-                    () => dropdownWidget(
-                      hintText: "Select Product",
-                      icon: Icons.business,
-                      items: controller.productList.isEmpty
-                          ? ["No Product Available"]
-                          : controller.productList
-                                .map((e) => e.productName!)
-                                .toList(),
-                      value: controller.selectedProduct?.value.isEmpty == true
-                          ? null
-                          : controller.selectedProduct?.value,
-                      onChanged: controller.updateProduct,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Obx(
+                      () => dropdownWidget(
+                        hintText: "Select Product",
+                        icon: Icons.business,
+                        items: controller.productList.isEmpty
+                            ? ["No Product Available"]
+                            : controller.productList
+                                  .map((e) => e.productName!)
+                                  .toList(),
+                        value: controller.selectedProduct?.value.isEmpty == true
+                            ? null
+                            : controller.selectedProduct?.value,
+                        onChanged: controller.updateProduct,
+                      ),
                     ),
-                  ),
-                  Row(
-                    children: [
-                      Obx(
-                        () => dropdownWidget(
-                          hintText: "Select UOM",
-                          icon: Icons.business,
-                          items: controller.uomList.isEmpty
-                              ? ["No UOM Available"]
-                              : controller.uomList.map((e) => e.name!).toList(),
-                          value: controller.selectedUOM?.value.isEmpty == true
-                              ? null
-                              : controller.selectedUOM?.value,
-                          onChanged: controller.updateUOM,
-                          expandInRow: true,
-                        ),
-                      ),
-                      inputWidget(
-                        hintText: "Quantity",
-                        icon: Icons.numbers_outlined,
-                        controller: controller.controllers["quantity"]!,
-                        context: context,
-                        focusNode: controller.focusNodes["quantity"]!,
-                        keyboardType: TextInputType.number,
-                        expandInRow: true,
-                        onChanged: (val) => controller.calculateAmount(),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      inputWidget(
-                        hintText: "Rate",
-                        icon: Icons.note,
-                        controller: controller.controllers["rate"]!,
-                        context: context,
-                        focusNode: controller.focusNodes["rate"]!,
-                        keyboardType: TextInputType.number,
-                        expandInRow: true,
-                        onChanged: (val) => controller.calculateAmount(),
-                      ),
-                      inputWidget(
-                        hintText: "Discount",
-                        icon: Icons.money,
-                        controller: controller.controllers["discount"]!,
-                        context: context,
-                        focusNode: controller.focusNodes["discount"]!,
-                        keyboardType: TextInputType.number,
-                        expandInRow: true,
-                        onChanged: (val) => controller.calculateAmount(),
-                      ),
-                    ],
-                  ),
-                  inputWidget(
-                    hintText: "Amount",
-                    icon: Icons.money,
-                    controller: controller.controllers["amount"]!,
-                    context: context,
-                    focusNode: controller.focusNodes["amount"]!,
-                    keyboardType: TextInputType.number,
-                  ),
-                  inputWidget(
-                    hintText: "Remarks",
-                    icon: Icons.money,
-                    controller: controller.controllers["remarks"]!,
-                    context: context,
-                    focusNode: controller.focusNodes["remarks"]!,
-                    minLines: 2,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      buttonWidget(
-                        title: "ADD",
-                        onTap: () async {
-                          await controller.addQuotationProductID();
-                          showlog("ADD :: Add inquirt customer");
-                        },
-                        context: context,
-                      ),
-                    ],
-                  ),
-                  Obx(
-                    () => controller.quotationProductList.isEmpty
-                        ? const Text("no data for product ")
-                        : ListView.builder(
-                            itemCount: controller.quotationProductList.length,
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemBuilder: (context, index) =>
-                                addedProductListItem(
-                                  productName: controller.productList
-                                      .firstWhere(
-                                        (element) =>
-                                            element.productId ==
-                                            controller
-                                                .quotationProductList[index]
-                                                .productId,
-                                      )
-                                      .productName!,
-                                  quantity: controller
-                                      .quotationProductList[index]
-                                      .quantity
-                                      .toString(),
-                                  amount: controller.productList
-                                      .firstWhere(
-                                        (element) =>
-                                            element.productId ==
-                                            controller
-                                                .quotationProductList[index]
-                                                .productId,
-                                      )
-                                      .productRate!,
-                                ),
+                    Row(
+                      children: [
+                        Obx(
+                          () => dropdownWidget(
+                            hintText: "Select UOM",
+                            icon: Icons.business,
+                            items: controller.uomList.isEmpty
+                                ? ["No UOM Available"]
+                                : controller.uomList
+                                      .map((e) => e.name!)
+                                      .toList(),
+                            value: controller.selectedUOM?.value.isEmpty == true
+                                ? null
+                                : controller.selectedUOM?.value,
+                            onChanged: controller.updateUOM,
+                            expandInRow: true,
                           ),
-                  ),
-                ],
+                        ),
+                        inputWidget(
+                          hintText: "Quantity",
+                          icon: Icons.numbers_outlined,
+                          controller: controller.controllers["quantity"]!,
+                          context: context,
+                          focusNode: controller.focusNodes["quantity"]!,
+                          keyboardType: TextInputType.number,
+                          expandInRow: true,
+                          onChanged: (val) => controller.calculateAmount(),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        inputWidget(
+                          hintText: "Rate",
+                          icon: Icons.note,
+                          controller: controller.controllers["rate"]!,
+                          context: context,
+                          focusNode: controller.focusNodes["rate"]!,
+                          keyboardType: TextInputType.number,
+                          expandInRow: true,
+                          onChanged: (val) => controller.calculateAmount(),
+                        ),
+                        inputWidget(
+                          hintText: "Discount",
+                          icon: Icons.money,
+                          controller: controller.controllers["discount"]!,
+                          context: context,
+                          focusNode: controller.focusNodes["discount"]!,
+                          keyboardType: TextInputType.number,
+                          expandInRow: true,
+                          onChanged: (val) => controller.calculateAmount(),
+                        ),
+                      ],
+                    ),
+                    inputWidget(
+                      hintText: "Amount",
+                      icon: Icons.money,
+                      controller: controller.controllers["amount"]!,
+                      context: context,
+                      focusNode: controller.focusNodes["amount"]!,
+                      keyboardType: TextInputType.number,
+                    ),
+                    inputWidget(
+                      hintText: "Remarks",
+                      icon: Icons.money,
+                      controller: controller.controllers["remarks"]!,
+                      context: context,
+                      focusNode: controller.focusNodes["remarks"]!,
+                      minLines: 2,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        buttonWidget(
+                          title: "ADD",
+                          onTap: () async {
+                            if (_formKey.currentState!.validate()) {
+                              controller.addtempProductList();
+                            }
+                            showlog("ADD :: Add inquirt customer");
+                          },
+                          context: context,
+                        ),
+                      ],
+                    ),
+                    Obx(
+                      () => controller.tempProductList.isEmpty
+                          ? const Text("no data for product ")
+                          : ListView.builder(
+                              itemCount: controller.quotationProductList.length,
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemBuilder: (context, index) =>
+                                  addedProductListItem(
+                                    productName: controller.productList
+                                        .firstWhere(
+                                          (element) =>
+                                              element.productId ==
+                                              controller
+                                                  .quotationProductList[index]
+                                                  .productId,
+                                        )
+                                        .productName!,
+                                    quantity: controller
+                                        .quotationProductList[index]
+                                        .quantity
+                                        .toString(),
+                                    amount: controller.productList
+                                        .firstWhere(
+                                          (element) =>
+                                              element.productId ==
+                                              controller
+                                                  .quotationProductList[index]
+                                                  .productId,
+                                        )
+                                        .productRate!,
+                                  ),
+                            ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
-              controller.isEdit == true
-                  ? controller.updateQuotation()
-                  : controller.submitQuotation();
+              if (_formKey.currentState!.validate()) {
+                controller.isEdit == true
+                    ? controller.updateQuotation()
+                    : controller.submitQuotation();
+              }
               showlog("Inquiry Action button pressed");
             },
             backgroundColor: Theme.of(context).primaryColor,

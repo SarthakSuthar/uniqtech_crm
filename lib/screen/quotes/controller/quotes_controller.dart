@@ -1,3 +1,4 @@
+import 'package:crm/app_const/widgets/app_snackbars.dart';
 import 'package:crm/screen/quotes/model/quote_invoice_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -157,9 +158,11 @@ class QuotesController extends GetxController {
     controllers['social']!.text = quotationList
         .firstWhereOrNull((element) => element.id == intNo)!
         .source!;
-    controllers['subject']!.text = quotationList
-        .firstWhereOrNull((element) => element.id == intNo)!
-        .subject!;
+    controllers['subject']!.text =
+        quotationList
+            .firstWhereOrNull((element) => element.id == intNo)!
+            .subject ??
+        '';
     await getQuotationProductList();
   }
 
@@ -203,7 +206,8 @@ class QuotesController extends GetxController {
   var customerList = <String, String>{}.obs;
   var selectedCustomer = "".obs;
   var productList = <ProductModel>[].obs;
-  var quotationProductList = <QuotationProductModel>[].obs;
+  RxList<QuotationProductModel> quotationProductList =
+      <QuotationProductModel>[].obs;
   var uomList = <UomModel>[].obs;
 
   /// Search for customer name or number
@@ -344,9 +348,11 @@ class QuotesController extends GetxController {
       showlog("added quotation customer ----> ${quotationCustomer.toJson()}");
 
       int result = await QuotationRepo.insertQuotation(quotationCustomer);
+      // showSuccessSnackBar("Customer added successfully");
       showlog("insert quotation customer ----> $result");
       await getQuotationList();
     } catch (e) {
+      showErrorSnackBar("Error adding customer");
       showlog("error on add customer : $e");
     }
   }
@@ -365,7 +371,7 @@ class QuotesController extends GetxController {
   }
 
   ///add quotation & product id to table so we have track of for a customer how many products quotation we have
-  Future<void> addQuotationProductID() async {
+  /*  Future<void> addQuotationProductID() async {
     try {
       final quoteId = int.parse(controllers['num']!.text);
 
@@ -382,9 +388,52 @@ class QuotesController extends GetxController {
 
       int result = await QuotationRepo.insertQuotationProduct(quotProdId);
       showlog("insert quotation product ----> $result");
+      showSuccessSnackBar("Product added successfully");
       await getQuotationProductList();
     } catch (e) {
+      showErrorSnackBar("Error adding product");
       showlog("Error adding product & quotation ID : $e");
+    }
+  }
+*/
+
+  RxList<QuotationProductModel> tempProductList = <QuotationProductModel>[].obs;
+
+  void addtempProductList() {
+    try {
+      final quoteId = int.parse(controllers['num']!.text);
+      showlog("quotation id : $quoteId");
+      tempProductList.add(
+        QuotationProductModel(
+          quotationId: quoteId,
+          productId: getProductId(selectedProduct!.value),
+          quantity: int.parse(controllers["quantity"]!.text),
+          remark: controllers['remarks']!.text,
+          discount: double.parse(controllers['discount']!.text),
+        ),
+      );
+
+      quotationProductList.assignAll(tempProductList);
+      showlog(
+        "temp product list : ${tempProductList.map((e) => e.toJson()).toList()}",
+      );
+      showSuccessSnackBar("Product added successfully");
+    } catch (e) {
+      showErrorSnackBar("Error adding product");
+      showlog("Error adding temp product list : $e");
+    }
+  }
+
+  Future<void> addQuotationProductID() async {
+    try {
+      for (var product in tempProductList) {
+        int result = await QuotationRepo.insertQuotationProduct(product);
+        showlog("insert quotation product -----> $result");
+        await getQuotationProductList();
+      }
+    } catch (e) {
+      showErrorSnackBar("Error adding product");
+      showlog("Error adding product list : $e");
     }
   }
 
@@ -392,9 +441,12 @@ class QuotesController extends GetxController {
   Future<void> submitQuotation() async {
     try {
       await addQuotationCustomer(); // customer
+      await addQuotationProductID();
       // await addProduct(); // product
       // await addQuotationProductID(); // both's id // already adding on ADD button
+      showSuccessSnackBar("Quotation submitted successfully");
     } catch (e) {
+      showErrorSnackBar("Error submitting quotation");
       showlog("Error submitting quotation : $e");
     }
   }
@@ -404,15 +456,17 @@ class QuotesController extends GetxController {
       await QuotationRepo.deleteQuotation(id);
       await getQuotationList();
       await QuotationRepo.deleteQuotationProduct(id);
+      showSuccessSnackBar("Quotation deleted successfully");
       await getQuotationProductList();
     } catch (e) {
+      showErrorSnackBar("Error deleting quotation");
       showlog("Error deleting quotation : $e");
     }
   }
 
   Future<void> updateQuotation() async {
     try {
-      //TODO: implement update logic
+      //FIXME: implement update logic
       /* 
       If we re getting contact details & product details from their different masters
       What we need to update ????
@@ -431,8 +485,10 @@ class QuotesController extends GetxController {
       );
       showlog("update quotation ----> ${quotation.toJson()}");
       // int result = await QuotationRepo.updateQuotation(quotation);
+      showSuccessSnackBar("Quotation Updated Successfully");
       // showlog("updated quotation ----> $result");
     } catch (e) {
+      showErrorSnackBar("Error updating quotation");
       showlog("Error update quotation : $e");
     }
   }
@@ -505,8 +561,10 @@ class QuotesController extends GetxController {
       int result = await QuotationRepo.insertQuotationFollowup(
         quotationFollowup,
       );
+      showSuccessSnackBar("Quotation followup added successfully");
       showlog("insert quotation followup ----> $result");
     } catch (e) {
+      showErrorSnackBar("Error adding quotation followup");
       showlog("Error adding quotation followup : $e");
     }
   }
@@ -526,8 +584,10 @@ class QuotesController extends GetxController {
       int result = await QuotationRepo.updateQuotationFollowup(
         quotationFollowup,
       );
+      showSuccessSnackBar("Quotation followup updated successfully");
       showlog("updated quotation followup ----> $result");
     } catch (e) {
+      showErrorSnackBar("Error updating quotation followup");
       showlog("Error update quotation followup : $e");
     }
   }
@@ -682,18 +742,21 @@ class QuotesController extends GetxController {
         "quotation followup list : ${quotationFollowupList.map((e) => e.toJson()).toList()}",
       );
       await convertQuotationToOrderFollowup(quotationFollowupList);
+      showSuccessSnackBar("Quotation converted to order successfully");
     } catch (e) {
+      showErrorSnackBar("Error converting quotation to order");
       showlog("Error converting quotation to order : $e");
     }
   }
 
+  int newOrderId = 0;
+
   //convert quote to order customer
-  static Future<void> convertQuotationToOrderCustomer(
-    QuotationModel quotation,
-  ) async {
+  Future<void> convertQuotationToOrderCustomer(QuotationModel quotation) async {
     try {
       final orderCustomer = OrderModel(
-        uid: DateTime.now().millisecondsSinceEpoch.toString(),
+        uid: DateTime.now().millisecondsSinceEpoch
+            .toString(), //TODO: have to add original uid
         custId: quotation.custId,
         custName1: quotation.custName1,
         custName2: quotation.custName2,
@@ -703,21 +766,21 @@ class QuotesController extends GetxController {
         source: quotation.source,
       );
       showlog("added order customer ----> ${orderCustomer.toJson()}");
-      int result = await OrderRepo.insertOrder(orderCustomer);
-      showlog("insert order customer ----> $result");
+      newOrderId = await OrderRepo.insertOrder(orderCustomer);
+      showlog("insert order customer ----> $newOrderId");
     } catch (e) {
       showlog("Error converting quotation to order customer : $e");
     }
   }
 
   // convert quotation to order product
-  static Future<void> convertQuotationToOrderProduct(
+  Future<void> convertQuotationToOrderProduct(
     List<QuotationProductModel> quotationProductList,
   ) async {
     try {
       for (var product in quotationProductList) {
         final orderProduct = OrderProductModel(
-          orderId: product.quotationId,
+          orderId: newOrderId,
           productId: product.productId,
           quantity: product.quantity ?? 0,
           discount: product.discount,
@@ -733,13 +796,13 @@ class QuotesController extends GetxController {
   }
 
   //convert quotation terms to order terms
-  static Future<void> convertQuotationToOrderTerms(
+  Future<void> convertQuotationToOrderTerms(
     List<QuotationTermsModel> termsList,
   ) async {
     try {
       for (var term in termsList) {
         final orderTerms = OrderTermsModel(
-          orderId: term.quotationId,
+          orderId: newOrderId,
           termId: term.termId,
         );
         showlog("added order terms ----> ${orderTerms.toJson()}");
@@ -752,13 +815,13 @@ class QuotesController extends GetxController {
   }
 
   //convert quotation followup to order followup
-  static Future<void> convertQuotationToOrderFollowup(
+  Future<void> convertQuotationToOrderFollowup(
     List<QuotationFollowupModel> followupList,
   ) async {
     try {
       for (var followup in followupList) {
         final orderFollowup = OrderFollowupModel(
-          orderId: followup.quotationId,
+          orderId: newOrderId,
           followupDate: followup.followupDate,
           followupStatus: followup.followupStatus,
           followupType: followup.followupType,

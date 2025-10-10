@@ -103,7 +103,7 @@ class _TasksListState extends State<TasksList> {
               ],
             ),
             Obx(
-              () => controller.taskList.isEmpty
+              () => controller.filteredList.isEmpty
                   ? Text("No Data Found")
                   : Expanded(
                       child: ListView.builder(

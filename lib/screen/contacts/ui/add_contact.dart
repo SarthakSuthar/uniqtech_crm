@@ -32,32 +32,10 @@ class _AddContactScreenState extends State<AddContactScreen> {
                 tabs: [
                   SizedBox(
                     width: MediaQuery.of(context).size.width / 2,
-                    // decoration: BoxDecoration(
-                    //   borderRadius: BorderRadius.circular(10),
-                    //   border: Border(
-                    //     bottom: BorderSide(
-                    //       color: Theme.of(context).primaryColor,
-                    //     ),
-                    //     top: BorderSide(color: Theme.of(context).primaryColor),
-                    //     left: BorderSide(color: Theme.of(context).primaryColor),
-                    //   ),
-                    // ),
                     child: const Tab(text: "Customer"),
                   ),
                   SizedBox(
                     width: MediaQuery.of(context).size.width / 2,
-                    // decoration: BoxDecoration(
-                    //   borderRadius: BorderRadius.circular(10),
-                    //   border: Border(
-                    //     bottom: BorderSide(
-                    //       color: Theme.of(context).primaryColor,
-                    //     ),
-                    //     top: BorderSide(color: Theme.of(context).primaryColor),
-                    //     right: BorderSide(
-                    //       color: Theme.of(context).primaryColor,
-                    //     ),
-                    //   ),
-                    // ),
                     child: const Tab(text: "Contact"),
                   ),
                 ],

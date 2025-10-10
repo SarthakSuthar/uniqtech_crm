@@ -96,7 +96,7 @@ class _QuoteListState extends State<QuoteList> {
             ),
 
             Obx(
-              () => controller.quotationList.isEmpty
+              () => controller.filterendList.isEmpty
                   ? Text(" No data found")
                   : Expanded(
                       child: ListView.builder(

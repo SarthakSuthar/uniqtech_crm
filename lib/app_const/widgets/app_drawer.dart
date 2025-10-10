@@ -91,7 +91,6 @@ class AppDrawer extends StatelessWidget {
           }),
           drawerItem(Icons.logout, "Logout", () {
             //TODO: add logout alertBx logic
-
             Get.dialog(
               AlertDialog(
                 title: const Text("Logout"),
