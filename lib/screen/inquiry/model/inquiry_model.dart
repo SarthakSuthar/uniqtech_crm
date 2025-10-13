@@ -19,7 +19,7 @@ class InquiryModel {
   String? email;
   String? mobileNo;
   String? source;
-  int? isSynced;
+  int? isSynced = 0;
 
   InquiryModel({
     this.id,
@@ -57,6 +57,6 @@ class InquiryModel {
     "email": email,
     "mobile_no": mobileNo,
     "source": source,
-    "isSynced": isSynced,
+    "isSynced": isSynced ?? 0,
   };
 }

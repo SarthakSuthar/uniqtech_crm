@@ -122,7 +122,7 @@ class InquiryRepo {
     return await db.insert(
       inquiryProductTable,
       inquiryProduct.toJson(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
+      conflictAlgorithm: ConflictAlgorithm.ignore,
     );
   }
 

@@ -403,6 +403,28 @@ class InquiryController extends GetxController {
     }
   }
 
+  Future<void> deleteInquiryProduct({required int id}) async {
+    //  implement delete logic
+  }
+
+  Future<int> updateInquiryProductID() async {
+    try {
+      if (tempProductList != inquiryProductList &&
+          tempProductList.length > inquiryProductList.length) {
+        for (var element in tempProductList) {
+          int result = await InquiryRepo.insertInquiryProduct(element);
+          showlog("update inquiry product ----> $result");
+          await getinquiryProductList();
+          return result;
+        }
+      }
+      return 0;
+    } catch (e) {
+      showlog("Error updating product : $e");
+      return 0;
+    }
+  }
+
   ///save inquiry
   Future<void> submitInquiry() async {
     try {
@@ -428,29 +450,45 @@ class InquiryController extends GetxController {
     }
   }
 
+  // ----------------------- UPDATE --------------------------
+
+  //1. need to update on id -- pars controllers vlue
+  //update selected product list
+  //update followup
+
+  //FIXME: implement update logic
+
   Future<void> updateInquiry() async {
     try {
-      //FIXME: implement update logic
-      /* 
-      If we re getting contact details & product details from their different masters
-      What we need to update ????
-      */
+      // update customer details
+
+      int inquiryId = int.parse(controllers['num']!.text);
+      showlog("inquiryId : $inquiryId");
       final inquiry = InquiryModel(
-        id: int.parse(controllers['num']!.text),
+        id: inquiryId,
         uid: DateTime.now().millisecondsSinceEpoch.toString(),
-        custId: int.parse(controllers['custId']!.text),
+        // custId: int.parse(controllers['custId']!.text) ,
+        //TODO: get customer id
+        custId: 0,
         custName1: selectedCustomer.value,
-        custName2: controllers['name2']!.text,
+        custName2: "controllers['name2']!.text",
         date: controllers['date']!.text,
         email: controllers['email']!.text,
         mobileNo: controllers['mobile']!.text,
         source: controllers['social']!.text,
       );
       showlog("updated inquiry ----> ${inquiry.toJson()}");
-      // int result = await InquiryRepo.updateInquiry(inquiry);
+
+      // update product list
+
+      int result = await InquiryRepo.updateInquiry(inquiry);
       showSuccessSnackBar("Inquiry updated successfully");
-      // showlog("update inquiry ----> $result");
-      Get.back();
+      showlog("update inquiry ----> $result");
+
+      //update product list
+
+      int updateProduct = await updateInquiryProductID();
+      showlog("ipdated product --> $updateProduct");
     } catch (e) {
       showErrorSnackBar("Error updating inquiry");
       showlog("Error update inquiry : $e");
