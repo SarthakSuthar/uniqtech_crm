@@ -46,6 +46,7 @@ class _InquiryFollowupState extends State<InquiryFollowup> {
             controller.focusNodes['followupStatus']!.unfocus();
             controller.focusNodes['followupAssignedTo']!.unfocus();
             controller.focusNodes['followupRemarks']!.unfocus();
+            controller.followupSelected.value = false;
           },
           child: Padding(
             padding: EdgeInsets.all(8.0),
@@ -68,67 +69,73 @@ class _InquiryFollowupState extends State<InquiryFollowup> {
                           context: context,
                           expandInRow: true,
                         ),
-                        dropdownWidget(
-                          hintText: "Select Followup",
-                          icon: Icons.folder_outlined,
-                          items: ["1", "2", "3"],
-                          onChanged: (val) {
-                            if (val != null) {
-                              controller.selectedFollowupType.value = val;
-                            }
-                            showlog(
-                              "selected value : ${controller.selectedFollowupType.value}",
-                            );
-                          },
-                          value: controller.selectedFollowupType.isEmpty == true
-                              ? null
-                              : controller.selectedFollowupType.value,
-                          expandInRow: true,
-                        ),
+                        Obx(() {
+                          return dropdownWidget(
+                            hintText: "Select Followup",
+                            icon: Icons.folder_outlined,
+                            items: ["1", "2", "3"],
+                            onChanged: (val) {
+                              if (val != null) {
+                                controller.selectedFollowupType.value = val;
+                              }
+                              showlog(
+                                "selected value : ${controller.selectedFollowupType.value}",
+                              );
+                            },
+                            value:
+                                controller.selectedFollowupType.isEmpty == true
+                                ? null
+                                : controller.selectedFollowupType.value,
+                            expandInRow: true,
+                          );
+                        }),
                       ],
                     ),
-                    Row(
-                      children: [
-                        dropdownWidget(
-                          hintText: "Select Status",
-                          icon: Icons.bar_chart_outlined,
-                          items: ["1", "2", "3"],
-                          onChanged: (value) {
-                            if (value != null) {
-                              controller.selectedFollowupStatus.value = value;
-                            }
-                            showlog(
-                              "selected value : ${controller.selectedFollowupStatus.value}",
-                            );
-                          },
-                          value:
-                              controller.selectedFollowupStatus.isEmpty == true
-                              ? null
-                              : controller.selectedFollowupStatus.value,
-                          expandInRow: true,
-                        ),
-                        dropdownWidget(
-                          hintText: "Select Assigned to",
-                          icon: Icons.bar_chart_outlined,
-                          items: ["1", "2", "3"],
-                          onChanged: (value) {
-                            if (value != null) {
-                              controller.selectedFollowupAssignedTo.value =
-                                  value;
-                            }
-                            showlog(
-                              "selected value : ${controller.selectedFollowupAssignedTo.value}",
-                            );
-                          },
-                          value:
-                              controller.selectedFollowupAssignedTo.isEmpty ==
-                                  true
-                              ? null
-                              : controller.selectedFollowupAssignedTo.value,
-                          expandInRow: true,
-                        ),
-                      ],
-                    ),
+                    Obx(() {
+                      return Row(
+                        children: [
+                          dropdownWidget(
+                            hintText: "Select Status",
+                            icon: Icons.bar_chart_outlined,
+                            items: ["1", "2", "3"],
+                            onChanged: (value) {
+                              if (value != null) {
+                                controller.selectedFollowupStatus.value = value;
+                              }
+                              showlog(
+                                "selected value : ${controller.selectedFollowupStatus.value}",
+                              );
+                            },
+                            value:
+                                controller.selectedFollowupStatus.isEmpty ==
+                                    true
+                                ? null
+                                : controller.selectedFollowupStatus.value,
+                            expandInRow: true,
+                          ),
+                          dropdownWidget(
+                            hintText: "Select Assigned to",
+                            icon: Icons.bar_chart_outlined,
+                            items: ["1", "2", "3"],
+                            onChanged: (value) {
+                              if (value != null) {
+                                controller.selectedFollowupAssignedTo.value =
+                                    value;
+                              }
+                              showlog(
+                                "selected value : ${controller.selectedFollowupAssignedTo.value}",
+                              );
+                            },
+                            value:
+                                controller.selectedFollowupAssignedTo.isEmpty ==
+                                    true
+                                ? null
+                                : controller.selectedFollowupAssignedTo.value,
+                            expandInRow: true,
+                          ),
+                        ],
+                      );
+                    }),
                     inputWidget(
                       hintText: "Remark",
                       icon: Icons.note,
@@ -152,18 +159,22 @@ class _InquiryFollowupState extends State<InquiryFollowup> {
                           },
                           context: context,
                         ),
-                        // buttonWidget(
-                        //   title: "SAVE",
-                        //   onTap: () async {
-                        //     if (_formKey.currentState!.validate()) {
-                        //       await controller.updateInquiryFollowup(
-                        //         widget.inquiryId,
-                        //       );
-                        //     }
-                        //     showlog("SAVE: Inquoiry follow up");
-                        //   },
-                        //   context: context,
-                        // ),
+                        Obx(() {
+                          return controller.followupSelected.value == true
+                              ? buttonWidget(
+                                  title: "SAVE",
+                                  onTap: () async {
+                                    if (_formKey.currentState!.validate()) {
+                                      await controller.updateInquiryFollowup(
+                                        widget.inquiryId,
+                                      );
+                                    }
+                                    showlog("SAVE: Inquiry follow up");
+                                  },
+                                  context: context,
+                                )
+                              : const SizedBox(); // show nothing when false
+                        }),
                       ],
                     ),
                     Obx(
@@ -173,23 +184,17 @@ class _InquiryFollowupState extends State<InquiryFollowup> {
                               itemCount: controller.inquiryFollowupList.length,
                               shrinkWrap: true,
                               physics: NeverScrollableScrollPhysics(),
-                              itemBuilder: (context, index) => followupItem(
-                                followupDate: controller
-                                    .inquiryFollowupList[index]
-                                    .followupDate,
-                                followupType: controller
-                                    .inquiryFollowupList[index]
-                                    .followupStatus!,
-                                followupAssignedTo: controller
-                                    .inquiryFollowupList[index]
-                                    .followupAssignedTo!,
-                                followupRemarks: controller
-                                    .inquiryFollowupList[index]
-                                    .followupRemarks!,
-                                followupStatus: controller
-                                    .inquiryFollowupList[index]
-                                    .followupStatus!,
-                              ),
+                              itemBuilder: (context, index) {
+                                final item =
+                                    controller.inquiryFollowupList[index];
+                                return followupItem(
+                                  followupDate: item.followupDate,
+                                  followupType: item.followupType!,
+                                  followupAssignedTo: item.followupAssignedTo!,
+                                  followupRemarks: item.followupRemarks!,
+                                  followupStatus: item.followupStatus!,
+                                );
+                              },
                             ),
                     ),
                   ],
@@ -212,11 +217,23 @@ class _InquiryFollowupState extends State<InquiryFollowup> {
     return InkWell(
       onTap: () {
         controller.selectedFollowupDate.value = followupDate;
+        controller.controllers['followupDate']!.text = followupDate;
         controller.selectedFollowupType.value = followupType;
         controller.selectedFollowupAssignedTo.value = followupAssignedTo;
         controller.controllers['followupRemarks']!.text = followupRemarks;
         controller.selectedFollowupStatus.value = followupStatus;
+        controller.followupSelected.value = true;
         showlog("inquiry card tapped");
+        showlog("-----updated details--------");
+        showlog("followup date : ${controller.selectedFollowupDate.value}");
+        showlog("followup type : ${controller.selectedFollowupType.value}");
+        showlog(
+          "followup assigned to : ${controller.selectedFollowupAssignedTo.value}",
+        );
+        showlog(
+          "followup remarks : ${controller.controllers['followupRemarks']!.text}",
+        );
+        showlog("followup status : ${controller.selectedFollowupStatus.value}");
       },
       child: Card(
         child: Padding(

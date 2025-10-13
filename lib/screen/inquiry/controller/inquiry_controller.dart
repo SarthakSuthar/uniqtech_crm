@@ -409,14 +409,15 @@ class InquiryController extends GetxController {
 
   Future<int> updateInquiryProductID() async {
     try {
-      if (tempProductList != inquiryProductList &&
-          tempProductList.length > inquiryProductList.length) {
+      if (tempProductList != inquiryProductList) {
         for (var element in tempProductList) {
           int result = await InquiryRepo.insertInquiryProduct(element);
           showlog("update inquiry product ----> $result");
           await getinquiryProductList();
           return result;
         }
+      } else {
+        showlog("tempProductList == inquiryProductList");
       }
       return 0;
     } catch (e) {
@@ -571,6 +572,9 @@ class InquiryController extends GetxController {
     }
   }
 
+  RxBool followupSelected = false.obs;
+
+  ///UPDATE FOLLOWUP
   Future<void> updateInquiryFollowup(String inquiryId) async {
     try {
       int intId = int.parse(inquiryId);

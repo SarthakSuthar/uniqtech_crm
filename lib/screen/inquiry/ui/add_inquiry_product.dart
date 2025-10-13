@@ -134,7 +134,7 @@ class _AddInquiryProductState extends State<AddInquiryProduct> {
                     Obx(
                       () =>
                           controller
-                              .tempProductList
+                              .productList
                               .isEmpty //temp list
                           ? const Text("No product added")
                           : ListView.builder(
