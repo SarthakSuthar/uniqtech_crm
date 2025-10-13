@@ -21,11 +21,22 @@ class _AddQuoteCustomerState extends State<AddQuoteCustomer> {
   final _formKey = GlobalKey<FormState>();
 
   @override
-  Widget build(BuildContext context) {
-    widget.isEdit == true
-        ? controller.isEdit = true
-        : controller.isEdit = false;
+  void initState() {
+    super.initState();
+
+    widget.isEdit ? controller.isEdit = true : controller.isEdit = false;
     widget.no != null ? controller.no = widget.no : controller.no = '';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // widget.isEdit == true
+    //     ? controller.isEdit = true
+    //     : controller.isEdit = false;
+    // widget.no != null ? controller.no = widget.no : controller.no = '';
+
+    showlog("isEdit -----> ${controller.isEdit}");
+    showlog("no -----> ${controller.no}");
 
     return PopScope(
       canPop: true,

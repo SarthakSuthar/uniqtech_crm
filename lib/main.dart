@@ -14,13 +14,15 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
   // 1. Ensure Flutter is ready before using plugins.
   WidgetsFlutterBinding.ensureInitialized();
 
   await SharedPrefHelper.init();
-
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   if (kIsWeb) {
     // For web platforms, use the ffi database factory
     databaseFactory = databaseFactoryFfiWeb;

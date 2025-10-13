@@ -48,7 +48,7 @@ class QuotesController extends GetxController {
 
     // Set initial quotation number based on the total number of quotations
     if (isEdit == true) {
-      setEditDetails();
+      await setEditDetails();
     } else {
       // controllers['num']!.text = (quotationList.length + 1).toString();
       controllers['num']!.text = (await QuotationRepo().getNextQuotationId())
@@ -464,19 +464,38 @@ class QuotesController extends GetxController {
     }
   }
 
+  Future<int> updateQuotationProduct() async {
+    try {
+      if (tempProductList != quotationProductList) {
+        for (var element in tempProductList) {
+          int result = await QuotationRepo.insertQuotationProduct(element);
+          showlog("updated quotation product ----> $result");
+          await getQuotationProductList();
+          return result;
+        }
+      } else {
+        showlog("tempProductList == inquiryProductList");
+      }
+      return 0;
+    } catch (e) {
+      showlog("Error updating product : $e");
+      return 0;
+    }
+  }
+
   Future<void> updateQuotation() async {
     try {
       //FIXME: implement update logic
-      /* 
-      If we re getting contact details & product details from their different masters
-      What we need to update ????
-      */
+      int quotationId = int.parse(controllers['num']!.text);
+
       final quotation = QuotationModel(
-        id: int.parse(controllers['num']!.text),
+        id: quotationId,
         uid: DateTime.now().millisecondsSinceEpoch.toString(),
-        custId: int.parse(controllers['custId']!.text),
+        // custId: int.parse(controllers['custId']!.text),
+        //TODO: get customer id
+        custId: 0,
         custName1: selectedCustomer.value,
-        custName2: controllers['name2']!.text,
+        custName2: "controllers['name2']!.text",
         date: controllers['date']!.text,
         email: controllers['email']!.text,
         mobileNo: controllers['mobile']!.text,
@@ -484,9 +503,13 @@ class QuotesController extends GetxController {
         subject: controllers['subject']!.text,
       );
       showlog("update quotation ----> ${quotation.toJson()}");
-      // int result = await QuotationRepo.updateQuotation(quotation);
+      int result = await QuotationRepo.updateQuotation(quotation);
+      showlog("updated quotation ----> $result");
+
+      int updateProduct = await updateQuotationProduct();
+      showlog("updated product ----> $updateProduct");
+
       showSuccessSnackBar("Quotation Updated Successfully");
-      // showlog("updated quotation ----> $result");
     } catch (e) {
       showErrorSnackBar("Error updating quotation");
       showlog("Error update quotation : $e");
@@ -570,19 +593,22 @@ class QuotesController extends GetxController {
     }
   }
 
+  RxBool followupSelected = false.obs;
+
   Future<void> updateQuotationFollowup(String quotationId) async {
     try {
       int intId = int.parse(quotationId);
       final quotationFollowup = QuotationFollowupModel(
+        id: intId,
         quotationId: intId,
         followupDate: controllers['followupDate']!.text,
-        followupStatus: controllers['followupStatus']!.text,
+        followupStatus: selectedFollowupStatus.value,
         followupType: selectedFollowupType.value,
         followupRemarks: controllers['followupRemarks']!.text,
-        followupAssignedTo: controllers['followupAssignedTo']!.text,
+        followupAssignedTo: selectedFollowupAssignedTo.value,
       );
       showlog("update quotation followup ----> ${quotationFollowup.toJson()}");
-      int result = await QuotationRepo.updateQuotationFollowup(
+      int result = await QuotationRepo.insertQuotationFollowup(
         quotationFollowup,
       );
       showSuccessSnackBar("Quotation followup updated successfully");

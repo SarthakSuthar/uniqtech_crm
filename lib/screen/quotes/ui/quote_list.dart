@@ -179,6 +179,7 @@ class _QuoteListState extends State<QuoteList> {
                 children: [
                   InkWell(
                     onTap: () {
+                      showlog("parsing arguments : $no");
                       Get.toNamed(
                         AppRoutes.addQuote,
                         arguments: {'no': no, 'isEdit': true},

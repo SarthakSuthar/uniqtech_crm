@@ -141,7 +141,7 @@ class _AddQuoteProductState extends State<AddQuoteProduct> {
                       ],
                     ),
                     Obx(
-                      () => controller.tempProductList.isEmpty
+                      () => controller.productList.isEmpty
                           ? const Text("no data for product ")
                           : ListView.builder(
                               itemCount: controller.quotationProductList.length,

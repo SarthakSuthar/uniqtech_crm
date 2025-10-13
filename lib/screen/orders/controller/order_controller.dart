@@ -461,19 +461,36 @@ class OrderController extends GetxController {
     }
   }
 
+  Future<int> orderQuotationProductID() async {
+    try {
+      if (tempProductList != orderProductList) {
+        for (var element in tempProductList) {
+          int result = await OrderRepo.insertOrderProduct(element);
+          showlog("insert order product ----> $result");
+          await getOrderProductList();
+          return result;
+        }
+      } else {
+        showlog("tempProductList == inquiryProductList");
+      }
+      return 0;
+    } catch (e) {
+      showlog("Error updating product list : $e");
+      rethrow;
+    }
+  }
+
   Future<void> updateOrder() async {
     try {
-      //FIXME: implement update logic
-      /* 
-      If we re getting contact details & product details from their different masters
-      What we need to update ????
-      */
+      int orderId = int.parse(controllers['num']!.text);
       final order = OrderModel(
-        id: int.parse(controllers['num']!.text),
+        id: orderId,
         uid: DateTime.now().millisecondsSinceEpoch.toString(),
-        custId: int.parse(controllers['custId']!.text),
+        // custId: int.parse(controllers['custId']!.text),
+        //TODO: get customer id
+        custId: 0,
         custName1: selectedCustomer.value,
-        custName2: controllers['name2']!.text,
+        custName2: "controllers['name2']!.text",
         date: controllers['date']!.text,
         email: controllers['email']!.text,
         mobileNo: controllers['mobile']!.text,
@@ -485,9 +502,15 @@ class OrderController extends GetxController {
         loadingCharges: controllers['loading_charges']!.text,
       );
       showlog("update order ----> ${order.toJson()}");
-      // int result = await QuotationRepo.updateQuotation(quotation);
+      int result = await OrderRepo.updateOrder(order);
       showSuccessSnackBar("Order updated successfully");
-      // showlog("updated quotation ----> $result");
+      showlog("updated quotation ----> $result");
+
+      // update product list
+
+      int updateProduct = await orderQuotationProductID();
+      showlog("update product list ----> $updateProduct");
+      showSuccessSnackBar("Order Updated Successfully");
     } catch (e) {
       showErrorSnackBar("Error updating order : $e");
       showlog("Error update order : $e");

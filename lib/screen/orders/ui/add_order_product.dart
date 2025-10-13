@@ -142,7 +142,7 @@ class _AddOrderProductState extends State<AddOrderProduct> {
                     ),
 
                     Obx(
-                      () => controller.tempProductList.isEmpty
+                      () => controller.productList.isEmpty
                           ? const Text("no data for product ")
                           : ListView.builder(
                               itemCount: controller.orderProductList.length,

@@ -457,8 +457,6 @@ class InquiryController extends GetxController {
   //update selected product list
   //update followup
 
-  //FIXME: implement update logic
-
   Future<void> updateInquiry() async {
     try {
       // update customer details
@@ -483,13 +481,13 @@ class InquiryController extends GetxController {
       // update product list
 
       int result = await InquiryRepo.updateInquiry(inquiry);
-      showSuccessSnackBar("Inquiry updated successfully");
       showlog("update inquiry ----> $result");
 
       //update product list
 
       int updateProduct = await updateInquiryProductID();
       showlog("ipdated product --> $updateProduct");
+      showSuccessSnackBar("Inquiry updated successfully");
     } catch (e) {
       showErrorSnackBar("Error updating inquiry");
       showlog("Error update inquiry : $e");
