@@ -578,13 +578,16 @@ class InquiryController extends GetxController {
   Future<void> updateInquiryFollowup(String inquiryId) async {
     try {
       int intId = int.parse(inquiryId);
+      showlog("intId : $intId");
+
       final inquiryFollowup = InquiryFollowupModel(
+        id: intId,
         inquiryId: intId,
         followupDate: controllers['followupDate']!.text,
-        followupStatus: controllers['followupStatus']!.text,
+        followupStatus: selectedFollowupStatus.value,
         followupType: selectedFollowupType.value,
         followupRemarks: controllers['followupRemarks']!.text,
-        followupAssignedTo: controllers['followupAssignedTo']!.text,
+        followupAssignedTo: selectedFollowupAssignedTo.value,
       );
 
       showlog("updated inquiry followup ----> ${inquiryFollowup.toJson()}");
