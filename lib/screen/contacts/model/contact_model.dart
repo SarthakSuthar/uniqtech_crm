@@ -20,6 +20,8 @@ class ContactModel {
   String? contEmail;
   String? contMobileNo;
   String? contPhoneNo;
+  String? createdAt;
+  String? updatedAt;
   int? isSynced;
 
   ContactModel({
@@ -44,6 +46,8 @@ class ContactModel {
     this.contEmail,
     this.contMobileNo,
     this.contPhoneNo,
+    this.createdAt,
+    this.updatedAt,
     this.isSynced = 0,
   });
 
@@ -71,6 +75,8 @@ class ContactModel {
       'cont_email': contEmail,
       'cont_mobile_no': contMobileNo,
       'cont_phone_no': contPhoneNo,
+      'created_at': createdAt,
+      'updated_at': updatedAt,
       'isSynced': isSynced,
     };
   }
@@ -99,6 +105,8 @@ class ContactModel {
       contEmail: map['cont_email'],
       contMobileNo: map['cont_mobile_no'],
       contPhoneNo: map['cont_phone_no'],
+      createdAt: map['created_at'],
+      updatedAt: map['updated_at'],
       isSynced: map['isSynced'],
     );
   }
@@ -125,6 +133,8 @@ class ContactModel {
       'designation': designation,
       'cont_email': contEmail,
       'cont_mobile_no': contMobileNo,
+      'created_at': createdAt,
+      'updated_at': updatedAt,
       'cont_phone_no': contPhoneNo,
     };
   }
@@ -151,6 +161,8 @@ class ContactModel {
       designation: json['designation'],
       contEmail: json['cont_email'],
       contMobileNo: json['cont_mobile_no'],
+      createdAt: json['created_at'],
+      updatedAt: json['updated_at'],
       contPhoneNo: json['cont_phone_no'],
     );
   }

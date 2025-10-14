@@ -485,7 +485,6 @@ class QuotesController extends GetxController {
 
   Future<void> updateQuotation() async {
     try {
-      //FIXME: implement update logic
       int quotationId = int.parse(controllers['num']!.text);
 
       final quotation = QuotationModel(

@@ -1,7 +1,9 @@
 import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/app_const/widgets/app_snackbars.dart';
 import 'package:crm/routes/app_routes.dart';
+import 'package:crm/screen/login/model/user_model.dart';
 import 'package:crm/services/shred_pref.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -41,10 +43,26 @@ class LoginController extends GetxController {
       if (googleUser != null) {
         user.value = googleUser;
         showlog("user details --> $user");
-        // TODO: Send token to your backend or Firebase
-        // final googleAuth = await googleUser.authentication;
-        // Use googleAuth.accessToken and googleAuth.idToken
-        // TODO: add data to user table && update firebase about registered user
+
+        // final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+        final GoogleSignInAuthentication googleAuth =
+            await googleUser.authentication;
+
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+
+        await FirebaseAuth.instance.signInWithCredential(credential);
+
+        final userData = UserModel(
+          name: googleUser.displayName,
+          email: googleUser.email,
+          photoUrl: googleUser.photoUrl,
+        );
+        showlog("user data in model --> ${userData.toJson()}");
+        await SharedPrefHelper.setBool("isLoggedIn", true);
+        showSuccessSnackBar("Logged in successfully!");
         Get.offAllNamed(AppRoutes.dashboard);
       }
     } catch (e) {
@@ -59,7 +77,8 @@ class LoginController extends GetxController {
     try {
       await _googleSignIn.signOut();
       user.value = null;
-      Get.offNamed('/login');
+      await SharedPrefHelper.setBool("isLoggedIn", false);
+      Get.offNamed(AppRoutes.login);
     } catch (e) {
       error.value = 'Failed to sign out: ${e.toString()}';
     }
@@ -69,7 +88,7 @@ class LoginController extends GetxController {
     try {
       await _googleSignIn.disconnect();
       user.value = null;
-      Get.offNamed('/login');
+      Get.offNamed(AppRoutes.login);
     } catch (e) {
       error.value = 'Failed to disconnect: ${e.toString()}';
     }

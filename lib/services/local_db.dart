@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/screen/contacts/repo/contact_repo.dart';
 import 'package:crm/screen/inquiry/repo/inquiry_repo.dart';
+import 'package:crm/screen/login/repo/user_repo.dart';
 import 'package:crm/screen/masters/product/repo/product_repo.dart';
 import 'package:crm/screen/masters/uom/repo/uom_repo.dart';
 import 'package:crm/screen/orders/repo/order_repo.dart';
@@ -43,15 +44,18 @@ class DatabaseHelper {
   Future<void> _onCreate(Database db, int version) async {
     try {
       showlog("inside _onCreate");
-      await db.execute('''
-      CREATE TABLE IF NOT EXISTS user (
-        uid TEXT PRIMARY KEY,
-        name TEXT,
-        email TEXT,
-        phone TEXT,
-        isSynced INTEGER 
-      )
-    ''');
+      //   await db.execute('''
+      //   CREATE TABLE IF NOT EXISTS user (
+      //     uid TEXT PRIMARY KEY,
+      //     name TEXT,
+      //     email TEXT,
+      //     phone TEXT,
+      //     isSynced INTEGER
+      //   )
+      // ''');
+      //   showlog("after creating user table");
+
+      await UserRepo.createTable(db);
       showlog("after creating user table");
 
       //MARK:  Contact Table

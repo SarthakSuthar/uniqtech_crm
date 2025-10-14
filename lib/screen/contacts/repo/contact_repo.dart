@@ -30,6 +30,8 @@ class ContactsRepo {
         cont_email TEXT,
         cont_mobile_no TEXT,
         cont_phone_no TEXT,
+        created_at TEXT,
+        updated_at TEXT,
         isSynced INTEGER
       )
     ''');

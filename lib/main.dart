@@ -23,7 +23,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await SharedPrefHelper.init();
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   if (kIsWeb) {
     // For web platforms, use the ffi database factory
     databaseFactory = databaseFactoryFfiWeb;
