@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crm/app_const/utils/app_utils.dart';
+import 'package:crm/app_const/widgets/app_snackbars.dart';
 import 'package:crm/screen/inquiry/model/inquiry_followup_model.dart';
 import 'package:crm/screen/inquiry/model/inquiry_model.dart';
 import 'package:crm/screen/inquiry/model/inquiry_product_model.dart';
@@ -16,7 +18,7 @@ class InquiryRepo {
       await createinquiryProductTable(db);
       await createInquiryFollowupTable(db);
     } catch (e) {
-      showlog("Error initializing Inquiry DB : $e");
+      AppUtils.showlog("Error initializing Inquiry DB : $e");
     }
   }
 
@@ -25,7 +27,8 @@ class InquiryRepo {
     await db.execute('''
         CREATE TABLE IF NOT EXISTS $table (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            uid TEXT UNIQUE,
+            created_by TEXT,
+            updated_by TEXT,
             custId INTEGER,
             cust_name1 TEXT,
             cust_name2 TEXT,
@@ -33,7 +36,9 @@ class InquiryRepo {
             email TEXT,
             mobile_no TEXT,
             source TEXT,
-            isSynced INTEGER
+            created_at TEXT,
+            updated_at TEXT,
+            isSynced INTEGER DEFAULT 0
         )
     ''');
   }
@@ -52,7 +57,7 @@ class InquiryRepo {
     Database db = await DatabaseHelper().database;
     final result = await db.rawQuery('SELECT MAX(id) as maxId FROM $table');
     int? maxId = result.first['maxId'] as int?;
-    showlog("MAX id = $maxId");
+    AppUtils.showlog("MAX id = $maxId");
     return (maxId ?? 0) + 1;
   }
 
@@ -91,10 +96,10 @@ class InquiryRepo {
         where: 'id = ?',
         whereArgs: [inquiry.id],
       );
-      showlog("data updated : $changedRows");
+      AppUtils.showlog("data updated : $changedRows");
       return changedRows;
     } catch (e) {
-      showlog("error on update inquiry : $e");
+      AppUtils.showlog("error on update inquiry : $e");
       rethrow;
     }
   }
@@ -105,11 +110,15 @@ class InquiryRepo {
     await db.execute('''
         CREATE TABLE IF NOT EXISTS $inquiryProductTable (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            created_by TEXT,
+            updated_by TEXT,
+            created_at TEXT,
+            updated_at TEXT,
             inquiryId INTEGER,
             productId INTEGER,
             quantity INTEGER,
             remark TEXT,
-            isSynced INTEGER
+            isSynced INTEGER DEFAULT 0
         )
     ''');
   }
@@ -149,7 +158,7 @@ class InquiryRepo {
         throw Exception('Inquiry product not found');
       }
     } catch (e) {
-      showlog("error on get inquiry product by id : $e");
+      AppUtils.showlog("error on get inquiry product by id : $e");
       rethrow;
     }
   }
@@ -166,10 +175,10 @@ class InquiryRepo {
         where: 'id = ?',
         whereArgs: [inquiryProduct.id],
       );
-      showlog("inquiryProduct updated : $changedRows");
+      AppUtils.showlog("inquiryProduct updated : $changedRows");
       return changedRows;
     } catch (e) {
-      showlog("error on update inquiry product : $e");
+      AppUtils.showlog("error on update inquiry product : $e");
       rethrow;
     }
   }
@@ -191,12 +200,16 @@ class InquiryRepo {
         CREATE TABLE IF NOT EXISTS $inquiryFollowupTable (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             inquiryId INTEGER NOT NULL,
+            created_by TEXT,
+            updated_by TEXT,
+            created_at TEXT,
+            updated_at TEXT,
             followupDate TEXT,
             followupType TEXT,
             followupStatus TEXT,
             followupRemarks TEXT,
             followupAssignedTo TEXT,
-            isSynced INTEGER,
+            isSynced INTEGER DEFAULT 0,
             FOREIGN KEY (inquiryId) REFERENCES $table(id) ON DELETE CASCADE
         )
     ''');
@@ -213,10 +226,10 @@ class InquiryRepo {
         inquiryFollowup.toJson(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
-      showlog("inquiryFollowup inserted : $changedRows");
+      AppUtils.showlog("inquiryFollowup inserted : $changedRows");
       return changedRows;
     } catch (e) {
-      showlog("error on insert inquiry followup : $e");
+      AppUtils.showlog("error on insert inquiry followup : $e");
       rethrow;
     }
   }
@@ -233,10 +246,10 @@ class InquiryRepo {
         where: 'id = ?',
         whereArgs: [inquiryFollow.id],
       );
-      showlog("inquiryFollowup updated : $changedRows");
+      AppUtils.showlog("inquiryFollowup updated : $changedRows");
       return changedRows;
     } catch (e) {
-      showlog("error on update inquiry followup : $e");
+      AppUtils.showlog("error on update inquiry followup : $e");
       rethrow;
     }
   }
@@ -248,7 +261,7 @@ class InquiryRepo {
       final result = await db.query(inquiryFollowupTable);
       return result.map((e) => InquiryFollowupModel.fromJson(e)).toList();
     } catch (e) {
-      showlog("error on get all inquiry followups : $e");
+      AppUtils.showlog("error on get all inquiry followups : $e");
       return [];
     }
   }
@@ -269,7 +282,7 @@ class InquiryRepo {
         throw Exception('Inquiry followup not found');
       }
     } catch (e) {
-      showlog("error on get inquiry followup by id : $e");
+      AppUtils.showlog("error on get inquiry followup by id : $e");
       rethrow;
     }
   }
@@ -292,8 +305,36 @@ class InquiryRepo {
         throw Exception('Inquiry followup not found');
       }
     } catch (e) {
-      showlog("error on get inquiry followup by inquiryId : $e");
+      AppUtils.showlog("error on get inquiry followup by inquiryId : $e");
       rethrow;
     }
   }
+
+  // -------------------------------------------------------------------------------------------
+  // ------------- MARK: upload to firestore
+  // -------------------------------------------------------------------------------------------
+  //TODO: inquiry sync
+  final _firestore = FirebaseFirestore.instance;
+
+  Future<void> syncInquiryToFirestore() async {
+    try {
+      await uploadToFirestore();
+      AppUtils.showlog("After uploadToFirestore");
+
+      await downloadFromFirestore();
+      AppUtils.showlog("After downloadFromFirestore");
+    } catch (e) {
+      AppUtils.showlog("Error syncing contacts to Firestore: $e");
+      showErrorSnackBar("Error syncing contacts to cloud");
+    }
+  }
+
+  Future<void> uploadToFirestore() async {
+    final db = await DatabaseHelper().database;
+
+    //upload inquiry list
+    //upload product list
+  }
+
+  Future<void> downloadFromFirestore() async {}
 }

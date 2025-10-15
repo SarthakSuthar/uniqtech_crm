@@ -32,14 +32,14 @@ class _InquiryFollowupState extends State<InquiryFollowup> {
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) {
           Get.delete<InquiryController>();
-          showlog("Route popped with result: $result");
+          AppUtils.showlog("Route popped with result: $result");
         } else {
-          showlog("Pop prevented!");
+          AppUtils.showlog("Pop prevented!");
         }
       },
       child: Scaffold(
         appBar: appBar(title: "Inquiry Followup"),
-        drawer: const AppDrawer(),
+        drawer: AppDrawer(),
         body: GestureDetector(
           onTap: () {
             controller.focusNodes['followupDate']!.unfocus();
@@ -78,7 +78,7 @@ class _InquiryFollowupState extends State<InquiryFollowup> {
                               if (val != null) {
                                 controller.selectedFollowupType.value = val;
                               }
-                              showlog(
+                              AppUtils.showlog(
                                 "selected value : ${controller.selectedFollowupType.value}",
                               );
                             },
@@ -102,7 +102,7 @@ class _InquiryFollowupState extends State<InquiryFollowup> {
                               if (value != null) {
                                 controller.selectedFollowupStatus.value = value;
                               }
-                              showlog(
+                              AppUtils.showlog(
                                 "selected value : ${controller.selectedFollowupStatus.value}",
                               );
                             },
@@ -122,7 +122,7 @@ class _InquiryFollowupState extends State<InquiryFollowup> {
                                 controller.selectedFollowupAssignedTo.value =
                                     value;
                               }
-                              showlog(
+                              AppUtils.showlog(
                                 "selected value : ${controller.selectedFollowupAssignedTo.value}",
                               );
                             },
@@ -155,7 +155,7 @@ class _InquiryFollowupState extends State<InquiryFollowup> {
                                 widget.inquiryId,
                               );
                             }
-                            showlog("ADD: Inquoiry follow up");
+                            AppUtils.showlog("ADD: Inquoiry follow up");
                           },
                           context: context,
                         ),
@@ -169,7 +169,7 @@ class _InquiryFollowupState extends State<InquiryFollowup> {
                                         widget.inquiryId,
                                       );
                                     }
-                                    showlog("SAVE: Inquiry follow up");
+                                    AppUtils.showlog("SAVE: Inquiry follow up");
                                   },
                                   context: context,
                                 )
@@ -223,17 +223,23 @@ class _InquiryFollowupState extends State<InquiryFollowup> {
         controller.controllers['followupRemarks']!.text = followupRemarks;
         controller.selectedFollowupStatus.value = followupStatus;
         controller.followupSelected.value = true;
-        showlog("inquiry card tapped");
-        showlog("-----updated details--------");
-        showlog("followup date : ${controller.selectedFollowupDate.value}");
-        showlog("followup type : ${controller.selectedFollowupType.value}");
-        showlog(
+        AppUtils.showlog("inquiry card tapped");
+        AppUtils.showlog("-----updated details--------");
+        AppUtils.showlog(
+          "followup date : ${controller.selectedFollowupDate.value}",
+        );
+        AppUtils.showlog(
+          "followup type : ${controller.selectedFollowupType.value}",
+        );
+        AppUtils.showlog(
           "followup assigned to : ${controller.selectedFollowupAssignedTo.value}",
         );
-        showlog(
+        AppUtils.showlog(
           "followup remarks : ${controller.controllers['followupRemarks']!.text}",
         );
-        showlog("followup status : ${controller.selectedFollowupStatus.value}");
+        AppUtils.showlog(
+          "followup status : ${controller.selectedFollowupStatus.value}",
+        );
       },
       child: Card(
         child: Padding(

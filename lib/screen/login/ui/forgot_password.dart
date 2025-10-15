@@ -47,7 +47,7 @@ class ForgotPassword extends StatelessWidget {
 
             InkWell(
               onTap: () {
-                showlog("Forgot password pressed");
+                AppUtils.showlog("Forgot password pressed");
               },
               child: Padding(
                 padding: EdgeInsets.all(0),

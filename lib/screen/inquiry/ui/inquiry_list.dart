@@ -36,7 +36,7 @@ class _InquiryListState extends State<InquiryList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar(title: "Inquiry"),
-      drawer: const AppDrawer(),
+      drawer: AppDrawer(),
       body: GestureDetector(
         onTap: () {
           noFocus.unfocus();
@@ -73,7 +73,7 @@ class _InquiryListState extends State<InquiryList> {
                     onTap: () {
                       noController.clear();
                       searchController.clear();
-                      showlog("Clear button pressed");
+                      AppUtils.showlog("Clear button pressed");
                     },
                   ),
                 ),
@@ -87,7 +87,7 @@ class _InquiryListState extends State<InquiryList> {
                       } else if (searchController.text.isNotEmpty) {
                         controller.searchResult(searchController.text);
                       }
-                      showlog("search button pressed");
+                      AppUtils.showlog("search button pressed");
                     },
                   ),
                 ),
@@ -118,7 +118,7 @@ class _InquiryListState extends State<InquiryList> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          showlog("Action button pressed");
+          AppUtils.showlog("Action button pressed");
           Get.toNamed(AppRoutes.addInquiry, arguments: {'isEdit': false});
         },
         backgroundColor: Theme.of(context).primaryColor,
@@ -183,7 +183,7 @@ class _InquiryListState extends State<InquiryList> {
                         AppRoutes.addInquiry,
                         arguments: {'no': no, 'isEdit': true},
                       );
-                      showlog("edit button taped");
+                      AppUtils.showlog("edit button taped");
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -208,7 +208,7 @@ class _InquiryListState extends State<InquiryList> {
                   InkWell(
                     onTap: () async {
                       await controller.convertInquiryToQuotation(inquiryId: no);
-                      showlog("convert to quote button taped");
+                      AppUtils.showlog("convert to quote button taped");
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -232,8 +232,8 @@ class _InquiryListState extends State<InquiryList> {
 
                   InkWell(
                     onTap: () {
-                      showlog("Follow up : inquiry");
-                      showlog("Inquiry id parsing from list : $no");
+                      AppUtils.showlog("Follow up : inquiry");
+                      AppUtils.showlog("Inquiry id parsing from list : $no");
                       Get.toNamed(
                         AppRoutes.inquiryFollowup,
                         arguments: {'inquiryId': no},
@@ -262,7 +262,7 @@ class _InquiryListState extends State<InquiryList> {
                   InkWell(
                     onTap: () {
                       controller.deleteInquiry(id: int.parse(no));
-                      showlog("delete button taped");
+                      AppUtils.showlog("delete button taped");
                     },
                     child: Container(
                       decoration: BoxDecoration(

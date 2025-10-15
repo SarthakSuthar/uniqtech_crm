@@ -24,9 +24,9 @@ class _AddQuoteProductState extends State<AddQuoteProduct> {
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) {
           Get.delete<QuotesController>();
-          showlog("Route popped with result: $result");
+          AppUtils.showlog("Route popped with result: $result");
         } else {
-          showlog("Pop prevented!");
+          AppUtils.showlog("Pop prevented!");
         }
       },
       child: Padding(
@@ -134,7 +134,7 @@ class _AddQuoteProductState extends State<AddQuoteProduct> {
                             if (_formKey.currentState!.validate()) {
                               controller.addtempProductList();
                             }
-                            showlog("ADD :: Add inquirt customer");
+                            AppUtils.showlog("ADD :: Add inquirt customer");
                           },
                           context: context,
                         ),
@@ -186,7 +186,7 @@ class _AddQuoteProductState extends State<AddQuoteProduct> {
                     ? controller.updateQuotation()
                     : controller.submitQuotation();
               }
-              showlog("Inquiry Action button pressed");
+              AppUtils.showlog("Inquiry Action button pressed");
             },
             backgroundColor: Theme.of(context).primaryColor,
             child: Text(

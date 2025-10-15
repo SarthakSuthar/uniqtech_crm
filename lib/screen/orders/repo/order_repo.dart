@@ -19,7 +19,10 @@ class OrderRepo {
     await db.execute('''
   CREATE TABLE IF NOT EXISTS $orderTable (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    uid TEXT UNIQUE,
+    created_by TEXT UNIQUE,
+    created_at TEXT UNIQUE,
+    updated_at TEXT,
+    updated_by TEXT,
     custId INTEGER,
     cust_name1 TEXT,
     cust_name2 TEXT,
@@ -36,7 +39,7 @@ class OrderRepo {
   )
 ''');
 
-    showlog("after createOrderTable");
+    AppUtils.showlog("after createOrderTable");
   }
 
   ///inser a new order in [orderTable]
@@ -119,7 +122,7 @@ class OrderRepo {
   )
 ''');
 
-    showlog("after createOrderProductTable");
+    AppUtils.showlog("after createOrderProductTable");
   }
 
   ///Insert a new order product record into [orderProductTable]
@@ -155,7 +158,7 @@ class OrderRepo {
         throw Exception('Order product not found');
       }
     } catch (e) {
-      showlog("Error on get order product by id : $e");
+      AppUtils.showlog("Error on get order product by id : $e");
       rethrow;
     }
   }
@@ -170,10 +173,10 @@ class OrderRepo {
         where: 'id = ?',
         whereArgs: [orderProduct.id],
       );
-      showlog("orderProduct updated : $changedRows");
+      AppUtils.showlog("orderProduct updated : $changedRows");
       return changedRows;
     } catch (e) {
-      showlog("error on update order product : $e");
+      AppUtils.showlog("error on update order product : $e");
       rethrow;
     }
   }
@@ -196,11 +199,11 @@ class OrderRepo {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             orderId INTEGER,
             termId INTEGER,
-            isSynced INTEGER
+            isSynced INTEGER DEFAULT 0
         )
     ''');
 
-    showlog("after createOrderTermsTable");
+    AppUtils.showlog("after createOrderTermsTable");
   }
 
   ///Insert a new order terms record into [orderTermsTable]
@@ -246,7 +249,7 @@ class OrderRepo {
             followupStatus TEXT,
             followupRemarks TEXT,
             followupAssignedTo TEXT,
-            isSynced INTEGER,
+            isSynced INTEGER DEFAULT 0,
             FOREIGN KEY (orderId) REFERENCES $orderTable(id) ON DELETE CASCADE
         )
     ''');
@@ -263,10 +266,10 @@ class OrderRepo {
         orderFollowupModel.toJson(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
-      showlog("orderFollowup inserted : $newId");
+      AppUtils.showlog("orderFollowup inserted : $newId");
       return newId;
     } catch (e) {
-      showlog("error on insert order followup : $e");
+      AppUtils.showlog("error on insert order followup : $e");
       rethrow;
     }
   }
@@ -285,7 +288,7 @@ class OrderRepo {
       );
       return changedRows;
     } catch (e) {
-      showlog("error on update order followup : $e");
+      AppUtils.showlog("error on update order followup : $e");
       rethrow;
     }
   }
@@ -297,7 +300,7 @@ class OrderRepo {
       final result = await db.query(orderFollowupTable);
       return result.map((e) => OrderFollowupModel.fromJson(e)).toList();
     } catch (e) {
-      showlog("Error on get all order followup : $e");
+      AppUtils.showlog("Error on get all order followup : $e");
       rethrow;
     }
   }
@@ -318,7 +321,7 @@ class OrderRepo {
         throw Exception('Order followup not found');
       }
     } catch (e) {
-      showlog("Error on get order followup by id : $e");
+      AppUtils.showlog("Error on get order followup by id : $e");
       rethrow;
     }
   }
@@ -341,10 +344,16 @@ class OrderRepo {
         throw Exception('Order followup not found');
       }
     } catch (e) {
-      showlog("Error on get order followup list : $e");
+      AppUtils.showlog("Error on get order followup list : $e");
       rethrow;
     }
   }
 
   ///delete
+
+  //---------------------------------------------------------------------------------------
+  // ---------------------- MARK: upload to firestore
+  //---------------------------------------------------------------------------------------
+
+  //TODO: upload order
 }

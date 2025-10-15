@@ -31,7 +31,7 @@ class Reports extends StatelessWidget {
                     title: "TARGET VS SALES",
                     context: context,
                     onTap: () {
-                      showlog("Report pressed");
+                      AppUtils.showlog("Report pressed");
                     },
                   ),
                   reportsWidget(
@@ -39,7 +39,7 @@ class Reports extends StatelessWidget {
                     title: "TODAY FOLLOW-UP",
                     context: context,
                     onTap: () {
-                      showlog("Report pressed");
+                      AppUtils.showlog("Report pressed");
                     },
                   ),
                   reportsWidget(
@@ -47,7 +47,7 @@ class Reports extends StatelessWidget {
                     title: "INQUIRY PROGRESS REPORT",
                     context: context,
                     onTap: () {
-                      showlog("Report pressed");
+                      AppUtils.showlog("Report pressed");
                     },
                   ),
                   reportsWidget(
@@ -55,7 +55,7 @@ class Reports extends StatelessWidget {
                     title: "TODAY TASK",
                     context: context,
                     onTap: () {
-                      showlog("Report pressed");
+                      AppUtils.showlog("Report pressed");
                     },
                   ),
                 ],

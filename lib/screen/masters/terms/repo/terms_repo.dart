@@ -13,7 +13,7 @@ class TermsRepo {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT,
             description TEXT,
-            isSynced INTEGER
+            isSynced INTEGER DEFAULT 0
         )
     ''');
   }
@@ -29,7 +29,7 @@ class TermsRepo {
       );
     } catch (e) {
       // Handle the error, e.g., log it or rethrow a custom exception
-      showlog('inserting terms: $e');
+      AppUtils.showlog('inserting terms: $e');
       rethrow;
     }
   }
@@ -41,7 +41,7 @@ class TermsRepo {
       final result = await db.query(table);
       return result.map((e) => TermsModel.fromJson(e)).toList();
     } catch (e) {
-      showlog('retrieving terms: $e');
+      AppUtils.showlog('retrieving terms: $e');
       rethrow;
     }
   }
@@ -52,7 +52,7 @@ class TermsRepo {
     try {
       await db.delete(table, where: 'id = ?', whereArgs: [id]);
     } catch (e) {
-      showlog('deleting terms: $e');
+      AppUtils.showlog('deleting terms: $e');
       rethrow;
     }
   }

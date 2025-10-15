@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crm/app_const/utils/app_utils.dart';
+import 'package:crm/app_const/widgets/app_snackbars.dart';
 import 'package:crm/screen/contacts/model/contact_model.dart';
 import 'package:crm/services/local_db.dart';
 import 'package:sqflite/sqlite_api.dart';
@@ -10,7 +12,8 @@ class ContactsRepo {
     await db.execute('''
       CREATE TABLE IF NOT EXISTS $table (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        uid TEXT UNIQUE,
+        created_by TEXT,
+        updated_by TEXT,
         cust_name TEXT,
         address TEXT,
         city TEXT,
@@ -32,7 +35,7 @@ class ContactsRepo {
         cont_phone_no TEXT,
         created_at TEXT,
         updated_at TEXT,
-        isSynced INTEGER
+        isSynced INTEGER DEFAULT 0
       )
     ''');
   }
@@ -53,7 +56,11 @@ class ContactsRepo {
   ///select all the rows of "contact" table
   static Future<List<ContactModel>> getAllContacts() async {
     Database db = await DatabaseHelper().database;
-    final result = await db.query(table);
+    final result = await db.query(
+      table,
+      where: 'isSynced != ?',
+      whereArgs: [2],
+    );
     return result.map((e) => ContactModel.fromMap(e)).toList();
   }
 
@@ -72,13 +79,22 @@ class ContactsRepo {
   ///delete record of specific id
   static Future<int> deleteContact(int id) async {
     Database db = await DatabaseHelper().database;
-    return await db.delete(table, where: 'id = ?', whereArgs: [id]);
+
+    // return await db.delete(table, where: 'id = ?', whereArgs: [id]);
+
+    // update isSynced to 2
+    return await db.update(
+      table,
+      {'isSynced': 2},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
   ///update contact record by id
   static Future<int> updateContact(ContactModel contact) async {
     try {
-      showlog("Inside update contact : ${contact.toJson()}");
+      AppUtils.showlog("Inside update contact : ${contact.toJson()}");
       Database db = await DatabaseHelper().database;
       int changedRows = await db.update(
         table,
@@ -86,11 +102,163 @@ class ContactsRepo {
         where: 'id = ?',
         whereArgs: [contact.id],
       );
-      showlog("data updated : $changedRows");
+      AppUtils.showlog("data updated : $changedRows");
       return changedRows;
     } catch (e) {
-      showlog("error on update contact : $e");
+      AppUtils.showlog("error on update contact : $e");
       rethrow;
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // --------------  MARK: upload to firestore
+  //--------------------------------------------------------------------------
+
+  final _firestore = FirebaseFirestore.instance;
+
+  Future<void> syncContactsToFirestore() async {
+    try {
+      await uploadToFirestore();
+      AppUtils.showlog("After uploadToFirestore");
+
+      await downloadFromFirestore();
+      AppUtils.showlog("After downloadFromFirestore");
+    } catch (e) {
+      AppUtils.showlog("Error syncing contacts to Firestore: $e");
+      showErrorSnackBar("Error syncing contacts to cloud");
+    }
+  }
+
+  /// Upload local changes to Firestore
+  Future<void> uploadToFirestore() async {
+    // update database isSynced to 1 --> upload
+    // if success keep it 1
+    // else isSynced = 0 (revert)
+    final db = await DatabaseHelper().database;
+
+    //  Upload new (isSynced = 0)
+    final newRecords = await db.query(
+      table,
+      where: 'isSynced = ?',
+      whereArgs: [0],
+    );
+
+    for (final record in newRecords) {
+      // Prepare Firestore data but override isSynced to 1 for cloud
+      final firestoreData = Map<String, dynamic>.from(record);
+      firestoreData['isSynced'] = 1;
+
+      try {
+        // Upload to Firestore
+        await _firestore
+            .collection(table)
+            .doc(record['id'].toString())
+            .set(firestoreData);
+
+        // Update local record only after success
+        // await db.update(
+        //   table,
+        //   {'isSynced': 1},
+        //   where: 'id = ?',
+        //   whereArgs: [record['id']],
+        // );
+      } catch (e) {
+        AppUtils.showlog("Failed to sync record ${record['id']} in $table: $e");
+      }
+    }
+
+    //  Delete records from Firestore (isSynced = 2)
+    final deletedRecords = await db.query(
+      table,
+      where: 'isSynced = ?',
+      whereArgs: [2],
+    );
+
+    for (final record in deletedRecords) {
+      await _firestore.collection(table).doc(record['id'].toString()).delete();
+      await db.delete(table, where: 'id = ?', whereArgs: [record['id']]);
+    }
+  }
+
+  /// Download changes from Firestore to local SQLite
+  Future<void> downloadFromFirestore() async {
+    final db = await DatabaseHelper().database;
+
+    final snapshot = await _firestore.collection(table).get();
+    final firestoreDocs = snapshot.docs;
+
+    for (final doc in firestoreDocs) {
+      final data = doc.data();
+
+      // Check if exists locally
+      final local = await db.query(
+        table,
+        where: 'id = ?',
+        whereArgs: [data['id']],
+      );
+
+      if (local.isEmpty) {
+        // Insert if not present locally
+        await db.insert(table, {
+          'created_by': data['created_by'],
+          'updated_by': data['updated_by'],
+          'cust_name': data['cust_name'],
+          'address': data['address'],
+          'city': data['city'],
+          'state': data['state'],
+          'district': data['district'],
+          'country': data['country'],
+          'pincode': data['pincode'],
+          'mobile_no': data['mobile_no'],
+          'email': data['email'],
+          'website': data['website'],
+          'business_type': data['business_type'],
+          'industry_type': data['industry_type'],
+          'status': data['status'],
+          'contact_name': data['contact_name'],
+          'department': data['department'],
+          'designation': data['designation'],
+          'cont_email': data['cont_email'],
+          'cont_mobile_no': data['cont_mobile_no'],
+          'cont_phone_no': data['cont_phone_no'],
+          'created_at': data['created_at'],
+          'updated_at': data['updated_at'],
+          'isSynced': 1,
+        });
+      } else {
+        // Update local record if Firestore version is newer
+        await db.update(
+          table,
+          {
+            'created_by': data['created_by'],
+            'updated_by': data['updated_by'],
+            'cust_name': data['cust_name'],
+            'address': data['address'],
+            'city': data['city'],
+            'state': data['state'],
+            'district': data['district'],
+            'country': data['country'],
+            'pincode': data['pincode'],
+            'mobile_no': data['mobile_no'],
+            'email': data['email'],
+            'website': data['website'],
+            'business_type': data['business_type'],
+            'industry_type': data['industry_type'],
+            'status': data['status'],
+            'contact_name': data['contact_name'],
+            'department': data['department'],
+            'designation': data['designation'],
+            'cont_email': data['cont_email'],
+            'cont_mobile_no': data['cont_mobile_no'],
+            'cont_phone_no': data['cont_phone_no'],
+            'created_at': data['created_at'],
+            'updated_at': data['updated_at'],
+            'isSynced': 1,
+          },
+          where: 'id = ?',
+          whereArgs: [data['id']],
+        );
+      }
     }
   }
 }

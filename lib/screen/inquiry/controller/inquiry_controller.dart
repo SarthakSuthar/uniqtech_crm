@@ -61,6 +61,7 @@ class InquiryController extends GetxController {
     await getinquiryProductList();
     await getCustomersList();
     await getUomList();
+    await getUid();
 
     // Set initial inquiry number based on the total number of inquiries
     if (isEdit == true) {
@@ -160,9 +161,9 @@ class InquiryController extends GetxController {
     try {
       final result = await UomRepo.getAllUom();
       uomList.assignAll(result);
-      showlog("uom list : ${result.map((e) => e.toJson()).toList()}");
+      AppUtils.showlog("uom list : ${result.map((e) => e.toJson()).toList()}");
     } catch (e) {
-      showlog("Error getting UOM list : $e");
+      AppUtils.showlog("Error getting UOM list : $e");
     }
   }
 
@@ -171,7 +172,7 @@ class InquiryController extends GetxController {
 
   /// Search for customer name or number
   void searchResult(String val) {
-    showlog("search for name or number : $val");
+    AppUtils.showlog("search for name or number : $val");
 
     if (val.isEmpty) {
       // If the search query is empty, show all contacts
@@ -183,8 +184,7 @@ class InquiryController extends GetxController {
 
     filterendList.value = inquiryList.where((item) {
       final custName = item.custName1?.toLowerCase();
-      final uid = item.uid
-          ?.toLowerCase(); // Assuming uid is a string or can be converted to one
+      final uid = item.id?.toString().toLowerCase();
 
       // An item is a match if its name OR uid contains the search query
       return (custName?.contains(lowerCaseQuery) ?? false) ||
@@ -200,9 +200,11 @@ class InquiryController extends GetxController {
       final result = await InquiryRepo.getAllInquiries();
       inquiryList.assignAll(result);
       filterendList.value = inquiryList;
-      showlog("inquiry list : ${result.map((e) => e.toJson()).toList()}");
+      AppUtils.showlog(
+        "inquiry list : ${result.map((e) => e.toJson()).toList()}",
+      );
     } catch (e) {
-      showlog("error on get inquiry list : $e");
+      AppUtils.showlog("error on get inquiry list : $e");
     }
   }
 
@@ -214,7 +216,7 @@ class InquiryController extends GetxController {
       final result = await ProductRepo.getAllProducts();
       productList.assignAll(result);
     } catch (e) {
-      showlog("error on get product list : $e");
+      AppUtils.showlog("error on get product list : $e");
     }
   }
 
@@ -224,30 +226,30 @@ class InquiryController extends GetxController {
   Future<void> getinquiryProductList() async {
     try {
       final result = await InquiryRepo.getAllInquiryProducts();
-      showlog(
+      AppUtils.showlog(
         "getinquiryProductList result : ${result.map((e) => e.toJson()).toList()}",
       );
 
       final numText = controllers['num']?.text ?? "";
-      showlog("controllers['num']?.text --> $numText");
+      AppUtils.showlog("controllers['num']?.text --> $numText");
       final inquiryId = int.tryParse(numText);
 
       if (inquiryId == null) {
-        showlog("Invalid inquiryId: $numText");
+        AppUtils.showlog("Invalid inquiryId: $numText");
         inquiryProductList.clear();
         return;
       } else {
-        showlog("inquiryId : $inquiryId");
+        AppUtils.showlog("inquiryId : $inquiryId");
       }
 
       inquiryProductList.assignAll(
         result.where((element) => element.inquiryId == inquiryId).toList(),
       );
-      showlog(
+      AppUtils.showlog(
         "inquiry product list : ${inquiryProductList.map((e) => e.toJson()).toList()}",
       );
     } catch (e) {
-      showlog("error on get inquiry product list : $e");
+      AppUtils.showlog("error on get inquiry product list : $e");
     }
   }
 
@@ -263,26 +265,26 @@ class InquiryController extends GetxController {
         customerList[contact.custName!] = contact.id.toString();
       }
       customerList.forEach(
-        (key, value) => showlog("Customer list $key : $value"),
+        (key, value) => AppUtils.showlog("Customer list $key : $value"),
       );
     } catch (e) {
-      showlog("error on get customers list : $e");
+      AppUtils.showlog("error on get customers list : $e");
     }
   }
 
   /// get user details by id
   Future<void> getSelectedContactDetails(String name) async {
     try {
-      showlog("name --> $name");
+      AppUtils.showlog("name --> $name");
       final id = customerList[name] ?? '';
-      showlog("get user details by id --> $id");
+      AppUtils.showlog("get user details by id --> $id");
 
       final result = await ContactsRepo.getContactById(id);
       controllers["email"]?.text = result.email!;
       controllers["mobile"]?.text = result.mobileNo!;
-      showlog("selected contact details : ${result.toJson()}");
+      AppUtils.showlog("selected contact details : ${result.toJson()}");
     } catch (e) {
-      showlog("error on get user details : $e");
+      AppUtils.showlog("error on get user details : $e");
     }
   }
 
@@ -294,11 +296,14 @@ class InquiryController extends GetxController {
       final custName = selectedCustomer.value;
       final custId = customerList[custName];
 
-      showlog("custName : $custName");
-      showlog("custId : $custId");
+      AppUtils.showlog("custName : $custName");
+      AppUtils.showlog("custId : $custId");
 
       final inquiryCustomer = InquiryModel(
-        uid: DateTime.now().millisecondsSinceEpoch.toString(),
+        createdBy: await AppUtils.uid,
+        updatedBy: await AppUtils.uid,
+        createdAt: DateTime.now().toString(),
+        updatedAt: DateTime.now().toString(),
         custId: int.parse(custId ?? ''),
         custName1: selectedCustomer.value,
         custName2: controllers["name2"]!.text,
@@ -308,15 +313,17 @@ class InquiryController extends GetxController {
         source: controllers["social"]!.text,
       );
 
-      showlog("added inquiry customer ----> ${inquiryCustomer.toJson()}");
+      AppUtils.showlog(
+        "added inquiry customer ----> ${inquiryCustomer.toJson()}",
+      );
 
       int result = await InquiryRepo.insertInquiry(inquiryCustomer);
-      showlog("insert inquiry customer ----> $result");
+      AppUtils.showlog("insert inquiry customer ----> $result");
       showSuccessSnackBar("Customer added successfully");
       await getInquiryList();
     } catch (e) {
       showErrorSnackBar("Error adding customer");
-      showlog("error on add customer : $e");
+      AppUtils.showlog("error on add customer : $e");
     }
   }
 
@@ -328,7 +335,7 @@ class InquiryController extends GetxController {
       );
       return product?.productId ?? 0;
     } catch (e) {
-      showlog("Error getting product id : $e");
+      AppUtils.showlog("Error getting product id : $e");
       rethrow;
     }
   }
@@ -339,15 +346,29 @@ class InquiryController extends GetxController {
 
   RxList<InquiryProductModel> tempProductList = <InquiryProductModel>[].obs;
 
+  String? uid;
+
+  Future<void> getUid() async {
+    try {
+      uid = await AppUtils.uid;
+    } catch (e) {
+      AppUtils.showlog("Error getting uid : $e");
+    }
+  }
+
   void addtempProductList() {
     final inquiryId = int.parse(controllers['num']!.text);
 
-    showlog("Inquiry Id in addInquiryProductID : $inquiryId");
+    AppUtils.showlog("Inquiry Id in addInquiryProductID : $inquiryId");
 
     try {
       tempProductList.add(
         InquiryProductModel(
           inquiryId: inquiryId,
+          createdBy: uid,
+          updatedBy: uid,
+          createdAt: DateTime.now().toString(),
+          updatedAt: DateTime.now().toString(),
           productId: getProductId(selectedProduct!.value),
           quantity: int.parse(controllers["quantity"]!.text),
           remark: controllers["remarks"]!.text,
@@ -358,7 +379,7 @@ class InquiryController extends GetxController {
       showSuccessSnackBar("Product added successfully");
     } catch (e) {
       showErrorSnackBar("Error adding product");
-      showlog("Error adding product : $e");
+      AppUtils.showlog("Error adding product : $e");
     }
   }
 
@@ -367,7 +388,7 @@ class InquiryController extends GetxController {
     try {
       final inquiryId = int.parse(controllers['num']!.text);
 
-      showlog("Inquiry Id in addInquiryProductID : $inquiryId");
+      AppUtils.showlog("Inquiry Id in addInquiryProductID : $inquiryId");
 
       final inqProdId = InquiryProductModel(
         inquiryId: inquiryId,
@@ -376,16 +397,16 @@ class InquiryController extends GetxController {
         remark: controllers["remarks"]!.text,
       );
 
-      showlog("inquiry id : ${inqProdId.inquiryId}");
-      showlog("product id : ${inqProdId.productId}");
+      AppUtils.showlog("inquiry id : ${inqProdId.inquiryId}");
+      AppUtils.showlog("product id : ${inqProdId.productId}");
 
       int result = await InquiryRepo.insertInquiryProduct(inqProdId);
       showSuccessSnackBar("Product added successfully");
-      showlog("insert inquiry product ----> $result");
+      AppUtils.showlog("insert inquiry product ----> $result");
       await getinquiryProductList();
     } catch (e) {
       showErrorSnackBar("Error adding Product");
-      showlog("Error adding product & inquiry ID : $e");
+      AppUtils.showlog("Error adding product & inquiry ID : $e");
     }
   }*/
 
@@ -394,12 +415,12 @@ class InquiryController extends GetxController {
       for (var element in tempProductList) {
         int result = await InquiryRepo.insertInquiryProduct(element);
         // showSuccessSnackBar("Product added successfully");
-        showlog("insert inquiry product ----> $result");
+        AppUtils.showlog("insert inquiry product ----> $result");
         await getinquiryProductList();
       }
     } catch (e) {
       showErrorSnackBar("Error adding Product");
-      showlog("Error adding product & inquiry ID : $e");
+      AppUtils.showlog("Error adding product & inquiry ID : $e");
     }
   }
 
@@ -412,16 +433,16 @@ class InquiryController extends GetxController {
       if (tempProductList != inquiryProductList) {
         for (var element in tempProductList) {
           int result = await InquiryRepo.insertInquiryProduct(element);
-          showlog("update inquiry product ----> $result");
+          AppUtils.showlog("update inquiry product ----> $result");
           await getinquiryProductList();
           return result;
         }
       } else {
-        showlog("tempProductList == inquiryProductList");
+        AppUtils.showlog("tempProductList == inquiryProductList");
       }
       return 0;
     } catch (e) {
-      showlog("Error updating product : $e");
+      AppUtils.showlog("Error updating product : $e");
       return 0;
     }
   }
@@ -434,7 +455,7 @@ class InquiryController extends GetxController {
       await getInquiryList();
       // Get.back(result: true);
     } catch (e) {
-      showlog("Error submitting inquiry : $e");
+      AppUtils.showlog("Error submitting inquiry : $e");
     }
   }
 
@@ -447,7 +468,7 @@ class InquiryController extends GetxController {
       await getinquiryProductList();
     } catch (e) {
       showErrorSnackBar("Error deleting inquiry");
-      showlog("Error deleting inquiry : $e");
+      AppUtils.showlog("Error deleting inquiry : $e");
     }
   }
 
@@ -461,14 +482,19 @@ class InquiryController extends GetxController {
     try {
       // update customer details
 
+      final custName = selectedCustomer.value;
+      final custId = customerList[custName];
+
+      AppUtils.showlog("custName : $custName");
+      AppUtils.showlog("custId : $custId");
+
       int inquiryId = int.parse(controllers['num']!.text);
-      showlog("inquiryId : $inquiryId");
+      AppUtils.showlog("inquiryId : $inquiryId");
       final inquiry = InquiryModel(
         id: inquiryId,
-        uid: DateTime.now().millisecondsSinceEpoch.toString(),
-        // custId: int.parse(controllers['custId']!.text) ,
-        //TODO: get customer id
-        custId: 0,
+        updatedBy: await AppUtils.uid,
+        updatedAt: DateTime.now().toString(),
+        custId: int.parse(custId ?? ''),
         custName1: selectedCustomer.value,
         custName2: "controllers['name2']!.text",
         date: controllers['date']!.text,
@@ -476,21 +502,21 @@ class InquiryController extends GetxController {
         mobileNo: controllers['mobile']!.text,
         source: controllers['social']!.text,
       );
-      showlog("updated inquiry ----> ${inquiry.toJson()}");
+      AppUtils.showlog("updated inquiry ----> ${inquiry.toJson()}");
 
       // update product list
 
       int result = await InquiryRepo.updateInquiry(inquiry);
-      showlog("update inquiry ----> $result");
+      AppUtils.showlog("update inquiry ----> $result");
 
       //update product list
 
       int updateProduct = await updateInquiryProductID();
-      showlog("ipdated product --> $updateProduct");
+      AppUtils.showlog("ipdated product --> $updateProduct");
       showSuccessSnackBar("Inquiry updated successfully");
     } catch (e) {
       showErrorSnackBar("Error updating inquiry");
-      showlog("Error update inquiry : $e");
+      AppUtils.showlog("Error update inquiry : $e");
     }
   }
 
@@ -514,14 +540,14 @@ class InquiryController extends GetxController {
       final result = await InquiryRepo.getInquiryFollowupById(
         selectedFolloupId,
       );
-      showlog("selected followup detail : ${result.toJson()}");
+      AppUtils.showlog("selected followup detail : ${result.toJson()}");
       selectedFollowupAssignedTo.value = result.followupAssignedTo!;
       selectedFollowupDate.value = result.followupDate;
       selectedFollowupRemarks.value = result.followupRemarks!;
       selectedFollowupStatus.value = result.followupStatus!;
       selectedFollowupType.value = result.followupStatus!;
     } catch (e) {
-      showlog("Error getting selected followup detail : $e");
+      AppUtils.showlog("Error getting selected followup detail : $e");
     }
   }
 
@@ -536,12 +562,12 @@ class InquiryController extends GetxController {
         inquiryId,
       );
       inquiryFollowupList.assignAll(result);
-      showlog(
+      AppUtils.showlog(
         "inquiry followup list : ${result.map((e) => e.toJson()).toList()}",
       );
       return result;
     } catch (e) {
-      showlog("Error getting inquiry followup list : $e");
+      AppUtils.showlog("Error getting inquiry followup list : $e");
       return [];
     }
   }
@@ -553,20 +579,26 @@ class InquiryController extends GetxController {
 
       final inquiryFollowup = InquiryFollowupModel(
         inquiryId: intId,
+        createdBy: await AppUtils.uid,
+        updatedBy: await AppUtils.uid,
+        createdAt: DateTime.now().toString(),
+        updatedAt: DateTime.now().toString(),
         followupDate: controllers['followupDate']!.text,
         followupStatus: selectedFollowupStatus.value,
         followupType: selectedFollowupType.value,
         followupRemarks: controllers['followupRemarks']!.text,
         followupAssignedTo: selectedFollowupAssignedTo.value,
       );
-      showlog("added inquiry followup ----> ${inquiryFollowup.toJson()}");
+      AppUtils.showlog(
+        "added inquiry followup ----> ${inquiryFollowup.toJson()}",
+      );
       int result = await InquiryRepo.insertInquiryFollowup(inquiryFollowup);
       await getInquiryFollowupList(intId);
       showSuccessSnackBar("Followup added successfully");
-      showlog("insert inquiry followup ----> $result");
+      AppUtils.showlog("insert inquiry followup ----> $result");
     } catch (e) {
       showErrorSnackBar("Error adding inquiry followup");
-      showlog("Error adding inquiry followup : $e");
+      AppUtils.showlog("Error adding inquiry followup : $e");
     }
   }
 
@@ -576,11 +608,13 @@ class InquiryController extends GetxController {
   Future<void> updateInquiryFollowup(String inquiryId) async {
     try {
       int intId = int.parse(inquiryId);
-      showlog("intId : $intId");
+      AppUtils.showlog("intId : $intId");
 
       final inquiryFollowup = InquiryFollowupModel(
         id: intId,
         inquiryId: intId,
+        updatedBy: await AppUtils.uid,
+        updatedAt: DateTime.now().toString(),
         followupDate: controllers['followupDate']!.text,
         followupStatus: selectedFollowupStatus.value,
         followupType: selectedFollowupType.value,
@@ -588,13 +622,15 @@ class InquiryController extends GetxController {
         followupAssignedTo: selectedFollowupAssignedTo.value,
       );
 
-      showlog("updated inquiry followup ----> ${inquiryFollowup.toJson()}");
+      AppUtils.showlog(
+        "updated inquiry followup ----> ${inquiryFollowup.toJson()}",
+      );
       int result = await InquiryRepo.updateInquiryFollowup(inquiryFollowup);
       showSuccessSnackBar("Followup updated successfully");
-      showlog("update inquiry followup ----> $result");
+      AppUtils.showlog("update inquiry followup ----> $result");
     } catch (e) {
       showErrorSnackBar("Error updating inquiry followup");
-      showlog("Error update inquiry followup : $e");
+      AppUtils.showlog("Error update inquiry followup : $e");
     }
   }
 
@@ -621,7 +657,7 @@ class InquiryController extends GetxController {
 
       ////convertInquiryCustomerToQuotationCustomer
       final customerInquiry = await InquiryRepo.getInquiryById(inquiryId);
-      showlog("customerInquiry : ${customerInquiry.toJson()}");
+      AppUtils.showlog("customerInquiry : ${customerInquiry.toJson()}");
       await convertInquiryCustomerToQuotationCustomer(customerInquiry);
 
       //get product list for selected inquiry
@@ -632,7 +668,7 @@ class InquiryController extends GetxController {
       final selectedInquiryProductList = inquiryProductList
           .where((element) => element.inquiryId == int.parse(inquiryId))
           .toList();
-      showlog(
+      AppUtils.showlog(
         "inquiryProductList : ${selectedInquiryProductList.map((e) => e.toJson()).toList()}",
       );
       await convertInquiryProductToQuotationProduct(inquiryProductList);
@@ -644,7 +680,7 @@ class InquiryController extends GetxController {
       final selectedInquiryFollowupList = inquiryFollowupList
           .where((element) => element.inquiryId == int.parse(inquiryId))
           .toList();
-      showlog(
+      AppUtils.showlog(
         "inquiryFollowupList : ${selectedInquiryFollowupList.map((e) => e.toJson()).toList()}",
       );
       await convertInquiryFollowupToQuotationFollowup(
@@ -654,7 +690,7 @@ class InquiryController extends GetxController {
       showSuccessSnackBar("Inquiry converted to quotation successfully");
     } catch (e) {
       showErrorSnackBar("Error converting inquiry to quotation");
-      showlog("Error converting inquiry to quotation: $e");
+      AppUtils.showlog("Error converting inquiry to quotation: $e");
     }
   }
 
@@ -664,7 +700,10 @@ class InquiryController extends GetxController {
   ) async {
     try {
       final quotation = QuotationModel(
-        uid: inquiry.uid,
+        createdBy: inquiry.createdBy,
+        updatedBy: inquiry.updatedBy,
+        createdAt: inquiry.createdAt,
+        updatedAt: inquiry.updatedAt,
         custId: inquiry.custId,
         custName1: inquiry.custName1,
         custName2: inquiry.custName2,
@@ -676,7 +715,7 @@ class InquiryController extends GetxController {
       );
       newQuotationId = await QuotationRepo.insertQuotation(quotation);
     } catch (e) {
-      showlog("error converting customer to quotation : $e");
+      AppUtils.showlog("error converting customer to quotation : $e");
     }
   }
 
@@ -694,6 +733,10 @@ class InquiryController extends GetxController {
       for (var inquiryProduct in inquiryProduct) {
         final quotationProduct = QuotationProductModel(
           quotationId: quotationId,
+          createdBy: inquiryProduct.createdBy,
+          updatedBy: inquiryProduct.updatedBy,
+          createdAt: inquiryProduct.createdAt,
+          updatedAt: inquiryProduct.updatedAt,
           productId: inquiryProduct.productId,
           quantity: inquiryProduct.quantity,
           remark: inquiryProduct.remark,
@@ -701,7 +744,9 @@ class InquiryController extends GetxController {
         await QuotationRepo.insertQuotationProduct(quotationProduct);
       }
     } catch (e) {
-      showlog("Error converting inquiry product to quotation product: $e");
+      AppUtils.showlog(
+        "Error converting inquiry product to quotation product: $e",
+      );
     }
   }
 
@@ -718,6 +763,10 @@ class InquiryController extends GetxController {
       for (var inquiryFollowup in inquiryFollowup) {
         final quotationFollowup = QuotationFollowupModel(
           quotationId: quotationId,
+          createdBy: inquiryFollowup.createdBy,
+          updatedBy: inquiryFollowup.updatedBy,
+          createdAt: inquiryFollowup.createdAt,
+          updatedAt: inquiryFollowup.updatedAt,
           followupDate: inquiryFollowup.followupDate,
           followupType: inquiryFollowup.followupType,
           followupStatus: inquiryFollowup.followupStatus,
@@ -728,7 +777,9 @@ class InquiryController extends GetxController {
         await QuotationRepo.insertQuotationFollowup(quotationFollowup);
       }
     } catch (e) {
-      showlog("Error converting inquiry followup to quotation followup: $e");
+      AppUtils.showlog(
+        "Error converting inquiry followup to quotation followup: $e",
+      );
     }
   }
 }

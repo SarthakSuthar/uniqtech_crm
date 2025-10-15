@@ -44,6 +44,8 @@ class TasksController extends GetxController {
       focusNodes[field] = FocusNode();
     }
 
+    controllers['assignedTo']!.text = await AppUtils.uid;
+
     // if (isEdit) {
     //   await setEditDetails();
     // } else {
@@ -75,7 +77,7 @@ class TasksController extends GetxController {
   }
 
   Future<void> setEditDetails(String no) async {
-    showlog("No set edit details: $no");
+    AppUtils.showlog("No set edit details: $no");
     int intNo = int.parse(no);
 
     // Ensure the list is loaded before accessing
@@ -86,7 +88,7 @@ class TasksController extends GetxController {
     final task = taskList.firstWhereOrNull((e) => e.id == intNo);
 
     if (task == null) {
-      showlog("⚠️ Task not found for id: $intNo");
+      AppUtils.showlog("⚠️ Task not found for id: $intNo");
       return;
     }
 
@@ -107,7 +109,7 @@ class TasksController extends GetxController {
   }
 
   void searchResult(String val) {
-    showlog("search for number : $val");
+    AppUtils.showlog("search for number : $val");
 
     if (val.isEmpty) {
       // If the search query is empty, show all contacts
@@ -133,9 +135,9 @@ class TasksController extends GetxController {
       taskList.assignAll(result);
       // filteredList.value = taskList;
       filteredList.assignAll(result);
-      showlog("task list : ${result.map((e) => e.toMap()).toList()}");
+      AppUtils.showlog("task list : ${result.map((e) => e.toMap()).toList()}");
     } catch (e) {
-      showlog("Error getting task list : $e");
+      AppUtils.showlog("Error getting task list : $e");
     }
   }
 
@@ -143,9 +145,11 @@ class TasksController extends GetxController {
   Future<void> getFilesList() async {
     try {
       final result = await TasksRepo.getAllTaskFiles();
-      showlog("files list : ${result.map((e) => e.toJson()).toList()}");
+      AppUtils.showlog(
+        "files list : ${result.map((e) => e.toJson()).toList()}",
+      );
     } catch (e) {
-      showlog("Error getting files list : $e");
+      AppUtils.showlog("Error getting files list : $e");
     }
   }
 
@@ -153,10 +157,10 @@ class TasksController extends GetxController {
   Future<TasksModel> getTaskDetailsById(int id) async {
     try {
       final result = await TasksRepo.getTaskById(id);
-      showlog("task details : ${result.toMap()}");
+      AppUtils.showlog("task details : ${result.toMap()}");
       return result;
     } catch (e) {
-      showlog("Error getting task details : $e");
+      AppUtils.showlog("Error getting task details : $e");
       rethrow;
     }
   }
@@ -165,10 +169,10 @@ class TasksController extends GetxController {
   Future<TaskFileModel> getFileDetailsById(int id) async {
     try {
       final result = await TasksRepo.getTaskFileByTaskId(id);
-      showlog("file details : ${result.toJson()}");
+      AppUtils.showlog("file details : ${result.toJson()}");
       return result;
     } catch (e) {
-      showlog("Error getting file details : $e");
+      AppUtils.showlog("Error getting file details : $e");
       rethrow;
     }
   }
@@ -180,7 +184,7 @@ class TasksController extends GetxController {
 
       controllers['attached']!.text = filePath;
 
-      showlog("selected type of work : ${selectedTypeOfWork.value}");
+      AppUtils.showlog("selected type of work : ${selectedTypeOfWork.value}");
 
       final task = TasksModel(
         date: controllers['date']!.text,
@@ -191,7 +195,7 @@ class TasksController extends GetxController {
         filePath: controllers['attached']!.text,
       );
 
-      showlog("added task ----> ${task.toMap()}");
+      AppUtils.showlog("added task ----> ${task.toMap()}");
 
       int result = await TasksRepo.insertTask(task);
 
@@ -201,11 +205,11 @@ class TasksController extends GetxController {
       }
       showSuccessSnackBar("Task added successfully");
       Get.back();
-      showlog("insert task ----> $result");
+      AppUtils.showlog("insert task ----> $result");
       await getTaskList();
     } catch (e) {
       showErrorSnackBar("Error adding task");
-      showlog("Error adding task : $e");
+      AppUtils.showlog("Error adding task : $e");
     }
   }
 
@@ -217,7 +221,7 @@ class TasksController extends GetxController {
 
       bool isImage = ['png', 'jpg', 'jpeg'].contains(fileExtension);
 
-      showlog("adding file is image: $isImage");
+      AppUtils.showlog("adding file is image: $isImage");
 
       // Save the already selected file permanently
       final savedPath = await FileHelper.savePickedFile(
@@ -226,7 +230,7 @@ class TasksController extends GetxController {
       );
 
       if (savedPath == null) {
-        showlog("File copy failed");
+        AppUtils.showlog("File copy failed");
         return;
       }
 
@@ -238,19 +242,19 @@ class TasksController extends GetxController {
         fileType: fileExtension,
       );
 
-      showlog("added file ----> ${file.toJson()}");
+      AppUtils.showlog("added file ----> ${file.toJson()}");
 
       int result = await TasksRepo.insertTaskFile(file);
-      showlog("insert task file ----> $result");
+      AppUtils.showlog("insert task file ----> $result");
     } catch (e) {
-      showlog("Error adding file : $e");
+      AppUtils.showlog("Error adding file : $e");
     }
   }
 
   // update task
   Future<void> updateTask() async {
     try {
-      showlog("selected type of work : ${selectedTypeOfWork.value}");
+      AppUtils.showlog("selected type of work : ${selectedTypeOfWork.value}");
       final task = TasksModel(
         id: int.parse(controllers['no']!.text),
         date: controllers['date']!.text,
@@ -259,7 +263,7 @@ class TasksController extends GetxController {
         assignedTo: 0,
         filePath: controllers['attached']!.text,
       );
-      showlog("update task ----> ${task.toMap()}");
+      AppUtils.showlog("update task ----> ${task.toMap()}");
       int result = await TasksRepo.updateTask(task);
 
       if (result != 0) {
@@ -267,10 +271,10 @@ class TasksController extends GetxController {
       }
       await getTaskList();
       showSuccessSnackBar("Task updated successfully");
-      showlog("updated task ----> $result");
+      AppUtils.showlog("updated task ----> $result");
     } catch (e) {
       showErrorSnackBar("Error updating task");
-      showlog("Error update task : $e");
+      AppUtils.showlog("Error update task : $e");
     }
   }
 
@@ -282,7 +286,7 @@ class TasksController extends GetxController {
 
       bool isImage = ['png', 'jpg', 'jpeg'].contains(fileExtension);
 
-      showlog("adding file is image: $isImage");
+      AppUtils.showlog("adding file is image: $isImage");
 
       // Save the already selected file permanently
       final savedPath = await FileHelper.savePickedFile(
@@ -291,7 +295,7 @@ class TasksController extends GetxController {
       );
 
       if (savedPath == null) {
-        showlog("File copy failed");
+        AppUtils.showlog("File copy failed");
         return;
       }
 
@@ -303,11 +307,11 @@ class TasksController extends GetxController {
         fileType: fileExtension,
       );
 
-      showlog("update file ----> ${file.toJson()}");
+      AppUtils.showlog("update file ----> ${file.toJson()}");
       int result = await TasksRepo.updateTaskFile(file);
-      showlog("updated file ----> $result");
+      AppUtils.showlog("updated file ----> $result");
     } catch (e) {
-      showlog("Error update file : $e");
+      AppUtils.showlog("Error update file : $e");
     }
   }
 
@@ -320,11 +324,11 @@ class TasksController extends GetxController {
       }
       await getTaskList();
       showSuccessSnackBar("Task deleted successfully");
-      showlog("deleted task ----> $result");
+      AppUtils.showlog("deleted task ----> $result");
       return result;
     } catch (e) {
       showErrorSnackBar("Error deleting task");
-      showlog("Error deleting task : $e");
+      AppUtils.showlog("Error deleting task : $e");
       rethrow;
     }
   }
@@ -333,10 +337,10 @@ class TasksController extends GetxController {
   Future<int> deleteFile(int id) async {
     try {
       int result = await TasksRepo.deleteTaskFile(id);
-      showlog("deleted file ----> $result");
+      AppUtils.showlog("deleted file ----> $result");
       return result;
     } catch (e) {
-      showlog("Error deleting file : $e");
+      AppUtils.showlog("Error deleting file : $e");
       rethrow;
     }
   }
@@ -358,7 +362,7 @@ class TasksController extends GetxController {
       isInitialized.value = true;
       update(); // For GetBuilder if used
     } catch (e) {
-      showlog("❌ Camera init error: $e");
+      AppUtils.showlog("❌ Camera init error: $e");
     }
   }
 
@@ -369,10 +373,10 @@ class TasksController extends GetxController {
       final image = await cameraController!.takePicture();
       capturedImages.add(image.path);
 
-      showlog("📸 Captured: ${image.path}");
+      AppUtils.showlog("📸 Captured: ${image.path}");
       return image.path;
     } catch (e) {
-      showlog("❌ Capture error: $e");
+      AppUtils.showlog("❌ Capture error: $e");
       return null;
     }
   }

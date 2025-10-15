@@ -45,7 +45,7 @@ class _TasksListState extends State<TasksList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar(title: "Tasks"),
-      drawer: const AppDrawer(),
+      drawer: AppDrawer(),
       body: GestureDetector(
         onTap: () {
           noFocus.unfocus();
@@ -80,7 +80,7 @@ class _TasksListState extends State<TasksList> {
                     context: context,
                     onTap: () {
                       controller.controllers["noSearch"]!.clear();
-                      showlog("Clear button pressed");
+                      AppUtils.showlog("Clear button pressed");
                     },
                   ),
                 ),
@@ -96,7 +96,7 @@ class _TasksListState extends State<TasksList> {
                       //  else if (searchController.text.isNotEmpty) {
                       //   controller.searchResult(searchController.text);
                       // }
-                      showlog("Search button pressed");
+                      AppUtils.showlog("Search button pressed");
                     },
                   ),
                 ),
@@ -124,7 +124,7 @@ class _TasksListState extends State<TasksList> {
       floatingActionButton: FloatingActionButton(
         foregroundColor: Colors.white,
         onPressed: () {
-          showlog("Action button pressed");
+          AppUtils.showlog("Action button pressed");
           Get.toNamed(AppRoutes.addTask, arguments: {'isEdit': false});
         },
         backgroundColor: Theme.of(context).primaryColor,
@@ -178,12 +178,12 @@ class _TasksListState extends State<TasksList> {
                 children: [
                   InkWell(
                     onTap: () {
-                      showlog("no from tasks list : $no");
+                      AppUtils.showlog("no from tasks list : $no");
                       Get.toNamed(
                         AppRoutes.addTask,
                         arguments: {'no': no, 'isEdit': true},
                       );
-                      showlog("edit button taped");
+                      AppUtils.showlog("edit button taped");
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -208,7 +208,7 @@ class _TasksListState extends State<TasksList> {
                   InkWell(
                     onTap: () async {
                       await controller.deleteTask(int.parse(no));
-                      showlog("delete button taped");
+                      AppUtils.showlog("delete button taped");
                     },
                     child: Container(
                       decoration: BoxDecoration(

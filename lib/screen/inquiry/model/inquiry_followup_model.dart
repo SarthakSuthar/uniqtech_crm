@@ -1,6 +1,10 @@
 class InquiryFollowupModel {
   final int? id;
   final int inquiryId;
+  final String? createdBy;
+  final String? updatedBy;
+  final String? createdAt;
+  final String? updatedAt;
   final String followupDate;
   final String? followupStatus;
   final String? followupType;
@@ -12,6 +16,10 @@ class InquiryFollowupModel {
     this.id,
     required this.inquiryId,
     required this.followupDate,
+    this.createdBy,
+    this.updatedBy,
+    this.createdAt,
+    this.updatedAt,
     this.followupStatus,
     this.followupType,
     this.followupRemarks,
@@ -22,6 +30,10 @@ class InquiryFollowupModel {
   factory InquiryFollowupModel.fromJson(Map<String, dynamic> json) {
     return InquiryFollowupModel(
       id: json['id'],
+      createdBy: json['createdBy'],
+      updatedBy: json['updatedBy'],
+      createdAt: json['createdAt'],
+      updatedAt: json['updatedAt'],
       inquiryId: json['inquiryId'],
       followupDate: json['followupDate'],
       followupStatus: json['followupStatus'],
@@ -37,6 +49,10 @@ class InquiryFollowupModel {
     return {
       if (id != null) 'id': id, // only include if not null
       'inquiryId': inquiryId,
+      'createdBy': createdBy,
+      'updatedBy': updatedBy,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
       'followupDate': followupDate,
       'followupStatus': followupStatus,
       'followupType': followupType,
@@ -50,6 +66,8 @@ class InquiryFollowupModel {
   Map<String, dynamic> toUpdateJson() {
     return {
       'inquiryId': inquiryId,
+      'updatedBy': updatedBy,
+      'updatedAt': updatedAt,
       'followupDate': followupDate,
       'followupStatus': followupStatus,
       'followupType': followupType,

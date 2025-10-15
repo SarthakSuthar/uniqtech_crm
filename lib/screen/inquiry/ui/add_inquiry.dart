@@ -19,7 +19,7 @@ class _AddInquiryScreenState extends State<AddInquiryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar(title: "Inquiry"),
-      drawer: const AppDrawer(),
+      drawer: AppDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
 

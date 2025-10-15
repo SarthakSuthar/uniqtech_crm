@@ -20,7 +20,7 @@ class TermsController extends GetxController {
       List<TermsModel> terms = await TermsRepo.getAllTerms();
       allTerms.assignAll(terms);
     } catch (e) {
-      showlog('Error fetching terms: $e');
+      AppUtils.showlog('Error fetching terms: $e');
     } finally {
       isLoading.value = false;
     }
@@ -33,7 +33,7 @@ class TermsController extends GetxController {
       await TermsRepo.insertTerms(terms);
       getAllTerms(); // Refresh the list after insertion
     } catch (e) {
-      showlog('Error inserting term: $e');
+      AppUtils.showlog('Error inserting term: $e');
     } finally {
       isLoading.value = false;
     }
@@ -46,7 +46,7 @@ class TermsController extends GetxController {
       await TermsRepo.deleteTerm(id);
       getAllTerms(); // Refresh the list after deletion
     } catch (e) {
-      showlog('Error deleting term: $e');
+      AppUtils.showlog('Error deleting term: $e');
     } finally {
       isLoading.value = false;
     }

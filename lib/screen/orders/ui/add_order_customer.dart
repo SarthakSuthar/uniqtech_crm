@@ -31,9 +31,9 @@ class _AddOrderCustomerState extends State<AddOrderCustomer> {
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) {
           Get.delete<OrderController>();
-          showlog("Route popped with result: $result");
+          AppUtils.showlog("Route popped with result: $result");
         } else {
-          showlog("Pop prevented!");
+          AppUtils.showlog("Pop prevented!");
         }
       },
       child: GestureDetector(
@@ -152,7 +152,7 @@ class _AddOrderCustomerState extends State<AddOrderCustomer> {
                         if (_formKey.currentState!.validate()) {
                           DefaultTabController.of(context).animateTo(1);
                         }
-                        showlog("Next :: Add Order customer");
+                        AppUtils.showlog("Next :: Add Order customer");
                       },
                       context: context,
                     ),

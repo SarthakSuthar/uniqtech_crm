@@ -37,8 +37,10 @@ class _AddCustomerContactScreenState extends State<AddCustomerContactScreen> {
             contact.contMobileNo ?? '';
       });
 
-      showlog("uid: ${widget.uid}");
-      showlog("contactName: ${controller.controllers["contactName"]!.text}");
+      AppUtils.showlog("uid: ${widget.uid}");
+      AppUtils.showlog(
+        "contactName: ${controller.controllers["contactName"]!.text}",
+      );
     }
   }
 

@@ -17,7 +17,7 @@ class TasksRepo {
       work TEXT,
       assignedTo INTEGER,
       filePath TEXT,
-      isSynced INTEGER,
+      isSynced INTEGER DEFAULT 0,
       FOREIGN KEY (assignedTo) REFERENCES users (uid) ON DELETE CASCADE
     )
   ''');
@@ -33,7 +33,7 @@ class TasksRepo {
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
     } catch (e) {
-      showlog("Error inserting task: $e");
+      AppUtils.showlog("Error inserting task: $e");
       return 0;
     }
   }
@@ -52,7 +52,7 @@ class TasksRepo {
       final result = await db.query(taskTable);
       return result.map((e) => TasksModel.fromMap(e)).toList();
     } catch (e) {
-      showlog("error getting tasks list: $e");
+      AppUtils.showlog("error getting tasks list: $e");
       return [];
     }
   }
@@ -72,7 +72,7 @@ class TasksRepo {
         throw Exception('Task not found');
       }
     } catch (e) {
-      showlog("error getting task by id: $e");
+      AppUtils.showlog("error getting task by id: $e");
       rethrow;
     }
   }
@@ -88,7 +88,7 @@ class TasksRepo {
         whereArgs: [task.id],
       );
     } catch (e) {
-      showlog("error updating task: $e");
+      AppUtils.showlog("error updating task: $e");
       rethrow;
     }
   }
@@ -99,7 +99,7 @@ class TasksRepo {
       Database db = await DatabaseHelper().database;
       return await db.delete(taskTable, where: 'id = ?', whereArgs: [id]);
     } catch (e) {
-      showlog("error deleting task: $e");
+      AppUtils.showlog("error deleting task: $e");
       rethrow;
     }
   }
@@ -113,7 +113,7 @@ class TasksRepo {
       taskId INTEGER,
       filePath TEXT,
       fileType TEXT, -- (optional: image/pdf/doc)
-      isSynced INTEGER,
+      isSynced INTEGER DEFAULT 0,
       FOREIGN KEY (taskId) REFERENCES tasks (id) ON DELETE CASCADE
     )
   ''');
@@ -129,7 +129,7 @@ class TasksRepo {
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
     } catch (e) {
-      showlog("error inserting task file: $e");
+      AppUtils.showlog("error inserting task file: $e");
       rethrow;
     }
   }
@@ -139,12 +139,12 @@ class TasksRepo {
     try {
       Database db = await DatabaseHelper().database;
       final result = await db.query(taskFilesTable);
-      showlog(
+      AppUtils.showlog(
         "files list : ${result.map((e) => TaskFileModel.fromJson(e)).toList()}",
       );
       return result.map((e) => TaskFileModel.fromJson(e)).toList();
     } catch (e) {
-      showlog("error getting task files list: $e");
+      AppUtils.showlog("error getting task files list: $e");
       return [];
     }
   }
@@ -164,7 +164,7 @@ class TasksRepo {
         throw Exception('Task file not found');
       }
     } catch (e) {
-      showlog("error getting task file by task id: $e");
+      AppUtils.showlog("error getting task file by task id: $e");
       rethrow;
     }
   }
@@ -179,7 +179,7 @@ class TasksRepo {
         whereArgs: [taskId],
       );
     } catch (e) {
-      showlog("Error deleting task file: $e");
+      AppUtils.showlog("Error deleting task file: $e");
       rethrow;
     }
   }
@@ -195,7 +195,7 @@ class TasksRepo {
         whereArgs: [taskFile.taskId],
       );
     } catch (e) {
-      showlog("Error updating task file: $e");
+      AppUtils.showlog("Error updating task file: $e");
       rethrow;
     }
   }

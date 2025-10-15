@@ -44,7 +44,7 @@ class _OrderListState extends State<OrderList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar(title: "Order"),
-      drawer: const AppDrawer(),
+      drawer: AppDrawer(),
       body: GestureDetector(
         onTap: () {
           noFocus.unfocus();
@@ -81,7 +81,7 @@ class _OrderListState extends State<OrderList> {
                     onTap: () {
                       noController.clear();
                       searchController.clear();
-                      showlog("Clear button pressed");
+                      AppUtils.showlog("Clear button pressed");
                     },
                   ),
                 ),
@@ -95,7 +95,7 @@ class _OrderListState extends State<OrderList> {
                       } else if (searchController.text.isNotEmpty) {
                         controller.searchResult(searchController.text);
                       }
-                      showlog("search button pressed");
+                      AppUtils.showlog("search button pressed");
                     },
                   ),
                 ),
@@ -126,7 +126,7 @@ class _OrderListState extends State<OrderList> {
 
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          showlog("Action button pressed");
+          AppUtils.showlog("Action button pressed");
           Get.toNamed(AppRoutes.addOrder, arguments: {'isEdit': false});
         },
         backgroundColor: Theme.of(context).primaryColor,
@@ -191,7 +191,7 @@ class _OrderListState extends State<OrderList> {
                         AppRoutes.addOrder,
                         arguments: {'no': no, 'isEdit': true},
                       );
-                      showlog("edit button taped");
+                      AppUtils.showlog("edit button taped");
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -219,7 +219,7 @@ class _OrderListState extends State<OrderList> {
                         AppRoutes.orderInvoice,
                         arguments: {'orderId': no},
                       );
-                      showlog("print button taped");
+                      AppUtils.showlog("print button taped");
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -244,7 +244,7 @@ class _OrderListState extends State<OrderList> {
                   InkWell(
                     onTap: () async {
                       await controller.deleteOrder(id: int.parse(no));
-                      showlog("delete button taped");
+                      AppUtils.showlog("delete button taped");
                     },
                     child: Container(
                       decoration: BoxDecoration(

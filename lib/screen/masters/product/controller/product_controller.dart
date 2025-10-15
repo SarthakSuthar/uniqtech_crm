@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/app_const/widgets/app_snackbars.dart';
+import 'package:crm/screen/login/repo/user_repo.dart';
 import 'package:crm/screen/masters/product/model/product_model.dart';
 import 'package:crm/screen/masters/product/repo/product_repo.dart';
 import 'package:crm/screen/masters/uom/model/uom_model.dart';
@@ -40,6 +41,18 @@ class ProductController extends GetxController {
     }
     await getProducts();
     await getUomList();
+    await loadUserId();
+  }
+
+  String? uid;
+
+  Future<void> loadUserId() async {
+    try {
+      uid = await UserRepo.getUserId();
+      AppUtils.showlog("uid in customer controller : $uid");
+    } catch (e) {
+      AppUtils.showlog("error in customer controller : $e");
+    }
   }
 
   @override
@@ -60,13 +73,17 @@ class ProductController extends GetxController {
           productDescription: controllers["product_description"]!.text,
           productImage: controllers["product_image"]!.text,
           productDocument: controllers["product_document"]!.text,
+          createdBy: uid,
+          updatedBy: uid,
+          createdAt: DateTime.now().toString(),
+          updatedAt: DateTime.now().toString(),
         ),
       );
-      showlog("Added Product ---> $result");
-      showlog("Product Added Successfully");
+      AppUtils.showlog("Added Product ---> $result");
+      AppUtils.showlog("Product Added Successfully");
       Get.back();
     } catch (e) {
-      showlog("Error adding product: $e");
+      AppUtils.showlog("Error adding product: $e");
       Get.snackbar("Error", e.toString());
     }
   }
@@ -76,11 +93,11 @@ class ProductController extends GetxController {
   Future<void> getProducts() async {
     try {
       final result = await ProductRepo.getAllProducts();
-      showlog("Got Products List ---> ${result.length}");
-      showlog("all products ---> ${jsonEncode(result)}");
+      AppUtils.showlog("Got Products List ---> ${result.length}");
+      AppUtils.showlog("all products ---> ${jsonEncode(result)}");
       products.value = result;
     } catch (e) {
-      showlog("error getting products: $e");
+      AppUtils.showlog("error getting products: $e");
     }
   }
 
@@ -90,19 +107,19 @@ class ProductController extends GetxController {
     try {
       final result = await UomRepo.getAllUom();
       uomList.assignAll(result);
-      showlog("uom list : ${result.map((e) => e.toJson()).toList()}");
+      AppUtils.showlog("uom list : ${result.map((e) => e.toJson()).toList()}");
     } catch (e) {
-      showlog("Error getting UOM list : $e");
+      AppUtils.showlog("Error getting UOM list : $e");
     }
   }
 
   Future<ProductModel> getProductById(int id) async {
     try {
       final result = await ProductRepo.getProductById(id);
-      showlog("Got Product ---> ${result.toJson()}");
+      AppUtils.showlog("Got Product ---> ${result.toJson()}");
       return result;
     } catch (e) {
-      showlog("error getting product by id: $e");
+      AppUtils.showlog("error getting product by id: $e");
       rethrow;
     }
   }
@@ -146,16 +163,16 @@ class ProductController extends GetxController {
       if (docExtensions.contains(ext)) {
         selectedFiles.add(file);
         controllers["product_document"]?.text = file.path;
-        showlog("📄 Selected document: ${file.path}");
+        AppUtils.showlog("📄 Selected document: ${file.path}");
       } else if (imageExtensions.contains(ext)) {
         selectedImages.add(file);
         controllers["product_image"]?.text = file.path;
-        showlog("🖼️ Selected image: ${file.path}");
+        AppUtils.showlog("🖼️ Selected image: ${file.path}");
       } else {
         showErrorSnackBar("Unsupported file type: .$ext");
       }
     } catch (e) {
-      showlog("❌ Error selecting files: $e");
+      AppUtils.showlog("❌ Error selecting files: $e");
     }
   }
 }

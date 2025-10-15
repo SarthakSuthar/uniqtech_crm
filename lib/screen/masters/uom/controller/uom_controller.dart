@@ -34,7 +34,7 @@ class UomController extends GetxController {
       List<UomModel> uoms = await UomRepo.getAllUom();
       allUoms.assignAll(uoms);
     } catch (e) {
-      showlog('Error fetching UOMs: $e');
+      AppUtils.showlog('Error fetching UOMs: $e');
     } finally {
       isLoading.value = false;
     }
@@ -49,10 +49,10 @@ class UomController extends GetxController {
         code: uomCodeController.text,
       );
       int result = await UomRepo.insertUom(uom);
-      showlog("uom insert result : $result");
+      AppUtils.showlog("uom insert result : $result");
       getAllUoms();
     } catch (e) {
-      showlog('Error inserting UOM: $e');
+      AppUtils.showlog('Error inserting UOM: $e');
     } finally {
       isLoading.value = false;
     }
@@ -63,10 +63,10 @@ class UomController extends GetxController {
     try {
       isLoading.value = true;
       await UomRepo.deleteUom(id);
-      showlog("deleted uom id : $id");
+      AppUtils.showlog("deleted uom id : $id");
       getAllUoms();
     } catch (e) {
-      showlog('Error deleting UOM: $e');
+      AppUtils.showlog('Error deleting UOM: $e');
     } finally {
       isLoading.value = false;
     }

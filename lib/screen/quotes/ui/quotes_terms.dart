@@ -61,7 +61,7 @@ class _QuotesTermsState extends State<QuotesTerms> {
                     await addNewTerms(
                       context: context,
                       // onSave: (value) {
-                      //   showlog("New term added : $value");
+                      //   AppUtils.showlog("New term added : $value");
                       // },
                     );
                     await controller.getAllTerms();
@@ -77,7 +77,7 @@ class _QuotesTermsState extends State<QuotesTerms> {
                     await controller.addQuotationTerms(
                       int.parse(controller.controllers['num']!.text),
                     );
-                    showlog("Save :: Quote term");
+                    AppUtils.showlog("Save :: Quote term");
                   },
                   context: context,
                 ),

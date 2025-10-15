@@ -43,6 +43,7 @@ class QuotesController extends GetxController {
     await getCustomersList();
     await getAllTerms();
     await getUomList();
+    await getUid();
 
     // await getSelectedTerms();
 
@@ -212,7 +213,7 @@ class QuotesController extends GetxController {
 
   /// Search for customer name or number
   void searchResult(String val) {
-    showlog("search for name or number : $val");
+    AppUtils.showlog("search for name or number : $val");
 
     if (val.isEmpty) {
       // If the search query is empty, show all contacts
@@ -224,12 +225,13 @@ class QuotesController extends GetxController {
 
     filterendList.value = quotationList.where((item) {
       final custName = item.custName1?.toLowerCase();
-      final uid = item.uid
-          ?.toLowerCase(); // Assuming uid is a string or can be converted to one
+      final uid = item.id
+          .toString()
+          .toLowerCase(); // Assuming uid is a string or can be converted to one
 
       // An item is a match if its name OR uid contains the search query
       return (custName?.contains(lowerCaseQuery) ?? false) ||
-          (uid?.contains(lowerCaseQuery) ?? false);
+          (uid.contains(lowerCaseQuery));
     }).toList();
   }
 
@@ -241,7 +243,7 @@ class QuotesController extends GetxController {
       final result = await ProductRepo.getAllProducts();
       productList.assignAll(result);
     } catch (e) {
-      showlog("error on get product list : $e");
+      AppUtils.showlog("error on get product list : $e");
     }
   }
 
@@ -249,9 +251,9 @@ class QuotesController extends GetxController {
     try {
       final result = await UomRepo.getAllUom();
       uomList.assignAll(result);
-      showlog("uom list : ${result.map((e) => e.toJson()).toList()}");
+      AppUtils.showlog("uom list : ${result.map((e) => e.toJson()).toList()}");
     } catch (e) {
-      showlog("Error getting UOM list : $e");
+      AppUtils.showlog("Error getting UOM list : $e");
     }
   }
 
@@ -259,7 +261,7 @@ class QuotesController extends GetxController {
   Future<void> getQuotationProductList() async {
     try {
       final result = await QuotationRepo.getAllQuotationProducts();
-      showlog(
+      AppUtils.showlog(
         "getQuotationProductList result : ${result.map((e) => e.toJson()).toList()}",
       );
       quotationProductList.assignAll(
@@ -270,11 +272,11 @@ class QuotesController extends GetxController {
             )
             .toList(),
       );
-      showlog(
+      AppUtils.showlog(
         "quotation product list : ${result.map((e) => e.toJson()).toList()}",
       );
     } catch (e) {
-      showlog("error on get quotation product list : $e");
+      AppUtils.showlog("error on get quotation product list : $e");
     }
   }
 
@@ -287,26 +289,26 @@ class QuotesController extends GetxController {
         customerList[contact.custName!] = contact.id.toString();
       }
       customerList.forEach(
-        (key, value) => showlog("Customer list $key : $value"),
+        (key, value) => AppUtils.showlog("Customer list $key : $value"),
       );
     } catch (e) {
-      showlog("error on get customers list : $e");
+      AppUtils.showlog("error on get customers list : $e");
     }
   }
 
   /// get user details by id
   Future<void> getSelectedContactDetails(String name) async {
     try {
-      showlog("name --> $name");
+      AppUtils.showlog("name --> $name");
       final id = customerList[name] ?? '';
-      showlog("get user details by id --> $id");
+      AppUtils.showlog("get user details by id --> $id");
 
       final result = await ContactsRepo.getContactById(id);
       controllers["email"]?.text = result.email!;
       controllers["mobile"]?.text = result.mobileNo!;
-      showlog("selected contact details : ${result.toJson()}");
+      AppUtils.showlog("selected contact details : ${result.toJson()}");
     } catch (e) {
-      showlog("error on get user details : $e");
+      AppUtils.showlog("error on get user details : $e");
     }
   }
 
@@ -316,9 +318,11 @@ class QuotesController extends GetxController {
       final result = await QuotationRepo.getAllQuotations();
       quotationList.assignAll(result);
       filterendList.value = quotationList;
-      showlog("quotation list : ${result.map((e) => e.toJson()).toList()}");
+      AppUtils.showlog(
+        "quotation list : ${result.map((e) => e.toJson()).toList()}",
+      );
     } catch (e) {
-      showlog("error on get quotation list : $e");
+      AppUtils.showlog("error on get quotation list : $e");
     }
   }
 
@@ -330,11 +334,14 @@ class QuotesController extends GetxController {
       final custName = selectedCustomer.value;
       final custId = customerList[custName];
 
-      showlog("custName : $custName");
-      showlog("custId : $custId");
+      AppUtils.showlog("custName : $custName");
+      AppUtils.showlog("custId : $custId");
 
       final quotationCustomer = QuotationModel(
-        uid: DateTime.now().millisecondsSinceEpoch.toString(),
+        createdBy: await AppUtils.uid,
+        updatedBy: await AppUtils.uid,
+        createdAt: DateTime.now().toString(),
+        updatedAt: DateTime.now().toString(),
         custId: int.parse(custId ?? ''),
         custName1: selectedCustomer.value,
         custName2: controllers["name2"]!.text,
@@ -345,15 +352,17 @@ class QuotesController extends GetxController {
         subject: controllers["subject"]!.text,
       );
 
-      showlog("added quotation customer ----> ${quotationCustomer.toJson()}");
+      AppUtils.showlog(
+        "added quotation customer ----> ${quotationCustomer.toJson()}",
+      );
 
       int result = await QuotationRepo.insertQuotation(quotationCustomer);
       // showSuccessSnackBar("Customer added successfully");
-      showlog("insert quotation customer ----> $result");
+      AppUtils.showlog("insert quotation customer ----> $result");
       await getQuotationList();
     } catch (e) {
       showErrorSnackBar("Error adding customer");
-      showlog("error on add customer : $e");
+      AppUtils.showlog("error on add customer : $e");
     }
   }
 
@@ -365,7 +374,7 @@ class QuotesController extends GetxController {
       );
       return product?.productId ?? 0;
     } catch (e) {
-      showlog("Error getting product id : $e");
+      AppUtils.showlog("Error getting product id : $e");
       rethrow;
     }
   }
@@ -383,29 +392,38 @@ class QuotesController extends GetxController {
         discount: double.parse(controllers['discount']!.text),
       );
 
-      showlog("quotation id : ${quotProdId.quotationId}");
-      showlog("product id : ${quotProdId.productId}");
+      AppUtils.showlog("quotation id : ${quotProdId.quotationId}");
+      AppUtils.showlog("product id : ${quotProdId.productId}");
 
       int result = await QuotationRepo.insertQuotationProduct(quotProdId);
-      showlog("insert quotation product ----> $result");
+      AppUtils.showlog("insert quotation product ----> $result");
       showSuccessSnackBar("Product added successfully");
       await getQuotationProductList();
     } catch (e) {
       showErrorSnackBar("Error adding product");
-      showlog("Error adding product & quotation ID : $e");
+      AppUtils.showlog("Error adding product & quotation ID : $e");
     }
   }
 */
+
+  String? uid;
+  Future<void> getUid() async {
+    uid = await AppUtils.uid;
+  }
 
   RxList<QuotationProductModel> tempProductList = <QuotationProductModel>[].obs;
 
   void addtempProductList() {
     try {
       final quoteId = int.parse(controllers['num']!.text);
-      showlog("quotation id : $quoteId");
+      AppUtils.showlog("quotation id : $quoteId");
       tempProductList.add(
         QuotationProductModel(
           quotationId: quoteId,
+          createdBy: uid,
+          updatedBy: uid,
+          createdAt: DateTime.now().toString(),
+          updatedAt: DateTime.now().toString(),
           productId: getProductId(selectedProduct!.value),
           quantity: int.parse(controllers["quantity"]!.text),
           remark: controllers['remarks']!.text,
@@ -414,13 +432,13 @@ class QuotesController extends GetxController {
       );
 
       quotationProductList.assignAll(tempProductList);
-      showlog(
+      AppUtils.showlog(
         "temp product list : ${tempProductList.map((e) => e.toJson()).toList()}",
       );
       showSuccessSnackBar("Product added successfully");
     } catch (e) {
       showErrorSnackBar("Error adding product");
-      showlog("Error adding temp product list : $e");
+      AppUtils.showlog("Error adding temp product list : $e");
     }
   }
 
@@ -428,12 +446,12 @@ class QuotesController extends GetxController {
     try {
       for (var product in tempProductList) {
         int result = await QuotationRepo.insertQuotationProduct(product);
-        showlog("insert quotation product -----> $result");
+        AppUtils.showlog("insert quotation product -----> $result");
         await getQuotationProductList();
       }
     } catch (e) {
       showErrorSnackBar("Error adding product");
-      showlog("Error adding product list : $e");
+      AppUtils.showlog("Error adding product list : $e");
     }
   }
 
@@ -447,7 +465,7 @@ class QuotesController extends GetxController {
       showSuccessSnackBar("Quotation submitted successfully");
     } catch (e) {
       showErrorSnackBar("Error submitting quotation");
-      showlog("Error submitting quotation : $e");
+      AppUtils.showlog("Error submitting quotation : $e");
     }
   }
 
@@ -460,7 +478,7 @@ class QuotesController extends GetxController {
       await getQuotationProductList();
     } catch (e) {
       showErrorSnackBar("Error deleting quotation");
-      showlog("Error deleting quotation : $e");
+      AppUtils.showlog("Error deleting quotation : $e");
     }
   }
 
@@ -469,16 +487,16 @@ class QuotesController extends GetxController {
       if (tempProductList != quotationProductList) {
         for (var element in tempProductList) {
           int result = await QuotationRepo.insertQuotationProduct(element);
-          showlog("updated quotation product ----> $result");
+          AppUtils.showlog("updated quotation product ----> $result");
           await getQuotationProductList();
           return result;
         }
       } else {
-        showlog("tempProductList == inquiryProductList");
+        AppUtils.showlog("tempProductList == inquiryProductList");
       }
       return 0;
     } catch (e) {
-      showlog("Error updating product : $e");
+      AppUtils.showlog("Error updating product : $e");
       return 0;
     }
   }
@@ -487,12 +505,19 @@ class QuotesController extends GetxController {
     try {
       int quotationId = int.parse(controllers['num']!.text);
 
+      final custName = selectedCustomer.value;
+      final custId = customerList[custName];
+
+      AppUtils.showlog("custName : $custName");
+      AppUtils.showlog("custId : $custId");
+
       final quotation = QuotationModel(
         id: quotationId,
-        uid: DateTime.now().millisecondsSinceEpoch.toString(),
-        // custId: int.parse(controllers['custId']!.text),
-        //TODO: get customer id
-        custId: 0,
+        createdBy: uid,
+        updatedBy: uid,
+        createdAt: DateTime.now().toString(),
+        updatedAt: DateTime.now().toString(),
+        custId: int.parse(custId!),
         custName1: selectedCustomer.value,
         custName2: "controllers['name2']!.text",
         date: controllers['date']!.text,
@@ -501,17 +526,17 @@ class QuotesController extends GetxController {
         source: controllers['social']!.text,
         subject: controllers['subject']!.text,
       );
-      showlog("update quotation ----> ${quotation.toJson()}");
+      AppUtils.showlog("update quotation ----> ${quotation.toJson()}");
       int result = await QuotationRepo.updateQuotation(quotation);
-      showlog("updated quotation ----> $result");
+      AppUtils.showlog("updated quotation ----> $result");
 
       int updateProduct = await updateQuotationProduct();
-      showlog("updated product ----> $updateProduct");
+      AppUtils.showlog("updated product ----> $updateProduct");
 
       showSuccessSnackBar("Quotation Updated Successfully");
     } catch (e) {
       showErrorSnackBar("Error updating quotation");
-      showlog("Error update quotation : $e");
+      AppUtils.showlog("Error update quotation : $e");
     }
   }
 
@@ -533,7 +558,7 @@ class QuotesController extends GetxController {
       final result = await QuotationRepo.getQuotationFollowupById(
         selectedFolloupId,
       );
-      showlog("selected followup detail : ${result.toJson()}");
+      AppUtils.showlog("selected followup detail : ${result.toJson()}");
       selectedFollowupAssignedTo.value = result.followupAssignedTo!;
       selectedFollowupDate.value = result.followupDate!;
       selectedFollowupRemarks.value = result.followupRemarks!;
@@ -541,7 +566,7 @@ class QuotesController extends GetxController {
       controllers['followupDate']!.text = result.followupDate!;
       controllers['followupAssignedTo']!.text = result.followupAssignedTo!;
     } catch (e) {
-      showlog("Error getting selected followup detail : $e");
+      AppUtils.showlog("Error getting selected followup detail : $e");
     }
   }
 
@@ -556,12 +581,12 @@ class QuotesController extends GetxController {
         quotationId,
       );
       quotationFollowupList.assignAll(result);
-      showlog(
+      AppUtils.showlog(
         "quotation followup list : ${result.map((e) => e.toJson()).toList()}",
       );
       return result;
     } catch (e) {
-      showlog("Error getting quotation followup list : $e");
+      AppUtils.showlog("Error getting quotation followup list : $e");
       return [];
     }
   }
@@ -579,16 +604,18 @@ class QuotesController extends GetxController {
         followupRemarks: controllers['followupRemarks']!.text,
         followupAssignedTo: selectedFollowupAssignedTo.value,
       );
-      showlog("added quotation followup ----> ${quotationFollowup.toJson()}");
+      AppUtils.showlog(
+        "added quotation followup ----> ${quotationFollowup.toJson()}",
+      );
       int result = await QuotationRepo.insertQuotationFollowup(
         quotationFollowup,
       );
       await getQuotationFollowupList(intId);
       showSuccessSnackBar("Quotation followup added successfully");
-      showlog("insert quotation followup ----> $result");
+      AppUtils.showlog("insert quotation followup ----> $result");
     } catch (e) {
       showErrorSnackBar("Error adding quotation followup");
-      showlog("Error adding quotation followup : $e");
+      AppUtils.showlog("Error adding quotation followup : $e");
     }
   }
 
@@ -606,15 +633,17 @@ class QuotesController extends GetxController {
         followupRemarks: controllers['followupRemarks']!.text,
         followupAssignedTo: selectedFollowupAssignedTo.value,
       );
-      showlog("update quotation followup ----> ${quotationFollowup.toJson()}");
+      AppUtils.showlog(
+        "update quotation followup ----> ${quotationFollowup.toJson()}",
+      );
       int result = await QuotationRepo.insertQuotationFollowup(
         quotationFollowup,
       );
       showSuccessSnackBar("Quotation followup updated successfully");
-      showlog("updated quotation followup ----> $result");
+      AppUtils.showlog("updated quotation followup ----> $result");
     } catch (e) {
       showErrorSnackBar("Error updating quotation followup");
-      showlog("Error update quotation followup : $e");
+      AppUtils.showlog("Error update quotation followup : $e");
     }
   }
 
@@ -630,19 +659,21 @@ class QuotesController extends GetxController {
   Future<void> getAllTerms() async {
     try {
       final result = await TermsRepo.getAllTerms();
-      showlog("all terms : ${result.map((e) => e.toJson()).toList()}");
+      AppUtils.showlog("all terms : ${result.map((e) => e.toJson()).toList()}");
       allTerms.assignAll(result);
     } catch (e) {
-      showlog("Error getting all terms : $e");
+      AppUtils.showlog("Error getting all terms : $e");
     }
   }
 
   //Get all selected terms && set selected
   Future<void> getSelectedTerms(int? quotationId) async {
     try {
-      showlog("Quotation ID: $quotationId");
+      AppUtils.showlog("Quotation ID: $quotationId");
       final result = await QuotationRepo.getSelectedTerms(quotationId!);
-      showlog("selected terms : ${result.map((e) => e.toJson()).toList()}");
+      AppUtils.showlog(
+        "selected terms : ${result.map((e) => e.toJson()).toList()}",
+      );
       quotationTermsList.assignAll(result);
 
       if (result.isNotEmpty) {
@@ -653,14 +684,14 @@ class QuotesController extends GetxController {
           result.map((term) => term.termId ?? 0).toSet().toList(),
         );
       } else {
-        showlog("No selected terms found");
+        AppUtils.showlog("No selected terms found");
       }
 
       if (selectedTerms.isNotEmpty) {
-        showlog("Selected terms : ${selectedTerms.toList()}");
+        AppUtils.showlog("Selected terms : ${selectedTerms.toList()}");
       }
     } catch (e) {
-      showlog("Error getting selected terms : $e");
+      AppUtils.showlog("Error getting selected terms : $e");
     }
   }
 
@@ -692,14 +723,14 @@ class QuotesController extends GetxController {
       );
     }).toList();
 
-    showlog("Selected Terms: ${selectedTerms.toList()}");
+    AppUtils.showlog("Selected Terms: ${selectedTerms.toList()}");
   }
 
   // add new selected term
   Future<void> addQuotationTerms(int quotationId) async {
     try {
-      showlog("add quote term : Quatation ID --> $quotationId");
-      showlog(
+      AppUtils.showlog("add quote term : Quatation ID --> $quotationId");
+      AppUtils.showlog(
         "Quotation Term List : ${quotationTermsList.map((e) => e.toJson()).toList()}",
       );
       for (var term in quotationTermsList) {
@@ -707,12 +738,14 @@ class QuotesController extends GetxController {
           quotationId: quotationId,
           termId: term.termId,
         );
-        showlog("added quotation terms ----> ${quotationTerms.toJson()}");
+        AppUtils.showlog(
+          "added quotation terms ----> ${quotationTerms.toJson()}",
+        );
         int result = await QuotationRepo.insertQuotationTerms(quotationTerms);
-        showlog("insert quotation terms ----> $result");
+        AppUtils.showlog("insert quotation terms ----> $result");
       }
     } catch (e) {
-      showlog("Error adding quotation terms : $e");
+      AppUtils.showlog("Error adding quotation terms : $e");
     }
   }
 
@@ -734,7 +767,7 @@ class QuotesController extends GetxController {
       final currentQuotation = await QuotationRepo.getQuotationById(
         quotationId,
       );
-      showlog("current quotation : ${currentQuotation.toJson()}");
+      AppUtils.showlog("current quotation : ${currentQuotation.toJson()}");
       await convertQuotationToOrderCustomer(currentQuotation);
 
       //quotation to order product
@@ -745,7 +778,7 @@ class QuotesController extends GetxController {
           .where((element) => element.quotationId == int.parse(quotationId))
           .toList();
 
-      showlog(
+      AppUtils.showlog(
         "selected quotation product list : ${selectedQuotationProductList.map((e) => e.toJson()).toList()}",
       );
       await convertQuotationToOrderProduct(selectedQuotationProductList);
@@ -754,7 +787,7 @@ class QuotesController extends GetxController {
       final quotationTermsList = await QuotationRepo.getSelectedTerms(
         int.parse(quotationId),
       );
-      showlog(
+      AppUtils.showlog(
         "quotation terms list : ${quotationTermsList.map((e) => e.toJson()).toList()}",
       );
       await convertQuotationToOrderTerms(quotationTermsList);
@@ -764,14 +797,14 @@ class QuotesController extends GetxController {
           await QuotationRepo.getQuotationFollowupListByQuotationId(
             int.parse(quotationId),
           );
-      showlog(
+      AppUtils.showlog(
         "quotation followup list : ${quotationFollowupList.map((e) => e.toJson()).toList()}",
       );
       await convertQuotationToOrderFollowup(quotationFollowupList);
       showSuccessSnackBar("Quotation converted to order successfully");
     } catch (e) {
       showErrorSnackBar("Error converting quotation to order");
-      showlog("Error converting quotation to order : $e");
+      AppUtils.showlog("Error converting quotation to order : $e");
     }
   }
 
@@ -781,8 +814,10 @@ class QuotesController extends GetxController {
   Future<void> convertQuotationToOrderCustomer(QuotationModel quotation) async {
     try {
       final orderCustomer = OrderModel(
-        uid: DateTime.now().millisecondsSinceEpoch
-            .toString(), //TODO: have to add original uid
+        createdBy: quotation.createdBy,
+        updatedBy: quotation.updatedBy,
+        createdAt: quotation.createdAt,
+        updatedAt: quotation.updatedAt,
         custId: quotation.custId,
         custName1: quotation.custName1,
         custName2: quotation.custName2,
@@ -791,11 +826,11 @@ class QuotesController extends GetxController {
         mobileNo: quotation.mobileNo,
         source: quotation.source,
       );
-      showlog("added order customer ----> ${orderCustomer.toJson()}");
+      AppUtils.showlog("added order customer ----> ${orderCustomer.toJson()}");
       newOrderId = await OrderRepo.insertOrder(orderCustomer);
-      showlog("insert order customer ----> $newOrderId");
+      AppUtils.showlog("insert order customer ----> $newOrderId");
     } catch (e) {
-      showlog("Error converting quotation to order customer : $e");
+      AppUtils.showlog("Error converting quotation to order customer : $e");
     }
   }
 
@@ -812,12 +847,12 @@ class QuotesController extends GetxController {
           discount: product.discount,
           remark: product.remark,
         );
-        showlog("added order product ----> ${orderProduct.toJson()}");
+        AppUtils.showlog("added order product ----> ${orderProduct.toJson()}");
         int result = await OrderRepo.insertOrderProduct(orderProduct);
-        showlog("insert order product ----> $result");
+        AppUtils.showlog("insert order product ----> $result");
       }
     } catch (e) {
-      showlog("Error converting quotation to order product : $e");
+      AppUtils.showlog("Error converting quotation to order product : $e");
     }
   }
 
@@ -831,12 +866,12 @@ class QuotesController extends GetxController {
           orderId: newOrderId,
           termId: term.termId,
         );
-        showlog("added order terms ----> ${orderTerms.toJson()}");
+        AppUtils.showlog("added order terms ----> ${orderTerms.toJson()}");
         int result = await OrderRepo.insertOrderTerms(orderTerms);
-        showlog("insert order terms ----> $result");
+        AppUtils.showlog("insert order terms ----> $result");
       }
     } catch (e) {
-      showlog("Error converting quotation to order terms : $e");
+      AppUtils.showlog("Error converting quotation to order terms : $e");
     }
   }
 
@@ -854,12 +889,14 @@ class QuotesController extends GetxController {
           followupRemarks: followup.followupRemarks,
           followupAssignedTo: followup.followupAssignedTo,
         );
-        showlog("added order followup ----> ${orderFollowup.toJson()}");
+        AppUtils.showlog(
+          "added order followup ----> ${orderFollowup.toJson()}",
+        );
         int result = await OrderRepo.insertOrderFollowup(orderFollowup);
-        showlog("insert order followup ----> $result");
+        AppUtils.showlog("insert order followup ----> $result");
       }
     } catch (e) {
-      showlog("Error converting quotation to order followup : $e");
+      AppUtils.showlog("Error converting quotation to order followup : $e");
     }
   }
 
@@ -878,7 +915,7 @@ class QuotesController extends GetxController {
     try {
       //1. get customer details
       final selectedQuote = await QuotationRepo.getQuotationById(quotationId);
-      showlog("Selected quote : ${selectedQuote.toJson()}");
+      AppUtils.showlog("Selected quote : ${selectedQuote.toJson()}");
       await copyCustomer(selectedQuote);
 
       //2. get product details
@@ -889,7 +926,7 @@ class QuotesController extends GetxController {
           .where((element) => element.quotationId == int.parse(quotationId))
           .toList();
 
-      showlog(
+      AppUtils.showlog(
         "selected quotation product list : ${selectedQuotationProductList.map((e) => e.toJson()).toList()}",
       );
       await copyProductList(selectedQuotationProductList);
@@ -898,7 +935,7 @@ class QuotesController extends GetxController {
       final quotationTermsList = await QuotationRepo.getSelectedTerms(
         int.parse(quotationId),
       );
-      showlog(
+      AppUtils.showlog(
         "quotation terms list : ${quotationTermsList.map((e) => e.toJson()).toList()}",
       );
       await copyTerms(quotationTermsList);
@@ -908,12 +945,12 @@ class QuotesController extends GetxController {
           await QuotationRepo.getQuotationFollowupListByQuotationId(
             int.parse(quotationId),
           );
-      showlog(
+      AppUtils.showlog(
         "quotation followup list : ${quotationFollowupList.map((e) => e.toJson()).toList()}",
       );
       await copyFollowup(quotationFollowupList);
     } catch (e) {
-      showlog("Error copying quotation : $e");
+      AppUtils.showlog("Error copying quotation : $e");
     }
   }
 
@@ -921,7 +958,10 @@ class QuotesController extends GetxController {
   static Future<void> copyCustomer(QuotationModel quotation) async {
     try {
       final newCustomer = QuotationModel(
-        uid: quotation.uid,
+        createdBy: quotation.createdBy,
+        updatedBy: quotation.updatedBy,
+        createdAt: quotation.createdAt,
+        updatedAt: quotation.updatedAt,
         custId: quotation.custId,
         custName1: quotation.custName1,
         custName2: quotation.custName2,
@@ -930,11 +970,11 @@ class QuotesController extends GetxController {
         mobileNo: quotation.mobileNo,
         source: quotation.source,
       );
-      showlog("added new customer ----> ${newCustomer.toJson()}");
+      AppUtils.showlog("added new customer ----> ${newCustomer.toJson()}");
       int result = await QuotationRepo.insertQuotation(newCustomer);
-      showlog("insert new customer ----> $result");
+      AppUtils.showlog("insert new customer ----> $result");
     } catch (e) {
-      showlog("Error copying customer : $e");
+      AppUtils.showlog("Error copying customer : $e");
     }
   }
 
@@ -946,17 +986,21 @@ class QuotesController extends GetxController {
       for (var product in productList) {
         final newProduct = QuotationProductModel(
           quotationId: product.quotationId,
+          createdBy: product.createdBy,
+          updatedBy: product.updatedBy,
+          createdAt: product.createdAt,
+          updatedAt: product.updatedAt,
           productId: product.productId,
           quantity: product.quantity,
           discount: product.discount,
           remark: product.remark,
         );
-        showlog("added new product ----> ${newProduct.toJson()}");
+        AppUtils.showlog("added new product ----> ${newProduct.toJson()}");
         int result = await QuotationRepo.insertQuotationProduct(newProduct);
-        showlog("insert new product ----> $result");
+        AppUtils.showlog("insert new product ----> $result");
       }
     } catch (e) {
-      showlog("Error copying product list : $e");
+      AppUtils.showlog("Error copying product list : $e");
     }
   }
 
@@ -966,14 +1010,18 @@ class QuotesController extends GetxController {
       for (var term in termsList) {
         final newTerm = QuotationTermsModel(
           quotationId: term.quotationId,
+          createdBy: term.createdBy,
+          updatedBy: term.updatedBy,
+          createdAt: term.createdAt,
+          updatedAt: term.updatedAt,
           termId: term.termId,
         );
-        showlog("added new term ----> ${newTerm.toJson()}");
+        AppUtils.showlog("added new term ----> ${newTerm.toJson()}");
         int result = await QuotationRepo.insertQuotationTerms(newTerm);
-        showlog("insert new term ----> $result");
+        AppUtils.showlog("insert new term ----> $result");
       }
     } catch (e) {
-      showlog("Error copying terms : $e");
+      AppUtils.showlog("Error copying terms : $e");
     }
   }
 
@@ -985,18 +1033,22 @@ class QuotesController extends GetxController {
       for (var followup in followupList) {
         final newFollowup = QuotationFollowupModel(
           quotationId: followup.quotationId,
+          createdBy: followup.createdBy,
+          updatedBy: followup.updatedBy,
+          createdAt: followup.createdAt,
+          updatedAt: followup.updatedAt,
           followupDate: followup.followupDate,
           followupStatus: followup.followupStatus,
           followupType: followup.followupType,
           followupRemarks: followup.followupRemarks,
           followupAssignedTo: followup.followupAssignedTo,
         );
-        showlog("added new followup ----> ${newFollowup.toJson()}");
+        AppUtils.showlog("added new followup ----> ${newFollowup.toJson()}");
         int result = await QuotationRepo.insertQuotationFollowup(newFollowup);
-        showlog("insert new followup ----> $result");
+        AppUtils.showlog("insert new followup ----> $result");
       }
     } catch (e) {
-      showlog("Error copying followup : $e");
+      AppUtils.showlog("Error copying followup : $e");
     }
   }
 
@@ -1012,13 +1064,13 @@ class QuotesController extends GetxController {
 
   Future<QuotationInvoiceModel> setQuoteInvoiceData(String quotationId) async {
     try {
-      showlog("quotation id : $quotationId");
+      AppUtils.showlog("quotation id : $quotationId");
 
       final currentQuotation = await QuotationRepo.getQuotationById(
         quotationId,
       );
 
-      showlog("current quotation : ${currentQuotation.toJson()}");
+      AppUtils.showlog("current quotation : ${currentQuotation.toJson()}");
 
       final customerDetails = await ContactsRepo.getContactById(
         currentQuotation.custId.toString(),
@@ -1036,7 +1088,7 @@ class QuotesController extends GetxController {
         return element.quotationId == int.parse(quotationId);
       }).toList();
 
-      showlog(
+      AppUtils.showlog(
         "Invoice product list : ${invoiceProductList.map((e) => e.toJson()).toList()}",
       );
       List<ProductItem> productItems = [];
@@ -1090,7 +1142,7 @@ class QuotesController extends GetxController {
       );
       return invoiceData;
     } catch (e) {
-      showlog("Error setting quote invoice data : $e");
+      AppUtils.showlog("Error setting quote invoice data : $e");
       rethrow;
     }
   }

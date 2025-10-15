@@ -2,6 +2,7 @@ import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/app_const/widgets/app_bar.dart';
 import 'package:crm/app_const/widgets/app_drawer.dart';
 import 'package:crm/routes/app_routes.dart';
+import 'package:crm/services/firestore_sync.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -12,7 +13,7 @@ class DashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar(title: "Dashboard"),
-      drawer: const AppDrawer(),
+      drawer: AppDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: SingleChildScrollView(
@@ -37,7 +38,7 @@ class DashboardScreen extends StatelessWidget {
                     title: "Contact",
                     context: context,
                     onTap: () {
-                      showlog("Contact pressed");
+                      AppUtils.showlog("Contact pressed");
                       Get.toNamed(AppRoutes.contactList);
                     },
                   ),
@@ -46,7 +47,7 @@ class DashboardScreen extends StatelessWidget {
                     title: "Inquiry",
                     context: context,
                     onTap: () {
-                      showlog("Inquiry pressed");
+                      AppUtils.showlog("Inquiry pressed");
                       Get.toNamed(AppRoutes.inquiry);
                     },
                   ),
@@ -55,7 +56,7 @@ class DashboardScreen extends StatelessWidget {
                     title: "Quotation",
                     context: context,
                     onTap: () {
-                      showlog("Quotation pressed");
+                      AppUtils.showlog("Quotation pressed");
                       Get.toNamed(AppRoutes.quote);
                     },
                   ),
@@ -64,7 +65,7 @@ class DashboardScreen extends StatelessWidget {
                     title: "Order",
                     context: context,
                     onTap: () {
-                      showlog("Order pressed");
+                      AppUtils.showlog("Order pressed");
                       Get.toNamed(AppRoutes.order);
                     },
                   ),
@@ -73,7 +74,7 @@ class DashboardScreen extends StatelessWidget {
                     title: "Task",
                     context: context,
                     onTap: () {
-                      showlog("Task pressed");
+                      AppUtils.showlog("Task pressed");
                       Get.toNamed(AppRoutes.tasks);
                     },
                   ),
@@ -82,12 +83,30 @@ class DashboardScreen extends StatelessWidget {
                   //   title: "Report",
                   //   context: context,
                   //   onTap: () {
-                  //     showlog("Report pressed");
+                  //     AppUtils.showlog("Report pressed");
                   //     Get.toNamed(AppRoutes.report);
                   //   },
                   // ),
+                  dashboardWidget(
+                    icon: Icons.sync_alt,
+                    title: "Sync",
+                    onTap: () {
+                      syncToCloud(context: context);
+                      AppUtils.showlog("Sync pressed");
+                    },
+                    context: context,
+                  ),
                 ],
               ),
+
+              // dashboardWidget(
+              //   icon: Icons.sync_alt,
+              //   title: "Sync",
+              //   onTap: () {
+              //     AppUtils.showlog("Sync pressed");
+              //   },
+              //   context: context,
+              // ),
             ],
           ),
         ),

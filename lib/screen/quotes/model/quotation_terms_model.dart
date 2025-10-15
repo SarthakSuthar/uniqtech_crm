@@ -12,15 +12,32 @@ String quotationTermsModelToJson(QuotationTermsModel data) =>
 
 class QuotationTermsModel {
   int? id;
+  String? createdBy;
+  String? createdAt;
+  String? updatedBy;
+  String? updatedAt;
   int? quotationId;
   int? termId;
   int? isSynced = 0;
 
-  QuotationTermsModel({this.id, this.quotationId, this.termId, this.isSynced});
+  QuotationTermsModel({
+    this.id,
+    this.quotationId,
+    this.createdBy,
+    this.createdAt,
+    this.updatedBy,
+    this.updatedAt,
+    this.termId,
+    this.isSynced,
+  });
 
   factory QuotationTermsModel.fromJson(Map<String, dynamic> json) =>
       QuotationTermsModel(
         id: json["id"],
+        createdBy: json["createdBy"],
+        createdAt: json["createdAt"],
+        updatedBy: json["updatedBy"],
+        updatedAt: json["updatedAt"],
         quotationId: json["quotationId"],
         termId: json["termId"],
         isSynced: json["isSynced"] ?? 0,
@@ -28,6 +45,10 @@ class QuotationTermsModel {
 
   Map<String, dynamic> toJson() => {
     "id": id,
+    "createdBy": createdBy,
+    "createdAt": createdAt,
+    "updatedBy": updatedBy,
+    "updatedAt": updatedAt,
     "quotationId": quotationId,
     "termId": termId,
     "isSynced": isSynced ?? 0,

@@ -11,6 +11,10 @@ String productModelToJson(ProductModel data) => json.encode(data.toJson());
 
 class ProductModel {
   int? productId;
+  String? createdBy;
+  String? updatedBy;
+  String? createdAt;
+  String? updatedAt;
   String? productCode;
   String? productName;
   String? productDescription;
@@ -18,10 +22,14 @@ class ProductModel {
   String? productRate;
   String? productDocument;
   String? productImage;
-  int? isSynced;
+  int? isSynced = 0;
 
   ProductModel({
     this.productId,
+    this.createdBy,
+    this.updatedBy,
+    this.createdAt,
+    this.updatedAt,
     this.productCode,
     this.productName,
     this.productDescription,
@@ -34,6 +42,10 @@ class ProductModel {
 
   factory ProductModel.fromJson(Map<String, dynamic> json) => ProductModel(
     productId: json["id"],
+    createdBy: json["created_by"],
+    updatedBy: json["updated_by"],
+    createdAt: json["created_at"],
+    updatedAt: json["updated_at"],
     productCode: json["product_code"],
     productName: json["product_name"],
     productDescription: json["product_description"],
@@ -41,11 +53,15 @@ class ProductModel {
     productRate: json["product_rate"],
     productDocument: json["product_document"],
     productImage: json["product_image"],
-    isSynced: json["isSynced"],
+    isSynced: json["isSynced"] ?? 0,
   );
 
   Map<String, dynamic> toJson() => {
     "id": productId,
+    "created_by": createdBy,
+    "updated_by": updatedBy,
+    "created_at": createdAt,
+    "updated_at": updatedAt,
     "product_code": productCode,
     "product_name": productName,
     "product_description": productDescription,
@@ -53,6 +69,6 @@ class ProductModel {
     "product_rate": productRate,
     "product_document": productDocument,
     "product_image": productImage,
-    "isSynced": isSynced,
+    "isSynced": isSynced ?? 0,
   };
 }

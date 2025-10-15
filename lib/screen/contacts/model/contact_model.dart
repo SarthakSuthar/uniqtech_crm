@@ -1,6 +1,7 @@
 class ContactModel {
   int? id; // local auto-increment id (SQLite only)
-  String? uid; // Firebase UID or custom contact id
+  String? createdBy;
+  String? updatedBy; // Firebase UID or custom contact id
   String? custName;
   String? address;
   String? city;
@@ -26,7 +27,8 @@ class ContactModel {
 
   ContactModel({
     this.id,
-    this.uid,
+    this.createdBy,
+    this.updatedBy,
     this.custName,
     this.address,
     this.city,
@@ -55,7 +57,8 @@ class ContactModel {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'uid': uid,
+      'created_by': createdBy,
+      'updated_by': updatedBy,
       'cust_name': custName,
       'address': address,
       'city': city,
@@ -85,7 +88,8 @@ class ContactModel {
   factory ContactModel.fromMap(Map<String, dynamic> map) {
     return ContactModel(
       id: map['id'],
-      uid: map['uid'],
+      createdBy: map['created_by'],
+      updatedBy: map['updated_by'],
       custName: map['cust_name'],
       address: map['address'],
       city: map['city'],
@@ -114,7 +118,8 @@ class ContactModel {
   /// Convert to JSON (for Firebase upload)
   Map<String, dynamic> toJson() {
     return {
-      'uid': uid,
+      'created_by': createdBy,
+      'updated_by': updatedBy,
       'cust_name': custName,
       'address': address,
       'city': city,
@@ -142,7 +147,8 @@ class ContactModel {
   /// Create a ContactModel from JSON (from Firebase)
   factory ContactModel.fromJson(Map<String, dynamic> json) {
     return ContactModel(
-      uid: json['uid'],
+      createdBy: json['created_by'],
+      updatedBy: json['updated_by'],
       custName: json['cust_name'],
       address: json['address'],
       city: json['city'],

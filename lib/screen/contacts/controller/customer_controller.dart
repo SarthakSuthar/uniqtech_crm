@@ -1,6 +1,7 @@
 import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/screen/contacts/model/contact_model.dart';
 import 'package:crm/screen/contacts/repo/contact_repo.dart';
+import 'package:crm/screen/login/repo/user_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -62,6 +63,7 @@ class AddCustomerController extends GetxController {
     //   await setEditValues();
     // }
     await getAllContacts();
+    await loadUserId();
   }
 
   @override
@@ -127,7 +129,7 @@ class AddCustomerController extends GetxController {
 
   /// Search for customer name or number
   void searchResult(String val) {
-    showlog("search for name or number : $val");
+    AppUtils.showlog("search for name or number : $val");
 
     if (val.isEmpty) {
       // If the search query is empty, show all contacts
@@ -139,12 +141,13 @@ class AddCustomerController extends GetxController {
 
     filterendList.value = contacts.where((item) {
       final custName = item.custName?.toLowerCase();
-      final uid = item.uid
-          ?.toLowerCase(); // Assuming uid is a string or can be converted to one
+      final uid = item.id
+          .toString()
+          .toLowerCase(); // Assuming uid is a string or can be converted to one
 
       // An item is a match if its name OR uid contains the search query
       return (custName?.contains(lowerCaseQuery) ?? false) ||
-          (uid?.contains(lowerCaseQuery) ?? false);
+          (uid.contains(lowerCaseQuery));
     }).toList();
   }
 
@@ -155,7 +158,21 @@ class AddCustomerController extends GetxController {
     final result = await ContactsRepo.getAllContacts();
     contacts.value = result;
     filterendList.assignAll(contacts);
-    showlog("contacts : ${contacts.length}");
+    AppUtils.showlog("No. of contacts : ${contacts.length}");
+    AppUtils.showlog(
+      "Contacts details ---> ${contacts.map((e) => 'id: ${e.id}, isSynced: ${e.isSynced}').toList()}",
+    );
+  }
+
+  ///delete contact
+  Future<void> deleteContact(String id) async {
+    await ContactsRepo.deleteContact(int.parse(id));
+    filterendList.remove(ContactModel(id: int.parse(id)));
+    contacts.remove(ContactModel(id: int.parse(id)));
+
+    AppUtils.showlog("removed contact : $id");
+    AppUtils.showlog("No. of contacts : ${contacts.length}");
+    AppUtils.showlog("list after removing --> ${contacts.map((e) => e.id)}}");
   }
 
   ///get user by id for edit
@@ -163,8 +180,20 @@ class AddCustomerController extends GetxController {
     return await ContactsRepo.getContactById(uid);
   }
 
+  String? uid;
+
+  Future<void> loadUserId() async {
+    try {
+      uid = await UserRepo.getUserId();
+      AppUtils.showlog("uid in customer controller : $uid");
+    } catch (e) {
+      AppUtils.showlog("error in customer controller : $e");
+    }
+  }
+
   /// Update existing customer
   Future<void> updateContact(ContactModel contact) async {
+    contact.updatedBy = uid;
     contact.custName = controllers["name"]!.text;
     contact.address = controllers["address"]!.text;
     contact.city = controllers["city"]!.text;
@@ -184,6 +213,9 @@ class AddCustomerController extends GetxController {
     contact.contEmail = controllers["contactEmail"]!.text;
     contact.contPhoneNo = controllers["contactPhoneNo"]!.text;
     contact.contMobileNo = controllers["contactMobileNo"]!.text;
+    contact.updatedAt = DateTime.now().toString();
+    contact.isSynced = 0;
+
     await ContactsRepo.updateContact(contact);
     await getAllContacts();
     isLoading.value = false;
@@ -193,8 +225,8 @@ class AddCustomerController extends GetxController {
   ///add new customer
   Future<void> addContact() async {
     final contact = ContactModel(
-      uid: DateTime.now().millisecondsSinceEpoch
-          .toString(), // change to actual id
+      createdBy: uid,
+      updatedBy: uid,
       custName: controllers["name"]!.text,
       address: controllers["address"]!.text,
       city: controllers["city"]!.text,
@@ -214,9 +246,11 @@ class AddCustomerController extends GetxController {
       contEmail: controllers["email"]!.text,
       contPhoneNo: controllers["contactPhoneNo"]!.text,
       contMobileNo: controllers["contactMobileNo"]!.text,
+      createdAt: DateTime.now().toString(), //YYYY-MM-DD hh:mm:ss.ms --> formate
+      updatedAt: DateTime.now().toString(),
     );
 
-    showlog("new contact : ${contact.toJson()}");
+    AppUtils.showlog("new contact : ${contact.toJson()}");
 
     await ContactsRepo.insertContact(contact);
     await getAllContacts();

@@ -1,5 +1,9 @@
 class InquiryProductModel {
   int? id;
+  String? createdBy;
+  String? updatedBy;
+  String? createdAt;
+  String? updatedAt;
   int inquiryId;
   int productId;
   int quantity;
@@ -8,6 +12,10 @@ class InquiryProductModel {
 
   InquiryProductModel({
     this.id,
+    this.createdBy,
+    this.updatedBy,
+    this.createdAt,
+    this.updatedAt,
     required this.inquiryId,
     required this.productId,
     required this.quantity,
@@ -19,6 +27,10 @@ class InquiryProductModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'createdBy': createdBy,
+      'updatedBy': updatedBy,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
       'inquiryId': inquiryId,
       'productId': productId,
       'quantity': quantity,
@@ -31,6 +43,10 @@ class InquiryProductModel {
   factory InquiryProductModel.fromJson(Map<String, dynamic> json) {
     return InquiryProductModel(
       id: json['id'],
+      createdBy: json['createdBy'],
+      updatedBy: json['updatedBy'],
+      createdAt: json['createdAt'],
+      updatedAt: json['updatedAt'],
       inquiryId: json['inquiryId'],
       productId: json['productId'],
       quantity: json['quantity'],

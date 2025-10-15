@@ -23,9 +23,9 @@ class _AddInquiryProductState extends State<AddInquiryProduct> {
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) {
           Get.delete<InquiryController>();
-          showlog("Route popped with result: $result");
+          AppUtils.showlog("Route popped with result: $result");
         } else {
-          showlog("Pop prevented!");
+          AppUtils.showlog("Pop prevented!");
         }
       },
       child: Padding(
@@ -124,7 +124,7 @@ class _AddInquiryProductState extends State<AddInquiryProduct> {
                             if (_formKey.currentState!.validate()) {
                               controller.addtempProductList();
                             }
-                            showlog("ADD :: Add inquirt customer");
+                            AppUtils.showlog("ADD :: Add inquirt customer");
                             // go back
                           },
                           context: context,
@@ -179,7 +179,7 @@ class _AddInquiryProductState extends State<AddInquiryProduct> {
                     ? controller.updateInquiry()
                     : controller.submitInquiry();
               }
-              showlog("Inquiry Action button pressed");
+              AppUtils.showlog("Inquiry Action button pressed");
             },
             backgroundColor: Theme.of(context).primaryColor,
             child: Text(

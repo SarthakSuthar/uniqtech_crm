@@ -119,7 +119,6 @@ class _AddTaskState extends State<AddTask> {
                         ),
 
                         inputWidget(
-                          //TODO: current login user uid
                           hintText: "Assigned to",
                           icon: Icons.task,
                           controller: controller.controllers["assignedTo"]!,
@@ -141,7 +140,7 @@ class _AddTaskState extends State<AddTask> {
                                 context: context,
                                 builder: (context) => fileSelectWidget(context),
                               );
-                              showlog("file select widget tapped");
+                              AppUtils.showlog("file select widget tapped");
                             },
                             child: Row(
                               children: [
@@ -243,7 +242,7 @@ class _AddTaskState extends State<AddTask> {
                             widget.isEdit
                                 ? controller.updateTask()
                                 : controller.addTask();
-                            showlog("Tasks : Add task button");
+                            AppUtils.showlog("Tasks : Add task button");
                           },
                           context: context,
                         ),
@@ -251,7 +250,7 @@ class _AddTaskState extends State<AddTask> {
                           title: "RESET",
                           onTap: () {
                             controller.resetAllFields();
-                            showlog("Tasks : Add task button");
+                            AppUtils.showlog("Tasks : Add task button");
                           },
                           context: context,
                         ),

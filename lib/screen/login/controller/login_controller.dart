@@ -2,6 +2,7 @@ import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/app_const/widgets/app_snackbars.dart';
 import 'package:crm/routes/app_routes.dart';
 import 'package:crm/screen/login/model/user_model.dart';
+import 'package:crm/screen/login/repo/user_repo.dart';
 import 'package:crm/services/shred_pref.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
@@ -42,7 +43,7 @@ class LoginController extends GetxController {
       final googleUser = await _googleSignIn.signIn();
       if (googleUser != null) {
         user.value = googleUser;
-        showlog("user details --> $user");
+        AppUtils.showlog("user details --> $user");
 
         // final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
         final GoogleSignInAuthentication googleAuth =
@@ -56,18 +57,20 @@ class LoginController extends GetxController {
         await FirebaseAuth.instance.signInWithCredential(credential);
 
         final userData = UserModel(
+          uid: googleUser.id,
           name: googleUser.displayName,
           email: googleUser.email,
           photoUrl: googleUser.photoUrl,
         );
-        showlog("user data in model --> ${userData.toJson()}");
+        await UserRepo().insertUser(userData);
+        AppUtils.showlog("user data in model --> ${userData.toJson()}");
         await SharedPrefHelper.setBool("isLoggedIn", true);
         showSuccessSnackBar("Logged in successfully!");
         Get.offAllNamed(AppRoutes.dashboard);
       }
     } catch (e) {
       error.value = 'Failed to sign in: ${e.toString()}';
-      showlog('Google Sign-In Error: $e');
+      AppUtils.showlog('Google Sign-In Error: $e');
     } finally {
       isLoading.value = false;
     }
@@ -77,6 +80,7 @@ class LoginController extends GetxController {
     try {
       await _googleSignIn.signOut();
       user.value = null;
+      await UserRepo().deleteUser();
       await SharedPrefHelper.setBool("isLoggedIn", false);
       Get.offNamed(AppRoutes.login);
     } catch (e) {

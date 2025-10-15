@@ -55,6 +55,7 @@ class OrderController extends GetxController {
     await getCustomersList();
     await getAllTerms();
     await getUomList();
+    await getUid();
 
     // Set initial quotation number based on the total number of quotations
     if (isEdit) {
@@ -63,7 +64,9 @@ class OrderController extends GetxController {
       controllers['num']!.text = (await OrderRepo().getNextOrderId())
           .toString();
 
-      showlog("Order -- Last id in controller : ${controllers['num']!.text}");
+      AppUtils.showlog(
+        "Order -- Last id in controller : ${controllers['num']!.text}",
+      );
 
       controllers['date']!.text = dateFormat.format(DateTime.now());
     }
@@ -216,7 +219,7 @@ class OrderController extends GetxController {
 
   /// Search for customer name or number
   void searchResult(String val) {
-    showlog("search for name or number : $val");
+    AppUtils.showlog("search for name or number : $val");
 
     if (val.isEmpty) {
       // If the search query is empty, show all contacts
@@ -228,12 +231,13 @@ class OrderController extends GetxController {
 
     filterendList.value = orderList.where((item) {
       final custName = item.custName1?.toLowerCase();
-      final uid = item.uid
-          ?.toLowerCase(); // Assuming uid is a string or can be converted to one
+      final uid = item.id
+          .toString()
+          .toLowerCase(); // Assuming uid is a string or can be converted to one
 
       // An item is a match if its name OR uid contains the search query
       return (custName?.contains(lowerCaseQuery) ?? false) ||
-          (uid?.contains(lowerCaseQuery) ?? false);
+          (uid.contains(lowerCaseQuery));
     }).toList();
   }
 
@@ -243,7 +247,7 @@ class OrderController extends GetxController {
       final result = await ProductRepo.getAllProducts();
       productList.assignAll(result);
     } catch (e) {
-      showlog("error on get product list : $e");
+      AppUtils.showlog("error on get product list : $e");
     }
   }
 
@@ -251,9 +255,9 @@ class OrderController extends GetxController {
     try {
       final result = await UomRepo.getAllUom();
       uomList.assignAll(result);
-      showlog("uom list : ${result.map((e) => e.toJson()).toList()}");
+      AppUtils.showlog("uom list : ${result.map((e) => e.toJson()).toList()}");
     } catch (e) {
-      showlog("Error getting UOM list : $e");
+      AppUtils.showlog("Error getting UOM list : $e");
     }
   }
 
@@ -261,7 +265,7 @@ class OrderController extends GetxController {
   Future<void> getOrderProductList() async {
     try {
       final result = await OrderRepo.getAllOrderProducts();
-      showlog(
+      AppUtils.showlog(
         "getOrderProductList result : ${result.map((e) => e.toJson()).toList()}",
       );
       orderProductList.assignAll(
@@ -272,9 +276,11 @@ class OrderController extends GetxController {
             )
             .toList(),
       );
-      showlog("order product list : ${result.map((e) => e.toJson()).toList()}");
+      AppUtils.showlog(
+        "order product list : ${result.map((e) => e.toJson()).toList()}",
+      );
     } catch (e) {
-      showlog("error on get order product list : $e");
+      AppUtils.showlog("error on get order product list : $e");
     }
   }
 
@@ -287,26 +293,26 @@ class OrderController extends GetxController {
         customerList[contact.custName!] = contact.id.toString();
       }
       customerList.forEach(
-        (key, value) => showlog("Customer list $key : $value"),
+        (key, value) => AppUtils.showlog("Customer list $key : $value"),
       );
     } catch (e) {
-      showlog("error on get customers list : $e");
+      AppUtils.showlog("error on get customers list : $e");
     }
   }
 
   /// get user details by id
   Future<void> getSelectedContactDetails(String name) async {
     try {
-      showlog("name --> $name");
+      AppUtils.showlog("name --> $name");
       final id = customerList[name] ?? '';
-      showlog("get user details by id --> $id");
+      AppUtils.showlog("get user details by id --> $id");
 
       final result = await ContactsRepo.getContactById(id);
       controllers["email"]?.text = result.email!;
       controllers["mobile"]?.text = result.mobileNo!;
-      showlog("selected contact details : ${result.toJson()}");
+      AppUtils.showlog("selected contact details : ${result.toJson()}");
     } catch (e) {
-      showlog("error on get user details : $e");
+      AppUtils.showlog("error on get user details : $e");
     }
   }
 
@@ -316,9 +322,21 @@ class OrderController extends GetxController {
       final result = await OrderRepo.getAllOrders();
       orderList.assignAll(result);
       filterendList.value = orderList;
-      showlog("order list : ${result.map((e) => e.toJson()).toList()}");
+      AppUtils.showlog(
+        "order list : ${result.map((e) => e.toJson()).toList()}",
+      );
     } catch (e) {
-      showlog("error on get order list : $e");
+      AppUtils.showlog("error on get order list : $e");
+    }
+  }
+
+  String? uid;
+
+  Future<void> getUid() async {
+    try {
+      uid = await AppUtils.uid;
+    } catch (e) {
+      AppUtils.showlog("error on get uid : $e");
     }
   }
 
@@ -328,11 +346,14 @@ class OrderController extends GetxController {
       final custName = selectedCustomer.value;
       final custId = customerList[custName];
 
-      showlog("custName : $custName");
-      showlog("custId : $custId");
+      AppUtils.showlog("custName : $custName");
+      AppUtils.showlog("custId : $custId");
 
       final orderCustomer = OrderModel(
-        uid: DateTime.now().millisecondsSinceEpoch.toString(),
+        createdBy: uid,
+        createdAt: DateTime.now().toString(),
+        updatedBy: uid,
+        updatedAt: DateTime.now().toString(),
         custId: int.parse(custId ?? ''),
         custName1: selectedCustomer.value,
         custName2: controllers["name2"]!.text,
@@ -347,15 +368,15 @@ class OrderController extends GetxController {
         loadingCharges: controllers["loading_charges"]!.text,
       );
 
-      showlog("added order customer ----> ${orderCustomer.toJson()}");
+      AppUtils.showlog("added order customer ----> ${orderCustomer.toJson()}");
 
       int result = await OrderRepo.insertOrder(orderCustomer);
       // showSuccessSnackBar("Customer added successfully");
-      showlog("insert order customer ----> $result");
+      AppUtils.showlog("insert order customer ----> $result");
       await getOrderList();
     } catch (e) {
       // showErrorSnackBar("Error adding customer $e");
-      showlog("error on add customer : $e");
+      AppUtils.showlog("error on add customer : $e");
     }
   }
 
@@ -367,7 +388,7 @@ class OrderController extends GetxController {
       );
       return product?.productId ?? 0;
     } catch (e) {
-      showlog("Error getting product id : $e");
+      AppUtils.showlog("Error getting product id : $e");
       rethrow;
     }
   }
@@ -384,16 +405,16 @@ class OrderController extends GetxController {
         remark: controllers['remarks']!.text,
       );
 
-      showlog("quotation id : ${orderProdId.orderId}");
-      showlog("product id : ${orderProdId.productId}");
+      AppUtils.showlog("quotation id : ${orderProdId.orderId}");
+      AppUtils.showlog("product id : ${orderProdId.productId}");
 
       int result = await OrderRepo.insertOrderProduct(orderProdId);
-      showlog("insert order product ----> $result");
+      AppUtils.showlog("insert order product ----> $result");
       showSuccessSnackBar("Product added successfully");
       await getOrderProductList();
     } catch (e) {
       showErrorSnackBar("Error adding product: $e");
-      showlog("Error adding product & quotation ID : $e");
+      AppUtils.showlog("Error adding product & quotation ID : $e");
     }
   }
 */
@@ -402,7 +423,7 @@ class OrderController extends GetxController {
 
   void addtempProductList() {
     final orderId = int.parse(controllers['num']!.text);
-    showlog("order id in temp list : $orderId");
+    AppUtils.showlog("order id in temp list : $orderId");
 
     try {
       tempProductList.add(
@@ -420,7 +441,7 @@ class OrderController extends GetxController {
       showSuccessSnackBar("Product added successfully");
     } catch (e) {
       showErrorSnackBar("Error adding product: $e");
-      showlog("Error adding product & quotation ID : $e");
+      AppUtils.showlog("Error adding product & quotation ID : $e");
     }
   }
 
@@ -428,11 +449,11 @@ class OrderController extends GetxController {
     try {
       for (var product in orderProductList) {
         int result = await OrderRepo.insertOrderProduct(product);
-        showlog("insert order product ----> $result");
+        AppUtils.showlog("insert order product ----> $result");
       }
     } catch (e) {
       showErrorSnackBar("Error adding product");
-      showlog("Error adding product : $e");
+      AppUtils.showlog("Error adding product : $e");
     }
   }
 
@@ -444,7 +465,7 @@ class OrderController extends GetxController {
       showSuccessSnackBar("Order submitted successfully");
     } catch (e) {
       showErrorSnackBar("Error submitting order : $e");
-      showlog("Error submitting order : $e");
+      AppUtils.showlog("Error submitting order : $e");
     }
   }
 
@@ -457,7 +478,7 @@ class OrderController extends GetxController {
       showSuccessSnackBar("Order deleted successfully");
     } catch (e) {
       showErrorSnackBar("Error deleting order : $e");
-      showlog("Error deleting order : $e");
+      AppUtils.showlog("Error deleting order : $e");
     }
   }
 
@@ -466,16 +487,16 @@ class OrderController extends GetxController {
       if (tempProductList != orderProductList) {
         for (var element in tempProductList) {
           int result = await OrderRepo.insertOrderProduct(element);
-          showlog("insert order product ----> $result");
+          AppUtils.showlog("insert order product ----> $result");
           await getOrderProductList();
           return result;
         }
       } else {
-        showlog("tempProductList == inquiryProductList");
+        AppUtils.showlog("tempProductList == inquiryProductList");
       }
       return 0;
     } catch (e) {
-      showlog("Error updating product list : $e");
+      AppUtils.showlog("Error updating product list : $e");
       rethrow;
     }
   }
@@ -483,12 +504,18 @@ class OrderController extends GetxController {
   Future<void> updateOrder() async {
     try {
       int orderId = int.parse(controllers['num']!.text);
+
+      final custName = selectedCustomer.value;
+      final custId = customerList[custName];
+
+      AppUtils.showlog("custName : $custName");
+      AppUtils.showlog("custId : $custId");
+
       final order = OrderModel(
         id: orderId,
-        uid: DateTime.now().millisecondsSinceEpoch.toString(),
-        // custId: int.parse(controllers['custId']!.text),
-        //TODO: get customer id
-        custId: 0,
+        updatedBy: uid,
+        updatedAt: DateTime.now().toString(),
+        custId: int.parse(custId ?? ''),
         custName1: selectedCustomer.value,
         custName2: "controllers['name2']!.text",
         date: controllers['date']!.text,
@@ -501,19 +528,19 @@ class OrderController extends GetxController {
         freightAmount: controllers['freight_amount']!.text,
         loadingCharges: controllers['loading_charges']!.text,
       );
-      showlog("update order ----> ${order.toJson()}");
+      AppUtils.showlog("update order ----> ${order.toJson()}");
       int result = await OrderRepo.updateOrder(order);
       showSuccessSnackBar("Order updated successfully");
-      showlog("updated quotation ----> $result");
+      AppUtils.showlog("updated quotation ----> $result");
 
       // update product list
 
       int updateProduct = await orderQuotationProductID();
-      showlog("update product list ----> $updateProduct");
+      AppUtils.showlog("update product list ----> $updateProduct");
       showSuccessSnackBar("Order Updated Successfully");
     } catch (e) {
       showErrorSnackBar("Error updating order : $e");
-      showlog("Error update order : $e");
+      AppUtils.showlog("Error update order : $e");
     }
   }
 
@@ -523,19 +550,21 @@ class OrderController extends GetxController {
   Future<void> getAllTerms() async {
     try {
       final result = await TermsRepo.getAllTerms();
-      showlog("all terms : ${result.map((e) => e.toJson()).toList()}");
+      AppUtils.showlog("all terms : ${result.map((e) => e.toJson()).toList()}");
       allTerms.assignAll(result);
     } catch (e) {
-      showlog("Error getting all terms : $e");
+      AppUtils.showlog("Error getting all terms : $e");
     }
   }
 
   //Get all selected terms && set selected
   Future<void> getSelectedTerms(int? orderId) async {
     try {
-      showlog("Quotation ID: $orderId");
+      AppUtils.showlog("Quotation ID: $orderId");
       final result = await OrderRepo.getSelectedTerms(orderId!);
-      showlog("selected terms : ${result.map((e) => e.toJson()).toList()}");
+      AppUtils.showlog(
+        "selected terms : ${result.map((e) => e.toJson()).toList()}",
+      );
       orderTermsList.assignAll(result);
 
       if (result.isNotEmpty) {
@@ -546,14 +575,14 @@ class OrderController extends GetxController {
           result.map((term) => term.termId ?? 0).toSet().toList(),
         );
       } else {
-        showlog("No selected terms found");
+        AppUtils.showlog("No selected terms found");
       }
 
       if (selectedTerms.isNotEmpty) {
-        showlog("Selected terms : ${selectedTerms.toList()}");
+        AppUtils.showlog("Selected terms : ${selectedTerms.toList()}");
       }
     } catch (e) {
-      showlog("Error getting selected terms : $e");
+      AppUtils.showlog("Error getting selected terms : $e");
     }
   }
 
@@ -585,14 +614,14 @@ class OrderController extends GetxController {
       );
     }).toList();
 
-    showlog("Selected Terms: ${selectedTerms.toList()}");
+    AppUtils.showlog("Selected Terms: ${selectedTerms.toList()}");
   }
 
   // add new selected term
   Future<void> addOrderTerms(int orderId) async {
     try {
-      showlog("add quote term : Order ID --> $orderId");
-      showlog(
+      AppUtils.showlog("add quote term : Order ID --> $orderId");
+      AppUtils.showlog(
         "Quotation Term List : ${orderTermsList.map((e) => e.toJson()).toList()}",
       );
       for (var term in orderTermsList) {
@@ -600,14 +629,14 @@ class OrderController extends GetxController {
           orderId: orderId,
           termId: term.termId,
         );
-        showlog("added Order terms ----> ${orderTerms.toJson()}");
+        AppUtils.showlog("added Order terms ----> ${orderTerms.toJson()}");
         int result = await OrderRepo.insertOrderTerms(orderTerms);
-        showlog("insert Order terms ----> $result");
+        AppUtils.showlog("insert Order terms ----> $result");
       }
       showSuccessSnackBar("Order terms added successfully");
     } catch (e) {
       showErrorSnackBar("Error adding Order terms : $e");
-      showlog("Error adding Order terms : $e");
+      AppUtils.showlog("Error adding Order terms : $e");
     }
   }
 
@@ -628,9 +657,9 @@ class OrderController extends GetxController {
 
   Future<OrderInvoiceModel> setOrderInvoiceDetails(String orderId) async {
     try {
-      showlog("order ID : $orderId");
+      AppUtils.showlog("order ID : $orderId");
       final currentOrder = await OrderRepo.getOrderById(orderId);
-      showlog("contact id : ${currentOrder.custId}");
+      AppUtils.showlog("contact id : ${currentOrder.custId}");
       final customerDetails = await ContactsRepo.getContactById(
         currentOrder.custId.toString(),
       );
@@ -691,7 +720,7 @@ class OrderController extends GetxController {
 
       return orderInvoice;
     } catch (e) {
-      showlog("Error setting order invoice details : $e");
+      AppUtils.showlog("Error setting order invoice details : $e");
       rethrow;
     }
   }

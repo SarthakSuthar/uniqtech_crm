@@ -25,14 +25,14 @@ class DatabaseHelper {
     return _databaseHelper;
   }
   Future<Database> get database async {
-    // showlog("inside get database");
+    // AppUtils.showlog("inside get database");
     if (_database != null) return _database!;
     _database = await _initDatabase();
     return _database!;
   }
 
   Future<Database?> _initDatabase() async {
-    showlog("inside _initDatabase");
+    AppUtils.showlog("inside _initDatabase");
     String path = join(await getDatabasesPath(), _databaseName);
     return await openDatabase(
       path,
@@ -43,7 +43,7 @@ class DatabaseHelper {
 
   Future<void> _onCreate(Database db, int version) async {
     try {
-      showlog("inside _onCreate");
+      AppUtils.showlog("inside _onCreate");
       //   await db.execute('''
       //   CREATE TABLE IF NOT EXISTS user (
       //     uid TEXT PRIMARY KEY,
@@ -53,75 +53,75 @@ class DatabaseHelper {
       //     isSynced INTEGER
       //   )
       // ''');
-      //   showlog("after creating user table");
+      //   AppUtils.showlog("after creating user table");
 
       await UserRepo.createTable(db);
-      showlog("after creating user table");
+      AppUtils.showlog("after creating user table");
 
       //MARK:  Contact Table
       await ContactsRepo.createTable(db);
-      showlog("after creating contact table");
+      AppUtils.showlog("after creating contact table");
 
       //MARK: Masters Tables
       await ProductRepo.createTable(db);
-      showlog("after creating product table");
+      AppUtils.showlog("after creating product table");
 
       await TermsRepo.createTermsTable(db);
-      showlog("after creating terms table");
+      AppUtils.showlog("after creating terms table");
 
       await UomRepo.createUomTable(db);
-      showlog("after creating uom table");
+      AppUtils.showlog("after creating uom table");
 
       //MARK: Inquiry Tables
       // await InquiryRepo.createInquiryTable(db);
-      // showlog("after creating inquiry table");
+      // AppUtils.showlog("after creating inquiry table");
 
       // await InquiryRepo.createinquiryProductTable(db);
-      // showlog("after creating inquiryProduct table");
+      // AppUtils.showlog("after creating inquiryProduct table");
 
       // await InquiryRepo.createInquiryFollowupTable(db);
-      // showlog("after creating inquiryFollowup table");
+      // AppUtils.showlog("after creating inquiryFollowup table");
 
       await InquiryRepo.initializeInquiryDB(db);
 
       //MARK: Quatation Tables
       await QuotationRepo.createQuotationTable(db);
-      showlog("after creating quotation table");
+      AppUtils.showlog("after creating quotation table");
 
       await QuotationRepo.createQuotationProductTable(db);
-      showlog("after creating quotationProduct table");
+      AppUtils.showlog("after creating quotationProduct table");
 
       await QuotationRepo.createQuotationFollowupTable(db);
-      showlog("after creating quotationFollowup table");
+      AppUtils.showlog("after creating quotationFollowup table");
 
       await QuotationRepo.createQuotationTermsTable(db);
-      showlog("after creating quotationTerms table");
+      AppUtils.showlog("after creating quotationTerms table");
 
       // SEPERATED AGAIN BECAUSE createQuotationTermsTable ISM'T WORKING IN initializeQuotationDB
       // await QuotationRepo.initializeQuotationDB(db);
-      // showlog("after creating quotation tables");
+      // AppUtils.showlog("after creating quotation tables");
 
       //MARK: Order Tables
       await OrderRepo.createOrderTable(db);
-      showlog("after creating order tables");
+      AppUtils.showlog("after creating order tables");
 
       await OrderRepo.createOrderProductTable(db);
-      showlog("after creating orderProduct tables");
+      AppUtils.showlog("after creating orderProduct tables");
 
       await OrderRepo.createOrderTermsTable(db);
 
       await OrderRepo.createOrderFollowupTable(db);
-      showlog("after creating orderFollowup tables");
+      AppUtils.showlog("after creating orderFollowup tables");
 
       //MARK: Task repo
       await TasksRepo.createTaskTable(db);
-      showlog("after creating task tables");
+      AppUtils.showlog("after creating task tables");
 
       await TasksRepo.createTaskFilesTable(db);
-      showlog("after creating task file tables");
+      AppUtils.showlog("after creating task file tables");
     } catch (e) {
       // Log the error for debugging or report to an error tracking service
-      showlog("Error creating tables: $e");
+      AppUtils.showlog("Error creating tables: $e");
     }
   }
 }

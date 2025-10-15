@@ -1,5 +1,9 @@
 class QuotationProductModel {
   int? id;
+  String? createdBy;
+  String? createdAt;
+  String? updatedBy;
+  String? updatedAt;
   int quotationId;
   int productId;
   int? quantity;
@@ -9,6 +13,10 @@ class QuotationProductModel {
 
   QuotationProductModel({
     this.id,
+    this.createdBy,
+    this.createdAt,
+    this.updatedBy,
+    this.updatedAt,
     required this.quotationId,
     required this.productId,
     this.quantity,
@@ -21,6 +29,10 @@ class QuotationProductModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'createdBy': createdBy,
+      'createdAt': createdAt,
+      'updatedBy': updatedBy,
+      'updatedAt': updatedAt,
       'quotationId': quotationId,
       'productId': productId,
       'quantity': quantity,
@@ -34,6 +46,10 @@ class QuotationProductModel {
   factory QuotationProductModel.fromJson(Map<String, dynamic> json) {
     return QuotationProductModel(
       id: json['id'],
+      createdBy: json['createdBy'],
+      createdAt: json['createdAt'],
+      updatedBy: json['updatedBy'],
+      updatedAt: json['updatedAt'],
       quotationId: json['quotationId'],
       productId: json['productId'],
       quantity: json['quantity'],

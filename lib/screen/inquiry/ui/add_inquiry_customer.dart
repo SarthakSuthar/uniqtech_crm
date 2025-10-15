@@ -31,9 +31,9 @@ class _AddInquiryCustomerState extends State<AddInquiryCustomer> {
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) {
           Get.delete<InquiryController>();
-          showlog("Route popped with result: $result");
+          AppUtils.showlog("Route popped with result: $result");
         } else {
-          showlog("Pop prevented!");
+          AppUtils.showlog("Pop prevented!");
         }
       },
       child: Padding(
@@ -160,7 +160,7 @@ class _AddInquiryCustomerState extends State<AddInquiryCustomer> {
                             if (_formKey.currentState!.validate()) {
                               DefaultTabController.of(context).animateTo(1);
                             }
-                            showlog("Next :: Add inquirt customer");
+                            AppUtils.showlog("Next :: Add inquirt customer");
                           },
                           context: context,
                         ),

@@ -37,7 +37,7 @@ class _QuoteListState extends State<QuoteList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar(title: "Quote"),
-      drawer: const AppDrawer(),
+      drawer: AppDrawer(),
       body: GestureDetector(
         onTap: () {
           noFocus.unfocus();
@@ -74,7 +74,7 @@ class _QuoteListState extends State<QuoteList> {
                     onTap: () {
                       noController.clear();
                       searchController.clear();
-                      showlog("Clear button pressed");
+                      AppUtils.showlog("Clear button pressed");
                     },
                   ),
                 ),
@@ -88,7 +88,7 @@ class _QuoteListState extends State<QuoteList> {
                       } else if (searchController.text.isNotEmpty) {
                         controller.searchResult(searchController.text);
                       }
-                      showlog("search button pressed");
+                      AppUtils.showlog("search button pressed");
                     },
                   ),
                 ),
@@ -118,7 +118,7 @@ class _QuoteListState extends State<QuoteList> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          showlog("Action button pressed");
+          AppUtils.showlog("Action button pressed");
           Get.toNamed(AppRoutes.addQuote, arguments: {'isEdit': false});
         },
         backgroundColor: Theme.of(context).primaryColor,
@@ -179,12 +179,12 @@ class _QuoteListState extends State<QuoteList> {
                 children: [
                   InkWell(
                     onTap: () {
-                      showlog("parsing arguments : $no");
+                      AppUtils.showlog("parsing arguments : $no");
                       Get.toNamed(
                         AppRoutes.addQuote,
                         arguments: {'no': no, 'isEdit': true},
                       );
-                      showlog("edit button taped");
+                      AppUtils.showlog("edit button taped");
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -208,7 +208,7 @@ class _QuoteListState extends State<QuoteList> {
 
                   InkWell(
                     onTap: () async {
-                      showlog("convert to order button taped");
+                      AppUtils.showlog("convert to order button taped");
                       await controller.convertQuotationToOrder(quotationId: no);
                     },
                     child: Container(
@@ -233,7 +233,7 @@ class _QuoteListState extends State<QuoteList> {
 
                   InkWell(
                     onTap: () {
-                      showlog("copy quote button taped");
+                      AppUtils.showlog("copy quote button taped");
                       controller.copyQuotation(quotationId: no);
                     },
                     child: Container(
@@ -258,8 +258,8 @@ class _QuoteListState extends State<QuoteList> {
 
                   InkWell(
                     onTap: () {
-                      showlog("quote followup button taped");
-                      showlog("Quote id passing from list: $no");
+                      AppUtils.showlog("quote followup button taped");
+                      AppUtils.showlog("Quote id passing from list: $no");
                       Get.toNamed(
                         AppRoutes.quotesFollowup,
                         arguments: {'quotationId': no},
@@ -292,7 +292,7 @@ class _QuoteListState extends State<QuoteList> {
                         arguments: {'quotationId': no},
                       );
                       // Get.toNamed(AppRoutes.quotesInvoice);
-                      showlog("print document button taped");
+                      AppUtils.showlog("print document button taped");
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -317,7 +317,7 @@ class _QuoteListState extends State<QuoteList> {
                   InkWell(
                     onTap: () async {
                       await controller.deleteQuotation(id: int.parse(no));
-                      showlog("delete button taped");
+                      AppUtils.showlog("delete button taped");
                     },
                     child: Container(
                       decoration: BoxDecoration(

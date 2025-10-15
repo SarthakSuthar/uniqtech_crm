@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
+import 'package:crm/screen/login/repo/user_repo.dart';
 import 'package:path_provider/path_provider.dart';
 
 class FileHelper {
@@ -19,7 +20,7 @@ class FileHelper {
     String customDirPath = "${appDocDir.path}/DICABS CRM/$folderName";
     Directory customDir = Directory(customDirPath);
 
-    showlog("Saved file path: $customDir");
+    AppUtils.showlog("Saved file path: $customDir");
 
     if (!await customDir.exists()) {
       await customDir.create(recursive: true);
@@ -41,7 +42,13 @@ class FileHelper {
   }
 }
 
-///green coloured log
-void showlog(String msg) {
-  log('\x1B[32m$msg\x1B[0m');
+class AppUtils {
+  static Future<String> uid = (() async {
+    return await UserRepo.getUserId();
+  })();
+
+  ///green coloured log
+  static void showlog(String msg) {
+    log('\x1B[32m$msg\x1B[0m');
+  }
 }

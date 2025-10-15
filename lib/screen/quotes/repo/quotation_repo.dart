@@ -20,7 +20,7 @@ class QuotationRepo {
       await createQuotationFollowupTable(db);
       await createQuotationTermsTable(db);
     } catch (e) {
-      showlog("Error initializing Quotation DB : $e");
+      AppUtils.showlog("Error initializing Quotation DB : $e");
     }
   }
 
@@ -31,7 +31,10 @@ class QuotationRepo {
     await db.execute('''
         CREATE TABLE IF NOT EXISTS $quotationTable (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            uid TEXT,
+            created_by TEXT,
+            created_at TEXT,
+            updated_by TEXT,
+            updated_at TEXT,
             custId INTEGER,
             cust_name1 TEXT,
             cust_name2 TEXT,
@@ -44,7 +47,7 @@ class QuotationRepo {
         )
     ''');
 
-    showlog("Create Quotation Table");
+    AppUtils.showlog("Create Quotation Table");
   }
 
   Future<int> getNextQuotationId() async {
@@ -53,7 +56,7 @@ class QuotationRepo {
       'SELECT MAX(id) as maxId FROM $quotationTable',
     );
     int? maxId = result.first['maxId'] as int?;
-    showlog("MAX id = $maxId");
+    AppUtils.showlog("MAX id = $maxId");
     return (maxId ?? 0) + 1;
   }
 
@@ -119,6 +122,10 @@ class QuotationRepo {
     await db.execute('''
         CREATE TABLE IF NOT EXISTS $quotationProductTable (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            created_by TEXT,
+            created_at TEXT,
+            updated_by TEXT,
+            updated_at TEXT,
             quotationId INTEGER NOT NULL,
             productId INTEGER NOT NULL,
             quantity INTEGER,
@@ -131,7 +138,7 @@ class QuotationRepo {
         )
     ''');
 
-    showlog("Create Quotation Product Table");
+    AppUtils.showlog("Create Quotation Product Table");
   }
 
   ///Insert a new quotation product record into the 'quotationProduct' table
@@ -169,7 +176,7 @@ class QuotationRepo {
         throw Exception('Quotation product not found');
       }
     } catch (e) {
-      showlog("Error on get quotation product by id : $e");
+      AppUtils.showlog("Error on get quotation product by id : $e");
       rethrow;
     }
   }
@@ -186,10 +193,10 @@ class QuotationRepo {
         where: 'id = ?',
         whereArgs: [quotationProduct.id],
       );
-      showlog("quotationProduct updated : $changedRows");
+      AppUtils.showlog("quotationProduct updated : $changedRows");
       return changedRows;
     } catch (e) {
-      showlog("error on update quotation product : $e");
+      AppUtils.showlog("error on update quotation product : $e");
       rethrow;
     }
   }
@@ -212,17 +219,21 @@ class QuotationRepo {
         CREATE TABLE IF NOT EXISTS $quotationFollowupTable (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             quotationId INTEGER NOT NULL,
+            created_by TEXT,
+            created_at TEXT,
+            updated_by TEXT,
+            updated_at TEXT,
             followupDate TEXT,
             followupType TEXT,
             followupStatus TEXT,
             followupRemarks TEXT,
             followupAssignedTo TEXT,
-            isSynced INTEGER,
+            isSynced INTEGER DEFAULT 0,
             FOREIGN KEY (quotationId) REFERENCES $quotationTable(id) ON DELETE CASCADE
         )
     ''');
 
-    showlog("Create Quotation Followup Table");
+    AppUtils.showlog("Create Quotation Followup Table");
   }
 
   /// Inserts a new quotation record into the 'quotation table.
@@ -236,10 +247,10 @@ class QuotationRepo {
         quotationFollowup.toJson(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
-      showlog("quotationFollowup inserted : $changedRows");
+      AppUtils.showlog("quotationFollowup inserted : $changedRows");
       return changedRows;
     } catch (e) {
-      showlog("Error on insert quotation followup : $e");
+      AppUtils.showlog("Error on insert quotation followup : $e");
       rethrow;
     }
   }
@@ -256,10 +267,10 @@ class QuotationRepo {
         where: 'id = ?',
         whereArgs: [quotationFollow.id],
       );
-      showlog("quotationFollowup updated : $changedRows");
+      AppUtils.showlog("quotationFollowup updated : $changedRows");
       return changedRows;
     } catch (e) {
-      showlog("Error on update quotation followup : $e");
+      AppUtils.showlog("Error on update quotation followup : $e");
       rethrow;
     }
   }
@@ -271,7 +282,7 @@ class QuotationRepo {
       final result = await db.query(quotationFollowupTable);
       return result.map((e) => QuotationFollowupModel.fromJson(e)).toList();
     } catch (e) {
-      showlog("Error on get all quotation followups : $e");
+      AppUtils.showlog("Error on get all quotation followups : $e");
       return [];
     }
   }
@@ -292,7 +303,7 @@ class QuotationRepo {
         throw Exception('Quotation followup not found');
       }
     } catch (e) {
-      showlog("error on get quotation followup by id : $e");
+      AppUtils.showlog("error on get quotation followup by id : $e");
       rethrow;
     }
   }
@@ -313,7 +324,7 @@ class QuotationRepo {
         throw Exception('Quotation followup not found');
       }
     } catch (e) {
-      showlog("error on get quotation followup by quotationId : $e");
+      AppUtils.showlog("error on get quotation followup by quotationId : $e");
       rethrow;
     }
   }
@@ -329,14 +340,18 @@ class QuotationRepo {
     CREATE TABLE IF NOT EXISTS $quotationTermsTable (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           quotationId INTEGER,
+          created_by TEXT,
+          created_at TEXT,
+          updated_by TEXT,
+          updated_at TEXT,
           termId INTEGER,
-          isSynced INTEGER
+          isSynced INTEGER DEFAULT 0
       )
   ''');
 
-      showlog("Create Quotation Terms Table");
+      AppUtils.showlog("Create Quotation Terms Table");
     } catch (e) {
-      showlog("Error creating Quotation Terms Table: $e");
+      AppUtils.showlog("Error creating Quotation Terms Table: $e");
     }
   }
 

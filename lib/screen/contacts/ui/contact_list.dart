@@ -38,7 +38,7 @@ class _ContactListState extends State<ContactList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar(title: "Contact"),
-      drawer: const AppDrawer(),
+      drawer: AppDrawer(),
       body: GestureDetector(
         onTap: () {
           noFocus.unfocus();
@@ -79,7 +79,7 @@ class _ContactListState extends State<ContactList> {
                       // controller.searchCustomerResult(searchController.text);
                       controller.searchResult(noController.text);
                       controller.searchResult(searchController.text);
-                      showlog("Clear button pressed");
+                      AppUtils.showlog("Clear button pressed");
                     },
                   ),
                 ),
@@ -93,7 +93,7 @@ class _ContactListState extends State<ContactList> {
                       } else if (searchController.text.isNotEmpty) {
                         controller.searchResult(searchController.text);
                       }
-                      showlog("search button pressed");
+                      AppUtils.showlog("search button pressed");
                     },
                   ),
                 ),
@@ -118,7 +118,7 @@ class _ContactListState extends State<ContactList> {
                       child: ListView.builder(
                         itemCount: controller.filterendList.length,
                         itemBuilder: (context, index) => contactListWidget(
-                          no: controller.filterendList[index].uid ?? '',
+                          no: controller.filterendList[index].id.toString(),
                           customerName:
                               controller.filterendList[index].custName ?? '',
                           email: controller.filterendList[index].email ?? '',
@@ -133,7 +133,7 @@ class _ContactListState extends State<ContactList> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          showlog("Action button pressed");
+          AppUtils.showlog("Action button pressed");
           Get.toNamed(AppRoutes.addContact);
         },
         backgroundColor: Theme.of(context).primaryColor,
@@ -190,32 +190,62 @@ class _ContactListState extends State<ContactList> {
             Positioned(
               right: 5,
               bottom: 5,
-              child: InkWell(
-                onTap: () {
-                  showlog("edit button taped");
-                  //pass uid
-                  //get data for that uid
-                  //maintain status for update or new
-                  Get.toNamed(
-                    AppRoutes.addContact,
-                    arguments: {'isEdit': true, 'uid': no},
-                  );
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Icon(
-                      Icons.edit,
-                      color: Theme.of(context).brightness == Brightness.light
-                          ? Colors.white
-                          : Colors.black,
+              child: Row(
+                children: [
+                  InkWell(
+                    onTap: () {
+                      AppUtils.showlog("edit button taped");
+                      //pass uid
+                      //get data for that uid
+                      //maintain status for update or new
+                      Get.toNamed(
+                        AppRoutes.addContact,
+                        arguments: {'isEdit': true, 'uid': no},
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Icon(
+                          Icons.edit,
+                          color:
+                              Theme.of(context).brightness == Brightness.light
+                              ? Colors.white
+                              : Colors.black,
+                        ),
+                      ),
                     ),
                   ),
-                ),
+
+                  const SizedBox(width: 10),
+
+                  InkWell(
+                    onTap: () {
+                      controller.deleteContact(no);
+                      AppUtils.showlog("delete");
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Icon(
+                          Icons.delete,
+                          color:
+                              Theme.of(context).brightness == Brightness.light
+                              ? Colors.white
+                              : Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

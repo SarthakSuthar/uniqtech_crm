@@ -2,10 +2,8 @@ import 'package:crm/app_const/theme/app_theme.dart';
 import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/routes/app_routes.dart';
 import 'package:crm/screen/login/controller/login_controller.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -133,7 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             InkWell(
                               onTap: () {
                                 Get.toNamed(AppRoutes.forgotPassword);
-                                showlog("Forgot password pressed");
+                                AppUtils.showlog("Forgot password pressed");
                               },
                               child: const Text("Forgot Password?"),
                             ),
@@ -149,7 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           _emailController.text,
                           _passwordController.text,
                         );
-                        showlog("Login in pressed");
+                        AppUtils.showlog("Login in pressed");
                       }
                     },
                     child: Padding(
@@ -206,7 +204,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   // InkWell(
                   //   onTap: () {
-                  //     showlog("Google Sign in pressed");
+                  //     AppUtils.showlog("Google Sign in pressed");
                   //   },
                   //   child: Padding(
                   //     padding: EdgeInsets.all(

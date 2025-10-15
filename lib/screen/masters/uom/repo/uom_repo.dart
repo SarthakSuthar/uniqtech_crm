@@ -28,7 +28,7 @@ class UomRepo {
         conflictAlgorithm: ConflictAlgorithm.ignore,
       );
     } catch (e) {
-      showlog('Error inserting uom: $e');
+      AppUtils.showlog('Error inserting uom: $e');
       rethrow;
     }
   }
@@ -40,7 +40,7 @@ class UomRepo {
       final result = await db.query(table);
       return result.map((e) => UomModel.fromJson(e)).toList();
     } catch (e) {
-      showlog('retrieving uom: $e');
+      AppUtils.showlog('retrieving uom: $e');
       rethrow;
     }
   }
@@ -51,7 +51,7 @@ class UomRepo {
     try {
       await db.delete(table, where: 'id = ?', whereArgs: [id]);
     } catch (e) {
-      showlog('deleting uom: $e');
+      AppUtils.showlog('deleting uom: $e');
       rethrow;
     }
   }

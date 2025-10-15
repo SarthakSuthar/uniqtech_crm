@@ -34,12 +34,13 @@ void main() async {
   // 2. Initialize the database (this will trigger _onCreate if it's the first time).
   // We don't need to store the result, just ensure it's been called.
   await DatabaseHelper().database;
-  showlog("Database Initialized!");
+  AppUtils.showlog("Database Initialized!");
 
   // --- Example Usage of your Repo ---
   // Create a dummy contact
   var newContact = ContactModel(
-    uid: 'dummy-uid-123',
+    createdBy: "dummy",
+    updatedBy: "dummy",
     custName: 'Dummy Customer Inc.',
     address: '123 Main St',
     city: 'Anytown',
@@ -59,16 +60,18 @@ void main() async {
     contEmail: 'john.doe@example.com',
     contMobileNo: '0987654321',
     contPhoneNo: '555-1234',
+    createdAt: DateTime.now().toString(),
+    updatedAt: DateTime.now().toString(),
   );
 
   // Insert it using the repo
   await ContactsRepo.insertContact(newContact);
-  showlog("Dummy contact inserted.");
+  AppUtils.showlog("Dummy contact inserted.");
 
   var uom = UomModel(name: "uom", code: "123");
 
   await UomRepo.insertUom(uom);
-  showlog("Dummy uom inserted.");
+  AppUtils.showlog("Dummy uom inserted.");
 
   var product = ProductModel(
     productCode: "1234",
@@ -79,7 +82,7 @@ void main() async {
   );
 
   await ProductRepo.addProduct(product);
-  showlog("Dummy product inserted.");
+  AppUtils.showlog("Dummy product inserted.");
 
   // ------------------------------------
 

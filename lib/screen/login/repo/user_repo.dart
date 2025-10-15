@@ -18,6 +18,7 @@ class UserRepo {
     await db.execute('''
       CREATE TABLE IF NOT EXISTS $tableName (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        uid TEXT UNIQUE,
         name TEXT,
         email TEXT UNIQUE,
         photoUrl TEXT
@@ -30,21 +31,22 @@ class UserRepo {
     await db.insert(
       tableName,
       userData.toJson(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
+      conflictAlgorithm: ConflictAlgorithm.ignore,
     );
   }
 
-  Future<UserModel> getUserData() async {
+  static Future<UserModel> getUserData() async {
     try {
       final db = await DatabaseHelper().database;
-      final result = await db.query(tableName);
+      final result = await db.query(tableName, where: 'id = ?', whereArgs: [1]);
+      AppUtils.showlog("getUserData -- user repo : $result");
       if (result.isNotEmpty) {
         return UserModel.fromJson(result.first);
       } else {
         throw Exception('User data not found');
       }
     } catch (e) {
-      showlog("Eooer getting user details ---> $e");
+      AppUtils.showlog("Error getting user details ---> $e");
       rethrow;
     }
   }
@@ -52,9 +54,21 @@ class UserRepo {
   Future<void> deleteUser() async {
     try {
       final db = await DatabaseHelper().database;
-      await db.delete(tableName);
+      final result = await db.delete(tableName);
+      AppUtils.showlog("delete user data : $result");
     } catch (e) {
-      showlog("Error deleting user data: $e");
+      AppUtils.showlog("Error deleting user data: $e");
+    }
+  }
+
+  static Future<String> getUserId() async {
+    try {
+      final uid = await getUserData();
+      AppUtils.showlog("user id : ${uid.uid}");
+      return uid.uid.toString();
+    } catch (e) {
+      AppUtils.showlog("Error getting user id: $e");
+      rethrow;
     }
   }
 }

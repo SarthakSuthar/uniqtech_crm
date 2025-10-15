@@ -74,7 +74,7 @@ Future<void> addNewTerms({
             ),
             ElevatedButton(
               onPressed: () {
-                showlog("Save button pressed");
+                AppUtils.showlog("Save button pressed");
                 if (formKey.currentState!.validate()) {
                   if (titleController.text.trim().isNotEmpty &&
                       descriptionController.text.trim().isNotEmpty) {

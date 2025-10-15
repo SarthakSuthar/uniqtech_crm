@@ -35,17 +35,17 @@ class _AddQuoteCustomerState extends State<AddQuoteCustomer> {
     //     : controller.isEdit = false;
     // widget.no != null ? controller.no = widget.no : controller.no = '';
 
-    showlog("isEdit -----> ${controller.isEdit}");
-    showlog("no -----> ${controller.no}");
+    AppUtils.showlog("isEdit -----> ${controller.isEdit}");
+    AppUtils.showlog("no -----> ${controller.no}");
 
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) {
           Get.delete<QuotesController>();
-          showlog("Route popped with result: $result");
+          AppUtils.showlog("Route popped with result: $result");
         } else {
-          showlog("Pop prevented!");
+          AppUtils.showlog("Pop prevented!");
         }
       },
       child: Padding(
@@ -177,7 +177,7 @@ class _AddQuoteCustomerState extends State<AddQuoteCustomer> {
                           if (_formKey.currentState!.validate()) {
                             DefaultTabController.of(context).animateTo(1);
                           }
-                          showlog("Next :: Add inquirt customer");
+                          AppUtils.showlog("Next :: Add inquirt customer");
                         },
                         context: context,
                       ),

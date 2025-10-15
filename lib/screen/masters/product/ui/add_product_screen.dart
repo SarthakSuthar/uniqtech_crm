@@ -17,7 +17,7 @@ class AddProductScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar(title: "Product"),
-      drawer: const AppDrawer(),
+      drawer: AppDrawer(),
       body: GestureDetector(
         onTap: () => controller.focusNodes.forEach((_, node) => node.unfocus()),
         child: Padding(
@@ -137,7 +137,7 @@ class AddProductScreen extends StatelessWidget {
                   buttonWidget(
                     title: "ADD",
                     onTap: () async {
-                      showlog("ADD: Product");
+                      AppUtils.showlog("ADD: Product");
                       if (_formKey.currentState!.validate()) {
                         await controller.addProduct();
                       }

@@ -11,7 +11,10 @@ String quotationModelToJson(QuotationModel data) => json.encode(data.toJson());
 
 class QuotationModel {
   int? id;
-  String? uid;
+  String? createdBy;
+  String? createdAt;
+  String? updatedBy;
+  String? updatedAt;
   int? custId;
   String? custName1;
   String? custName2;
@@ -24,7 +27,10 @@ class QuotationModel {
 
   QuotationModel({
     this.id,
-    this.uid,
+    this.createdBy,
+    this.createdAt,
+    this.updatedBy,
+    this.updatedAt,
     this.custId,
     this.custName1,
     this.custName2,
@@ -33,12 +39,15 @@ class QuotationModel {
     this.mobileNo,
     this.source,
     this.subject,
-    this.isSynced,
+    this.isSynced = 0,
   });
 
   factory QuotationModel.fromJson(Map<String, dynamic> json) => QuotationModel(
     id: json["id"],
-    uid: json["uid"],
+    createdBy: json["createdBy"],
+    createdAt: json["createdAt"],
+    updatedBy: json["updatedBy"],
+    updatedAt: json["updatedAt"],
     custId: json["custId"],
     custName1: json["cust_name1"],
     custName2: json["cust_name2"],
@@ -52,7 +61,10 @@ class QuotationModel {
 
   Map<String, dynamic> toJson() => {
     "id": id,
-    "uid": uid,
+    "createdBy": createdBy,
+    "createdAt": createdAt,
+    "updatedBy": updatedBy,
+    "updatedAt": updatedAt,
     "custId": custId,
     "cust_name1": custName1,
     "cust_name2": custName2,
