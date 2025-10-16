@@ -346,6 +346,8 @@ class OrderController extends GetxController {
       final custName = selectedCustomer.value;
       final custId = customerList[custName];
 
+      uid ??= await AppUtils.uid;
+
       AppUtils.showlog("custName : $custName");
       AppUtils.showlog("custId : $custId");
 
@@ -356,7 +358,7 @@ class OrderController extends GetxController {
         updatedAt: DateTime.now().toString(),
         custId: int.parse(custId ?? ''),
         custName1: selectedCustomer.value,
-        custName2: controllers["name2"]!.text,
+        // custName2: controllers["name2"]!.text,
         date: controllers["date"]!.text,
         email: controllers["email"]!.text,
         mobileNo: controllers["mobile"]!.text,
@@ -511,13 +513,15 @@ class OrderController extends GetxController {
       AppUtils.showlog("custName : $custName");
       AppUtils.showlog("custId : $custId");
 
+      uid ??= await AppUtils.uid;
+
       final order = OrderModel(
         id: orderId,
         updatedBy: uid,
         updatedAt: DateTime.now().toString(),
         custId: int.parse(custId ?? ''),
         custName1: selectedCustomer.value,
-        custName2: "controllers['name2']!.text",
+        // custName2: "controllers['name2']!.text",
         date: controllers['date']!.text,
         email: controllers['email']!.text,
         mobileNo: controllers['mobile']!.text,
@@ -527,6 +531,7 @@ class OrderController extends GetxController {
         extraDiscount: double.parse(controllers['extra_discount']!.text),
         freightAmount: controllers['freight_amount']!.text,
         loadingCharges: controllers['loading_charges']!.text,
+        isSynced: 0,
       );
       AppUtils.showlog("update order ----> ${order.toJson()}");
       int result = await OrderRepo.updateOrder(order);
@@ -611,6 +616,7 @@ class OrderController extends GetxController {
       return OrderTermsModel(
         orderId: int.parse(controllers['num']!.text),
         termId: term.id,
+        isSynced: 0,
       );
     }).toList();
 

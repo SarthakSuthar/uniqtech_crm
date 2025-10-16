@@ -3,7 +3,7 @@ class TasksModel {
   final String date;
   final String description;
   final String work;
-  final int assignedTo;
+  final double assignedTo;
   final String? filePath;
   final int isSynced;
 

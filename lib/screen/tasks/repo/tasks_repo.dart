@@ -1,6 +1,8 @@
 import 'package:crm/app_const/utils/app_utils.dart';
+import 'package:crm/app_const/widgets/app_snackbars.dart';
 import 'package:crm/screen/tasks/model/task_files_model.dart';
 import 'package:crm/screen/tasks/model/tasks_model.dart';
+import 'package:crm/services/firestore_sync.dart';
 import 'package:crm/services/local_db.dart';
 import 'package:sqflite/sqlite_api.dart';
 
@@ -198,5 +200,36 @@ class TasksRepo {
       AppUtils.showlog("Error updating task file: $e");
       rethrow;
     }
+  }
+
+  //---------------------------------------------------------------------------------------
+  // ---------------------- MARK: upload to firestore
+  //---------------------------------------------------------------------------------------
+
+  Future<void> syncTasksToFirestore() async {
+    try {
+      await uploadToFirestore();
+      AppUtils.showlog("Tasks : After uploadToFirestore");
+
+      await downloadFromFirestore();
+      AppUtils.showlog("Tasks : After downloadFromFirestore");
+    } catch (e) {
+      AppUtils.showlog("Error syncing Tasks to Firestore: $e");
+      showErrorSnackBar("Error syncing Tasks to cloud");
+    }
+  }
+
+  List<String> taskTableFields = ['date', 'description', 'work', 'assignedTo'];
+
+  Future<void> uploadToFirestore() async {
+    await FirestoreSyncService().uploadTableToFirestore(taskTable);
+  }
+
+  Future<void> downloadFromFirestore() async {
+    await FirestoreSyncService().downloadFromFirestore(
+      taskTable,
+      taskTableFields,
+      createAvailable: false,
+    );
   }
 }

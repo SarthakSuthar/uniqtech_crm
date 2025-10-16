@@ -182,6 +182,8 @@ class TasksController extends GetxController {
     try {
       String filePath = attachedFiles.first;
 
+      String uid = await AppUtils.uid;
+
       controllers['attached']!.text = filePath;
 
       AppUtils.showlog("selected type of work : ${selectedTypeOfWork.value}");
@@ -190,7 +192,7 @@ class TasksController extends GetxController {
         date: controllers['date']!.text,
         description: controllers['taskDiscription']!.text,
         work: selectedTypeOfWork.value,
-        assignedTo: 0,
+        assignedTo: double.parse(uid),
         // assignedTo: int.parse(controllers['assignedTo']!.text),
         filePath: controllers['attached']!.text,
       );
@@ -254,13 +256,15 @@ class TasksController extends GetxController {
   // update task
   Future<void> updateTask() async {
     try {
+      String uid = await AppUtils.uid;
+
       AppUtils.showlog("selected type of work : ${selectedTypeOfWork.value}");
       final task = TasksModel(
         id: int.parse(controllers['no']!.text),
         date: controllers['date']!.text,
         description: controllers['taskDiscription']!.text,
         work: selectedTypeOfWork.value,
-        assignedTo: 0,
+        assignedTo: double.parse(uid),
         filePath: controllers['attached']!.text,
       );
       AppUtils.showlog("update task ----> ${task.toMap()}");

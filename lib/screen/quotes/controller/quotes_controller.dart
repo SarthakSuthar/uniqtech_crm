@@ -806,14 +806,14 @@ class QuotesController extends GetxController {
       await convertQuotationToOrderTerms(quotationTermsList);
 
       //quotation to order followup
-      final quotationFollowupList =
-          await QuotationRepo.getQuotationFollowupListByQuotationId(
-            int.parse(quotationId),
-          );
-      AppUtils.showlog(
-        "quotation followup list : ${quotationFollowupList.map((e) => e.toJson()).toList()}",
-      );
-      await convertQuotationToOrderFollowup(quotationFollowupList);
+      // final quotationFollowupList =
+      //     await QuotationRepo.getQuotationFollowupListByQuotationId(
+      //       int.parse(quotationId),
+      //     );
+      // AppUtils.showlog(
+      //   "quotation followup list : ${quotationFollowupList.map((e) => e.toJson()).toList()}",
+      // );
+      // await convertQuotationToOrderFollowup(quotationFollowupList);
       showSuccessSnackBar("Quotation converted to order successfully");
     } catch (e) {
       showErrorSnackBar("Error converting quotation to order");

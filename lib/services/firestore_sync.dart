@@ -7,7 +7,9 @@ import 'package:crm/screen/inquiry/repo/inquiry_repo.dart';
 import 'package:crm/screen/masters/product/repo/product_repo.dart';
 import 'package:crm/screen/masters/terms/repo/terms_repo.dart';
 import 'package:crm/screen/masters/uom/repo/uom_repo.dart';
+import 'package:crm/screen/orders/repo/order_repo.dart';
 import 'package:crm/screen/quotes/repo/quotation_repo.dart';
+import 'package:crm/screen/tasks/repo/tasks_repo.dart';
 import 'package:crm/services/local_db.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -81,6 +83,12 @@ Future<void> syncToCloud({required BuildContext context}) async {
     //MARK: Quotation
     await QuotationRepo().syncQuotationToFirestore();
 
+    //MARK: Order
+    await OrderRepo().syncOrderToFirestore();
+
+    //MARK: Tasks
+    await TasksRepo().syncTasksToFirestore();
+
     if (context.mounted) {
       Get.back(); // Close loading dialog
       showSuccessSnackBar("Data synced successfully.");
@@ -145,7 +153,7 @@ class FirestoreSyncService {
               .set(firestoreData);
         } catch (e) {
           AppUtils.showlog(
-            "❌ Failed to upload record ${record['id']} in $table: $e",
+            "Failed to upload record ${record['id']} in $table: $e",
           );
         }
       }
@@ -168,7 +176,7 @@ class FirestoreSyncService {
           await db.delete(table, where: 'id = ?', whereArgs: [record['id']]);
         } catch (e) {
           AppUtils.showlog(
-            "❌ Failed to delete record ${record['id']} in $table: $e",
+            "Failed to delete record ${record['id']} in $table: $e",
           );
         }
       }
@@ -179,7 +187,11 @@ class FirestoreSyncService {
     }
   }
 
-  Future<void> downloadFromFirestore(String table, List<String> fields) async {
+  Future<void> downloadFromFirestore(
+    String table,
+    List<String> fields, {
+    bool createAvailable = true,
+  }) async {
     final db = await DatabaseHelper().database;
 
     final snapshot = await _firestore.collection(table).get();
@@ -195,14 +207,21 @@ class FirestoreSyncService {
       );
 
       if (local.isEmpty) {
-        await db.insert(table, {
-          'created_by': data['created_by'],
-          'updated_by': data['updated_by'],
-          'created_at': data['created_at'],
-          'updated_at': data['updated_at'],
-          for (var field in fields) field: data[field],
-          'isSynced': 1,
-        }, conflictAlgorithm: ConflictAlgorithm.ignore);
+        if (!createAvailable) {
+          await db.insert(table, {
+            for (var field in fields) field: data[field],
+            'isSynced': 1,
+          }, conflictAlgorithm: ConflictAlgorithm.ignore);
+        } else {
+          await db.insert(table, {
+            'created_by': data['created_by'],
+            'updated_by': data['updated_by'],
+            'created_at': data['created_at'],
+            'updated_at': data['updated_at'],
+            for (var field in fields) field: data[field],
+            'isSynced': 1,
+          }, conflictAlgorithm: ConflictAlgorithm.ignore);
+        }
       } else {
         await db.update(
           table,

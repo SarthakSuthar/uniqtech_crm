@@ -6,7 +6,7 @@ class OrderModel {
   String? updatedBy;
   int? custId;
   String? custName1;
-  String? custName2;
+  // String? custName2;
   String? date;
   String? email;
   String? mobileNo;
@@ -26,7 +26,7 @@ class OrderModel {
     this.updatedBy,
     this.custId,
     this.custName1,
-    this.custName2,
+    // this.custName2,
     this.date,
     this.email,
     this.mobileNo,
@@ -49,7 +49,7 @@ class OrderModel {
       'updated_by': updatedBy,
       'custId': custId,
       'cust_name1': custName1,
-      'cust_name2': custName2,
+      // 'cust_name2': custName2,
       'date': date,
       'email': email,
       'mobile_no': mobileNo,
@@ -73,7 +73,7 @@ class OrderModel {
       updatedBy: json['updated_by'],
       custId: json['custId'],
       custName1: json['cust_name1'],
-      custName2: json['cust_name2'],
+      // custName2: json['cust_name2'],
       date: json['date'],
       email: json['email'],
       mobileNo: json['mobile_no'],
@@ -89,6 +89,6 @@ class OrderModel {
 
   @override
   String toString() {
-    return 'OrderModel(id: $id,  custId: $custId, custName1: $custName1, custName2: $custName2, date: $date, email: $email, mobileNo: $mobileNo, source: $source, supplierRef: $supplierRef, otherRef: $otherRef, extraDiscount: $extraDiscount, freightAmount: $freightAmount, loadingCharges: $loadingCharges, isSynced: $isSynced)';
+    return 'OrderModel(id: $id,  custId: $custId, custName1: $custName1, date: $date, email: $email, mobileNo: $mobileNo, source: $source, supplierRef: $supplierRef, otherRef: $otherRef, extraDiscount: $extraDiscount, freightAmount: $freightAmount, loadingCharges: $loadingCharges, isSynced: $isSynced)';
   }
 }

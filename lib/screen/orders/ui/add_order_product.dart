@@ -182,12 +182,11 @@ class _AddOrderProductState extends State<AddOrderProduct> {
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
-              if (_formKey.currentState!.validate()) {
-                controller.isEdit == true
-                    ? controller.updateOrder()
-                    : controller.submitQuotation();
-              }
-              AppUtils.showlog("Inquiry Action button pressed");
+              controller.isEdit == true
+                  ? controller.updateOrder()
+                  : controller.submitQuotation();
+
+              AppUtils.showlog("Order Action button pressed");
             },
             backgroundColor: Theme.of(context).primaryColor,
             child: Text(

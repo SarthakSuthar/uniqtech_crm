@@ -1,8 +1,10 @@
 import 'package:crm/app_const/utils/app_utils.dart';
+import 'package:crm/app_const/widgets/app_snackbars.dart';
 import 'package:crm/screen/orders/models/order_followuo_model.dart';
 import 'package:crm/screen/orders/models/order_model.dart';
 import 'package:crm/screen/orders/models/order_product_model.dart';
 import 'package:crm/screen/orders/models/order_terms_model.dart';
+import 'package:crm/services/firestore_sync.dart';
 import 'package:crm/services/local_db.dart';
 import 'package:crm/services/shred_pref.dart';
 import 'package:sqflite/sqlite_api.dart';
@@ -25,7 +27,6 @@ class OrderRepo {
     updated_by TEXT,
     custId INTEGER,
     cust_name1 TEXT,
-    cust_name2 TEXT,
     date TEXT,
     email TEXT,
     mobile_no TEXT,
@@ -48,7 +49,7 @@ class OrderRepo {
     int newId = await db.insert(
       orderTable,
       order.toJson(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
+      conflictAlgorithm: ConflictAlgorithm.ignore,
     );
 
     await SharedPrefHelper.setInt('lastOrderId', newId);
@@ -87,7 +88,14 @@ class OrderRepo {
   ///delete a order record from [orderTable]
   static Future<int> deleteOrder(int id) async {
     Database db = await DatabaseHelper().database;
-    return await db.delete(orderTable, where: 'id = ?', whereArgs: [id]);
+    // return await db.delete(orderTable, where: 'id = ?', whereArgs: [id]);
+
+    return await db.update(
+      orderTable,
+      {'isSynced': 2},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
   ///update an existing order from [orderTable]
@@ -184,8 +192,15 @@ class OrderRepo {
   ///Deletes an orderrecord by its ID from the 'orderProducttable.
   static Future<int> deleteOrderProduct(int orderId) async {
     Database db = await DatabaseHelper().database;
-    return db.delete(
+    // return db.delete(
+    //   orderProductTable,
+    //   where: 'orderId = ?',
+    //   whereArgs: [orderId],
+    // );
+
+    return await db.update(
       orderProductTable,
+      {'isSynced': 2},
       where: 'orderId = ?',
       whereArgs: [orderId],
     );
@@ -219,8 +234,15 @@ class OrderRepo {
   ///delee a term id
   static Future<int> getDeletedTerms(int orderId) async {
     Database db = await DatabaseHelper().database;
-    final result = await db.delete(
+    // final result = await db.delete(
+    //   orderTermsTable,
+    //   where: 'orderId = ?',
+    //   whereArgs: [orderId],
+    // );
+
+    final result = await db.update(
       orderTermsTable,
+      {'isSynced': 2},
       where: 'orderId = ?',
       whereArgs: [orderId],
     );
@@ -349,11 +371,82 @@ class OrderRepo {
     }
   }
 
-  ///delete
-
   //---------------------------------------------------------------------------------------
   // ---------------------- MARK: upload to firestore
   //---------------------------------------------------------------------------------------
 
-  //TODO: upload order
+  Future<void> syncOrderToFirestore() async {
+    try {
+      await uploadToFirestore();
+      AppUtils.showlog("Order : After uploadToFirestore");
+
+      await downloadFromFirestore();
+      AppUtils.showlog("Order : After downloadFromFirestore");
+    } catch (e) {
+      AppUtils.showlog("Error syncing Order to Firestore: $e");
+      showErrorSnackBar("Error syncing Order to cloud");
+    }
+  }
+
+  List<String> orderTableFields = [
+    'custId',
+    'cust_name1',
+    'date',
+    'email',
+    'mobile_no',
+    'source',
+    'supplier_ref',
+    'other_ref',
+    'extra_discount',
+    'freight_amount',
+    'loading_charges',
+  ];
+  List<String> orderProductTableFields = [
+    'orderId',
+    'productId',
+    'quantity',
+    'discount',
+    'remark',
+  ];
+  List<String> orderTermsTableFields = ['orderId', 'termId'];
+
+  List<String> orderFollowupTableFields = [
+    'orderId',
+    'followupDate',
+    'followupType',
+    'followupStatus',
+    'followupRemarks',
+    'followupAssignedTo',
+  ];
+
+  Future<void> uploadToFirestore() async {
+    await FirestoreSyncService().uploadTableToFirestore(orderTable);
+    await FirestoreSyncService().uploadTableToFirestore(orderProductTable);
+    await FirestoreSyncService().uploadTableToFirestore(orderTermsTable);
+    // await FirestoreSyncService().uploadTableToFirestore(orderFollowupTable);
+  }
+
+  Future<void> downloadFromFirestore() async {
+    await FirestoreSyncService().downloadFromFirestore(
+      orderTable,
+      orderTableFields,
+    );
+
+    await FirestoreSyncService().downloadFromFirestore(
+      orderProductTable,
+      orderProductTableFields,
+      createAvailable: false,
+    );
+
+    await FirestoreSyncService().downloadFromFirestore(
+      orderTermsTable,
+      orderTermsTableFields,
+      createAvailable: false,
+    );
+
+    // await FirestoreSyncService().downloadFromFirestore(
+    //   orderFollowupTable,
+    //   orderFollowupTableFields,
+    // );
+  }
 }
