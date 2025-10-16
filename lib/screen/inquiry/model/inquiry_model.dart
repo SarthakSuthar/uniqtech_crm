@@ -15,7 +15,7 @@ class InquiryModel {
   String? updatedBy;
   int? custId;
   String? custName1;
-  String? custName2;
+  // String? custName2;
   String? date;
   String? email;
   String? mobileNo;
@@ -30,7 +30,7 @@ class InquiryModel {
     this.updatedBy,
     this.custId,
     this.custName1,
-    this.custName2,
+    // this.custName2,
     this.date,
     this.email,
     this.mobileNo,
@@ -46,7 +46,7 @@ class InquiryModel {
     updatedBy: json["updated_by"],
     custId: json["custId"],
     custName1: json["cust_name1"],
-    custName2: json["cust_name2"],
+    // custName2: json["cust_name2"],
     date: json["date"],
     email: json["email"],
     mobileNo: json["mobile_no"],
@@ -62,7 +62,7 @@ class InquiryModel {
     "updated_by": updatedBy,
     "custId": custId,
     "cust_name1": custName1,
-    "cust_name2": custName2,
+    // "cust_name2": custName2,
     "date": date,
     "email": email,
     "mobile_no": mobileNo,

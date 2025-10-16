@@ -27,10 +27,10 @@ class InquiryProductModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'createdBy': createdBy,
-      'updatedBy': updatedBy,
-      'createdAt': createdAt,
-      'updatedAt': updatedAt,
+      'created_by': createdBy,
+      'updated_by': updatedBy,
+      'created_at': createdAt,
+      'updated_at': updatedAt,
       'inquiryId': inquiryId,
       'productId': productId,
       'quantity': quantity,
@@ -43,10 +43,10 @@ class InquiryProductModel {
   factory InquiryProductModel.fromJson(Map<String, dynamic> json) {
     return InquiryProductModel(
       id: json['id'],
-      createdBy: json['createdBy'],
-      updatedBy: json['updatedBy'],
-      createdAt: json['createdAt'],
-      updatedAt: json['updatedAt'],
+      createdBy: json["created_by"],
+      updatedBy: json["updated_by"],
+      createdAt: json['created_at'],
+      updatedAt: json['updated_at'],
       inquiryId: json['inquiryId'],
       productId: json['productId'],
       quantity: json['quantity'],

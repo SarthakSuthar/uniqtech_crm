@@ -38,51 +38,51 @@ void main() async {
 
   // --- Example Usage of your Repo ---
   // Create a dummy contact
-  var newContact = ContactModel(
-    createdBy: "dummy",
-    updatedBy: "dummy",
-    custName: 'Dummy Customer Inc.',
-    address: '123 Main St',
-    city: 'Anytown',
-    state: 'Anystate',
-    district: 'Anydistrict',
-    country: 'USA',
-    pincode: '12345',
-    mobileNo: '1234567890',
-    email: 'dummy@example.com',
-    website: 'www.dummy.com',
-    businessType: 'Software',
-    industryType: 'IT',
-    status: 'Active',
-    contactName: 'John Doe',
-    department: 'Sales',
-    designation: 'Manager',
-    contEmail: 'john.doe@example.com',
-    contMobileNo: '0987654321',
-    contPhoneNo: '555-1234',
-    createdAt: DateTime.now().toString(),
-    updatedAt: DateTime.now().toString(),
-  );
+  // var newContact = ContactModel(
+  //   createdBy: "dummy",
+  //   updatedBy: "dummy",
+  //   custName: 'Dummy Customer Inc.',
+  //   address: '123 Main St',
+  //   city: 'Anytown',
+  //   state: 'Anystate',
+  //   district: 'Anydistrict',
+  //   country: 'USA',
+  //   pincode: '12345',
+  //   mobileNo: '1234567890',
+  //   email: 'dummy@example.com',
+  //   website: 'www.dummy.com',
+  //   businessType: 'Software',
+  //   industryType: 'IT',
+  //   status: 'Active',
+  //   contactName: 'John Doe',
+  //   department: 'Sales',
+  //   designation: 'Manager',
+  //   contEmail: 'john.doe@example.com',
+  //   contMobileNo: '0987654321',
+  //   contPhoneNo: '555-1234',
+  //   createdAt: DateTime.now().toString(),
+  //   updatedAt: DateTime.now().toString(),
+  // );
 
   // Insert it using the repo
-  await ContactsRepo.insertContact(newContact);
-  AppUtils.showlog("Dummy contact inserted.");
+  // await ContactsRepo.insertContact(newContact);
+  // AppUtils.showlog("Dummy contact inserted.");
 
-  var uom = UomModel(name: "uom", code: "123");
+  // var uom = UomModel(name: "uom", code: "123");
 
-  await UomRepo.insertUom(uom);
-  AppUtils.showlog("Dummy uom inserted.");
+  // await UomRepo.insertUom(uom);
+  // AppUtils.showlog("Dummy uom inserted.");
 
-  var product = ProductModel(
-    productCode: "1234",
-    productName: "prod",
-    productUom: "uom",
-    productRate: "123",
-    productDescription: "desc",
-  );
+  // var product = ProductModel(
+  //   productCode: "1234",
+  //   productName: "prod",
+  //   productUom: "uom",
+  //   productRate: "123",
+  //   productDescription: "desc",
+  // );
 
-  await ProductRepo.addProduct(product);
-  AppUtils.showlog("Dummy product inserted.");
+  // await ProductRepo.addProduct(product);
+  // AppUtils.showlog("Dummy product inserted.");
 
   // ------------------------------------
 

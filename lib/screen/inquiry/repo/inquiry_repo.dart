@@ -4,6 +4,7 @@ import 'package:crm/app_const/widgets/app_snackbars.dart';
 import 'package:crm/screen/inquiry/model/inquiry_followup_model.dart';
 import 'package:crm/screen/inquiry/model/inquiry_model.dart';
 import 'package:crm/screen/inquiry/model/inquiry_product_model.dart';
+import 'package:crm/services/firestore_sync.dart';
 import 'package:crm/services/local_db.dart';
 import 'package:sqflite/sqlite_api.dart';
 
@@ -31,7 +32,6 @@ class InquiryRepo {
             updated_by TEXT,
             custId INTEGER,
             cust_name1 TEXT,
-            cust_name2 TEXT,
             date TEXT,
             email TEXT,
             mobile_no TEXT,
@@ -64,7 +64,11 @@ class InquiryRepo {
   /// Retrieves all inquiry records from the 'inquiry' table.
   static Future<List<InquiryModel>> getAllInquiries() async {
     Database db = await DatabaseHelper().database;
-    final result = await db.query(table);
+    final result = await db.query(
+      table,
+      where: 'isSynced != ?',
+      whereArgs: [2],
+    );
     return result.map((e) => InquiryModel.fromJson(e)).toList();
   }
 
@@ -138,7 +142,11 @@ class InquiryRepo {
   /// Retrieves all inquiry product records from the 'inquiryProduct' table.
   static Future<List<InquiryProductModel>> getAllInquiryProducts() async {
     Database db = await DatabaseHelper().database;
-    final result = await db.query(inquiryProductTable);
+    final result = await db.query(
+      inquiryProductTable,
+      where: 'isSynced != ?',
+      whereArgs: [2],
+    );
     return result.map((e) => InquiryProductModel.fromJson(e)).toList();
   }
 
@@ -186,8 +194,15 @@ class InquiryRepo {
   /// Deletes an inquiry product record by its ID from the 'inquiryProduct' table.
   static Future<int> deleteInquiryProduct(int inquiryId) async {
     Database db = await DatabaseHelper().database;
-    return db.delete(
+    // return db.delete(
+    //   inquiryProductTable,
+    //   where: 'inquiryId = ?',
+    //   whereArgs: [inquiryId],
+    // );
+
+    return await db.update(
       inquiryProductTable,
+      {'isSynced': 2},
       where: 'inquiryId = ?',
       whereArgs: [inquiryId],
     );
@@ -258,7 +273,11 @@ class InquiryRepo {
   static Future<List<InquiryFollowupModel>> getAllInquiryFollowups() async {
     try {
       Database db = await DatabaseHelper().database;
-      final result = await db.query(inquiryFollowupTable);
+      final result = await db.query(
+        inquiryFollowupTable,
+        where: 'isSynced != ?',
+        whereArgs: [2],
+      );
       return result.map((e) => InquiryFollowupModel.fromJson(e)).toList();
     } catch (e) {
       AppUtils.showlog("error on get all inquiry followups : $e");
@@ -313,28 +332,318 @@ class InquiryRepo {
   // -------------------------------------------------------------------------------------------
   // ------------- MARK: upload to firestore
   // -------------------------------------------------------------------------------------------
-  //TODO: inquiry sync
   final _firestore = FirebaseFirestore.instance;
 
   Future<void> syncInquiryToFirestore() async {
     try {
       await uploadToFirestore();
-      AppUtils.showlog("After uploadToFirestore");
+      AppUtils.showlog("Inquiry : After uploadToFirestore");
 
       await downloadFromFirestore();
-      AppUtils.showlog("After downloadFromFirestore");
+      AppUtils.showlog("Inquiry : After downloadFromFirestore");
     } catch (e) {
-      AppUtils.showlog("Error syncing contacts to Firestore: $e");
-      showErrorSnackBar("Error syncing contacts to cloud");
+      AppUtils.showlog("Error syncing inquiry to Firestore: $e");
+      showErrorSnackBar("Error syncing inquiry to cloud");
     }
   }
 
   Future<void> uploadToFirestore() async {
-    final db = await DatabaseHelper().database;
-
     //upload inquiry list
+    await uploadInquiryToFirestore();
     //upload product list
+    await uploadProductToFirestore();
+    //upload followup list
+    await uploadFollowupToFirestore();
   }
 
-  Future<void> downloadFromFirestore() async {}
+  static const List<String> followUpFields = [
+    'followupDate',
+    'followupType',
+    'followupStatus',
+    'followupRemarks',
+    'followupAssignedTo',
+  ];
+
+  Future<void> downloadFromFirestore() async {
+    await downloadInquiryFromFirestore();
+    await downloadProductFromFirestore();
+    // await downloadFollowupFromFirestore();
+    await FirestoreSyncService().downloadFromFirestore(
+      inquiryFollowupTable,
+      followUpFields,
+    );
+  }
+
+  Future<void> uploadInquiryToFirestore() async {
+    final db = await DatabaseHelper().database;
+
+    final newRecords = await db.query(
+      table,
+      where: 'isSynced = ?',
+      whereArgs: [0],
+    );
+
+    for (final record in newRecords) {
+      // Prepare Firestore data but override isSynced to 1 for cloud
+      final firestoreData = Map<String, dynamic>.from(record);
+      firestoreData['isSynced'] = 1;
+
+      try {
+        // Upload to Firestore
+        await _firestore
+            .collection(table)
+            .doc(record['id'].toString())
+            .set(firestoreData);
+      } catch (e) {
+        AppUtils.showlog("Failed to sync record ${record['id']} in $table: $e");
+      }
+    }
+
+    final deletedRecords = await db.query(
+      table,
+      where: 'isSynced = ?',
+      whereArgs: [2],
+    );
+
+    for (final record in deletedRecords) {
+      await _firestore.collection(table).doc(record['id'].toString()).delete();
+      await db.delete(table, where: 'id = ?', whereArgs: [record['id']]);
+    }
+  }
+
+  Future<void> uploadProductToFirestore() async {
+    final db = await DatabaseHelper().database;
+
+    final newRecords = await db.query(
+      inquiryProductTable,
+      where: 'isSynced = ?',
+      whereArgs: [0],
+    );
+
+    for (final record in newRecords) {
+      final firestoreData = Map<String, dynamic>.from(record);
+      firestoreData['isSynced'] = 1;
+
+      try {
+        await _firestore
+            .collection(inquiryProductTable)
+            .doc(record['id'].toString())
+            .set(firestoreData);
+      } catch (e) {
+        AppUtils.showlog(
+          "Failed to sync record ${record['id']} in $inquiryProductTable: $e",
+        );
+      }
+    }
+
+    final deleteRecords = await db.query(
+      inquiryProductTable,
+      where: 'isSynced = ?',
+      whereArgs: [2],
+    );
+
+    for (final record in deleteRecords) {
+      await _firestore
+          .collection(inquiryProductTable)
+          .doc(record['id'].toString())
+          .delete();
+      await db.delete(
+        inquiryProductTable,
+        where: 'id = ?',
+        whereArgs: [record['id']],
+      );
+    }
+  }
+
+  Future<void> uploadFollowupToFirestore() async {
+    final db = await DatabaseHelper().database;
+
+    final newRecords = await db.query(
+      inquiryFollowupTable,
+      where: 'isSynced = ?',
+      whereArgs: [0],
+    );
+
+    for (final record in newRecords) {
+      final firestoreData = Map<String, dynamic>.from(record);
+      firestoreData['isSynced'] = 1;
+
+      try {
+        await _firestore
+            .collection(inquiryFollowupTable)
+            .doc(record['id'].toString())
+            .set(firestoreData);
+      } catch (e) {
+        AppUtils.showlog(
+          "Failed to sync record ${record['id']} in $inquiryFollowupTable: $e",
+        );
+      }
+    }
+
+    final deleteRecords = await db.query(
+      inquiryFollowupTable,
+      where: 'isSynced = ?',
+      whereArgs: [2],
+    );
+
+    for (final record in deleteRecords) {
+      await _firestore
+          .collection(inquiryFollowupTable)
+          .doc(record['id'].toString())
+          .delete();
+      await db.delete(
+        inquiryFollowupTable,
+        where: 'id = ?',
+        whereArgs: [record['id']],
+      );
+    }
+  }
+
+  Future<void> downloadInquiryFromFirestore() async {
+    final db = await DatabaseHelper().database;
+
+    final snapshot = await _firestore.collection(table).get();
+    final firestoreDocs = snapshot.docs;
+
+    for (final doc in firestoreDocs) {
+      final data = doc.data();
+
+      final local = await db.query(
+        table,
+        where: 'id = ?',
+        whereArgs: [data['id']],
+      );
+
+      if (local.isEmpty) {
+        await db.insert(table, {
+          'created_by': data['created_by'],
+          'updated_by': data['updated_by'],
+          'custId': data['custId'],
+          'cust_name1': data['cust_name1'],
+          'date': data['date'],
+          'email': data['email'],
+          'mobile_no': data['mobile_no'],
+          'source': data['source'],
+          'created_at': data['created_at'],
+          'updated_at': data['updated_at'],
+          'isSynced': 1,
+        });
+      } else {
+        await db.update(
+          table,
+          {
+            'created_by': data['created_by'],
+            'updated_by': data['updated_by'],
+            'custId': data['custId'],
+            'cust_name1': data['cust_name1'],
+            'date': data['date'],
+            'email': data['email'],
+            'mobile_no': data['mobile_no'],
+            'source': data['source'],
+            'created_at': data['created_at'],
+            'updated_at': data['updated_at'],
+            'isSynced': 1,
+          },
+          where: 'id = ?',
+          whereArgs: [data['id']],
+        );
+      }
+    }
+  }
+
+  Future<void> downloadProductFromFirestore() async {
+    final db = await DatabaseHelper().database;
+
+    final snapshot = await _firestore.collection(inquiryProductTable).get();
+    final firestoreDocs = snapshot.docs;
+
+    for (final doc in firestoreDocs) {
+      final data = doc.data();
+
+      final local = await db.query(
+        inquiryProductTable,
+        where: 'id = ?',
+        whereArgs: [data['id']],
+      );
+
+      if (local.isEmpty) {
+        await db.insert(inquiryProductTable, {
+          'created_by': data['created_by'],
+          'updated_by': data['updated_by'],
+          'inquiryId': data['inquiryId'],
+          'productId': data['productId'],
+          'quantity': data['quantity'],
+          'remark': data['remark'],
+          'created_at': data['created_at'],
+          'updated_at': data['updated_at'],
+          'isSynced': 1,
+        });
+      } else {
+        await db.update(
+          inquiryProductTable,
+          {
+            'created_by': data['created_by'],
+            'updated_by': data['updated_by'],
+            'inquiryId': data['inquiryId'],
+            'productId': data['productId'],
+            'quantity': data['quantity'],
+            'remark': data['remark'],
+            'created_at': data['created_at'],
+            'updated_at': data['updated_at'],
+            'isSynced': 1,
+          },
+          where: 'id = ?',
+          whereArgs: [data['id']],
+        );
+      }
+    }
+  }
+
+  Future<void> downloadFollowupFromFirestore() async {
+    final db = await DatabaseHelper().database;
+
+    final snapshot = await _firestore.collection(inquiryFollowupTable).get();
+    final firestoreDocs = snapshot.docs;
+
+    for (final doc in firestoreDocs) {
+      final data = doc.data();
+
+      final local = await db.query(
+        inquiryFollowupTable,
+        where: 'id = ?',
+        whereArgs: [data['id']],
+      );
+
+      if (local.isEmpty) {
+        await db.insert(inquiryFollowupTable, {
+          'created_by': data['created_by'],
+          'updated_by': data['updated_by'],
+          'inquiryId': data['inquiryId'],
+          'productId': data['productId'],
+          'quantity': data['quantity'],
+          'remark': data['remark'],
+          'created_at': data['created_at'],
+          'updated_at': data['updated_at'],
+          'isSynced': 1,
+        });
+      } else {
+        await db.update(
+          inquiryFollowupTable,
+          {
+            'created_by': data['created_by'],
+            'updated_by': data['updated_by'],
+            'inquiryId': data['inquiryId'],
+            'productId': data['productId'],
+            'quantity': data['quantity'],
+            'remark': data['remark'],
+            'created_at': data['created_at'],
+            'updated_at': data['updated_at'],
+            'isSynced': 1,
+          },
+          where: 'id = ?',
+          whereArgs: [data['id']],
+        );
+      }
+    }
+  }
 }

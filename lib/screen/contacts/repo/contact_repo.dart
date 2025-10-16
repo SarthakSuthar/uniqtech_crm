@@ -5,6 +5,7 @@ import 'package:crm/screen/contacts/model/contact_model.dart';
 import 'package:crm/services/local_db.dart';
 import 'package:sqflite/sqlite_api.dart';
 
+//TODO: add email warning -- if email exist warn on ui
 class ContactsRepo {
   static const String table = 'contact';
 
@@ -114,15 +115,17 @@ class ContactsRepo {
   // --------------  MARK: upload to firestore
   //--------------------------------------------------------------------------
 
+  //TODO: check ignore/replace conflict
+
   final _firestore = FirebaseFirestore.instance;
 
   Future<void> syncContactsToFirestore() async {
     try {
       await uploadToFirestore();
-      AppUtils.showlog("After uploadToFirestore");
+      AppUtils.showlog("Contact : After uploadToFirestore");
 
       await downloadFromFirestore();
-      AppUtils.showlog("After downloadFromFirestore");
+      AppUtils.showlog("Contact : After downloadFromFirestore");
     } catch (e) {
       AppUtils.showlog("Error syncing contacts to Firestore: $e");
       showErrorSnackBar("Error syncing contacts to cloud");
@@ -224,7 +227,7 @@ class ContactsRepo {
           'created_at': data['created_at'],
           'updated_at': data['updated_at'],
           'isSynced': 1,
-        });
+        }, conflictAlgorithm: ConflictAlgorithm.ignore);
       } else {
         // Update local record if Firestore version is newer
         await db.update(

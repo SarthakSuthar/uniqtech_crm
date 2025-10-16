@@ -73,16 +73,16 @@ class DatabaseHelper {
       AppUtils.showlog("after creating uom table");
 
       //MARK: Inquiry Tables
-      // await InquiryRepo.createInquiryTable(db);
-      // AppUtils.showlog("after creating inquiry table");
+      await InquiryRepo.createInquiryTable(db);
+      AppUtils.showlog("after creating inquiry table");
 
-      // await InquiryRepo.createinquiryProductTable(db);
-      // AppUtils.showlog("after creating inquiryProduct table");
+      await InquiryRepo.createinquiryProductTable(db);
+      AppUtils.showlog("after creating inquiryProduct table");
 
-      // await InquiryRepo.createInquiryFollowupTable(db);
-      // AppUtils.showlog("after creating inquiryFollowup table");
+      await InquiryRepo.createInquiryFollowupTable(db);
+      AppUtils.showlog("after creating inquiryFollowup table");
 
-      await InquiryRepo.initializeInquiryDB(db);
+      // await InquiryRepo.initializeInquiryDB(db);
 
       //MARK: Quatation Tables
       await QuotationRepo.createQuotationTable(db);

@@ -1,8 +1,10 @@
 import 'package:crm/app_const/utils/app_utils.dart';
+import 'package:crm/app_const/widgets/app_snackbars.dart';
 import 'package:crm/screen/quotes/model/quotation_followup_model.dart';
 import 'package:crm/screen/quotes/model/quotation_model.dart';
 import 'package:crm/screen/quotes/model/quotation_product_model.dart';
 import 'package:crm/screen/quotes/model/quotation_terms_model.dart';
+import 'package:crm/services/firestore_sync.dart';
 import 'package:crm/services/local_db.dart';
 import 'package:sqflite/sqlite_api.dart';
 
@@ -37,7 +39,6 @@ class QuotationRepo {
             updated_at TEXT,
             custId INTEGER,
             cust_name1 TEXT,
-            cust_name2 TEXT,
             date TEXT,
             email TEXT,
             mobile_no TEXT,
@@ -389,5 +390,80 @@ class QuotationRepo {
       whereArgs: [quotationId],
     );
     return result.map((e) => QuotationTermsModel.fromJson(e)).toList();
+  }
+
+  // -------------------------------------------------------------------------------------------
+  // ------------- MARK: upload to firestore
+  // -------------------------------------------------------------------------------------------
+
+  Future<void> syncQuotationToFirestore() async {
+    try {
+      await uploadToFirestore();
+      AppUtils.showlog("Quotation : After uploadToFirestore");
+
+      await downloadFromFirestore();
+      AppUtils.showlog("Quotation : After downloadFromFirestore");
+    } catch (e) {
+      AppUtils.showlog("Error syncing Quotation to Firestore: $e");
+      showErrorSnackBar("Error syncing Quotation to cloud");
+    }
+  }
+
+  Future<void> uploadToFirestore() async {
+    await FirestoreSyncService().uploadTableToFirestore(quotationTable);
+    await FirestoreSyncService().uploadTableToFirestore(quotationProductTable);
+    await FirestoreSyncService().uploadTableToFirestore(quotationFollowupTable);
+    await FirestoreSyncService().uploadTableToFirestore(quotationTermsTable);
+  }
+
+  static const List<String> quotationTableFields = [
+    'custId',
+    'cust_name1',
+    'date',
+    'email',
+    'mobile_no',
+    'source',
+    'subject',
+  ];
+  static const List<String> quotationProductTableFields = [
+    'quotationId',
+    'productId',
+    'quantity',
+    'discount',
+    'remark',
+  ];
+  static const List<String> quotationFollowupTableFields = [
+    'quotationId',
+    'followupDate',
+    'followupType',
+    'followupStatus',
+    'followupRemarks',
+    'followupAssignedTo',
+  ];
+  static const List<String> quotationTermsTableFields = [
+    'quotationId',
+    'termId',
+  ];
+
+  Future<void> downloadFromFirestore() async {
+    await FirestoreSyncService().downloadFromFirestore(
+      quotationTable,
+      quotationTableFields,
+    );
+
+    await FirestoreSyncService().downloadFromFirestore(
+      quotationProductTable,
+      quotationProductTableFields,
+    );
+
+    await FirestoreSyncService().downloadFromFirestore(
+      quotationFollowupTable,
+      quotationFollowupTableFields,
+    );
+
+    await FirestoreSyncService().downloadFromFirestore(
+      quotationTermsTable,
+      quotationTermsTableFields,
+    );
   }
 }

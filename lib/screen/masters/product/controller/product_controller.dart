@@ -64,6 +64,7 @@ class ProductController extends GetxController {
 
   Future<void> addProduct() async {
     try {
+      uid ??= await UserRepo.getUserId();
       final result = await ProductRepo.addProduct(
         ProductModel(
           productName: controllers["product_name"]!.text,

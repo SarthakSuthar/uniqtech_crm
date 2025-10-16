@@ -1,10 +1,17 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/app_const/widgets/app_snackbars.dart';
 import 'package:crm/screen/contacts/repo/contact_repo.dart';
+import 'package:crm/screen/inquiry/repo/inquiry_repo.dart';
 import 'package:crm/screen/masters/product/repo/product_repo.dart';
+import 'package:crm/screen/masters/terms/repo/terms_repo.dart';
+import 'package:crm/screen/masters/uom/repo/uom_repo.dart';
+import 'package:crm/screen/quotes/repo/quotation_repo.dart';
+import 'package:crm/services/local_db.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sqflite/sqlite_api.dart';
 
 Future<bool> hasInternetConnection() async {
   try {
@@ -60,8 +67,19 @@ Future<void> syncToCloud({required BuildContext context}) async {
   );
 
   try {
-    await ContactsRepo().syncContactsToFirestore();
+    //MARK: Masters
     await ProductRepo().syncProductsToFirestore();
+    await TermsRepo().syncTermsToFirestore();
+    await UomRepo().syncUOMToFirestore();
+
+    //MARK: Contacts
+    await ContactsRepo().syncContactsToFirestore();
+
+    //MARK: Inquiry
+    await InquiryRepo().syncInquiryToFirestore();
+
+    //MARK: Quotation
+    await QuotationRepo().syncQuotationToFirestore();
 
     if (context.mounted) {
       Get.back(); // Close loading dialog
@@ -98,5 +116,101 @@ class _SyncingDialog extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class FirestoreSyncService {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  /// Generic method to sync any table with Firestore
+  Future<void> uploadTableToFirestore(String table) async {
+    final db = await DatabaseHelper().database;
+
+    try {
+      // Upload new records (isSynced = 0)
+      final newRecords = await db.query(
+        table,
+        where: 'isSynced = ?',
+        whereArgs: [0],
+      );
+
+      for (final record in newRecords) {
+        final firestoreData = Map<String, dynamic>.from(record);
+        firestoreData['isSynced'] = 1; // Store as synced in Firestore
+
+        try {
+          await _firestore
+              .collection(table)
+              .doc(record['id'].toString())
+              .set(firestoreData);
+        } catch (e) {
+          AppUtils.showlog(
+            "❌ Failed to upload record ${record['id']} in $table: $e",
+          );
+        }
+      }
+
+      // Delete records (isSynced = 2)
+      final deleteRecords = await db.query(
+        table,
+        where: 'isSynced = ?',
+        whereArgs: [2],
+      );
+
+      for (final record in deleteRecords) {
+        try {
+          await _firestore
+              .collection(table)
+              .doc(record['id'].toString())
+              .delete();
+
+          // Also remove from local DB
+          await db.delete(table, where: 'id = ?', whereArgs: [record['id']]);
+        } catch (e) {
+          AppUtils.showlog(
+            "❌ Failed to delete record ${record['id']} in $table: $e",
+          );
+        }
+      }
+
+      AppUtils.showlog("Sync completed for table: $table");
+    } catch (e) {
+      AppUtils.showlog("Error syncing table $table: $e");
+    }
+  }
+
+  Future<void> downloadFromFirestore(String table, List<String> fields) async {
+    final db = await DatabaseHelper().database;
+
+    final snapshot = await _firestore.collection(table).get();
+    final firestoreDocs = snapshot.docs;
+
+    for (var doc in firestoreDocs) {
+      final data = doc.data();
+
+      final local = await db.query(
+        table,
+        where: 'id = ?',
+        whereArgs: [data['id']],
+      );
+
+      if (local.isEmpty) {
+        await db.insert(table, {
+          'created_by': data['created_by'],
+          'updated_by': data['updated_by'],
+          'created_at': data['created_at'],
+          'updated_at': data['updated_at'],
+          for (var field in fields) field: data[field],
+          'isSynced': 1,
+        }, conflictAlgorithm: ConflictAlgorithm.ignore);
+      } else {
+        await db.update(
+          table,
+          {for (var field in fields) field: data[field], 'isSynced': 1},
+          where: 'id = ?',
+          whereArgs: [data['id']],
+        );
+      }
+    }
   }
 }

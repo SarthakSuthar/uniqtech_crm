@@ -34,10 +34,10 @@ class QuotationTermsModel {
   factory QuotationTermsModel.fromJson(Map<String, dynamic> json) =>
       QuotationTermsModel(
         id: json["id"],
-        createdBy: json["createdBy"],
-        createdAt: json["createdAt"],
-        updatedBy: json["updatedBy"],
-        updatedAt: json["updatedAt"],
+        createdBy: json["created_by"],
+        updatedBy: json["updated_by"],
+        createdAt: json["created_at"],
+        updatedAt: json["updated_at"],
         quotationId: json["quotationId"],
         termId: json["termId"],
         isSynced: json["isSynced"] ?? 0,
@@ -45,10 +45,10 @@ class QuotationTermsModel {
 
   Map<String, dynamic> toJson() => {
     "id": id,
-    "createdBy": createdBy,
-    "createdAt": createdAt,
-    "updatedBy": updatedBy,
-    "updatedAt": updatedAt,
+    "created_by": createdBy,
+    "updated_by": updatedBy,
+    "created_at": createdAt,
+    "updated_at": updatedAt,
     "quotationId": quotationId,
     "termId": termId,
     "isSynced": isSynced ?? 0,

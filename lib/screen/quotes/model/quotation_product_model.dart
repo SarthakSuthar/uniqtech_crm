@@ -29,10 +29,10 @@ class QuotationProductModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'createdBy': createdBy,
-      'createdAt': createdAt,
-      'updatedBy': updatedBy,
-      'updatedAt': updatedAt,
+      'created_by': createdBy,
+      'created_at': createdAt,
+      'updated_by': updatedBy,
+      'updated_at': updatedAt,
       'quotationId': quotationId,
       'productId': productId,
       'quantity': quantity,
@@ -46,10 +46,10 @@ class QuotationProductModel {
   factory QuotationProductModel.fromJson(Map<String, dynamic> json) {
     return QuotationProductModel(
       id: json['id'],
-      createdBy: json['createdBy'],
-      createdAt: json['createdAt'],
-      updatedBy: json['updatedBy'],
-      updatedAt: json['updatedAt'],
+      createdBy: json['created_by'],
+      createdAt: json['created_at'],
+      updatedBy: json['updated_by'],
+      updatedAt: json['updated_at'],
       quotationId: json['quotationId'],
       productId: json['productId'],
       quantity: json['quantity'],

@@ -338,13 +338,13 @@ class QuotesController extends GetxController {
       AppUtils.showlog("custId : $custId");
 
       final quotationCustomer = QuotationModel(
-        createdBy: await AppUtils.uid,
-        updatedBy: await AppUtils.uid,
+        createdBy: uid,
+        updatedBy: uid,
         createdAt: DateTime.now().toString(),
         updatedAt: DateTime.now().toString(),
         custId: int.parse(custId ?? ''),
         custName1: selectedCustomer.value,
-        custName2: controllers["name2"]!.text,
+        // custName2: controllers["name2"]!.text,
         date: controllers["date"]!.text,
         email: controllers["email"]!.text,
         mobileNo: controllers["mobile"]!.text,
@@ -519,12 +519,13 @@ class QuotesController extends GetxController {
         updatedAt: DateTime.now().toString(),
         custId: int.parse(custId!),
         custName1: selectedCustomer.value,
-        custName2: "controllers['name2']!.text",
+        // custName2: "controllers['name2']!.text",
         date: controllers['date']!.text,
         email: controllers['email']!.text,
         mobileNo: controllers['mobile']!.text,
         source: controllers['social']!.text,
         subject: controllers['subject']!.text,
+        isSynced: 0,
       );
       AppUtils.showlog("update quotation ----> ${quotation.toJson()}");
       int result = await QuotationRepo.updateQuotation(quotation);
@@ -626,12 +627,17 @@ class QuotesController extends GetxController {
       int intId = int.parse(quotationId);
       final quotationFollowup = QuotationFollowupModel(
         id: intId,
+        // createdBy: uid,
+        updatedBy: uid,
+        // createdAt: DateTime.now().toString(),
+        updatedAt: DateTime.now().toString(),
         quotationId: intId,
         followupDate: controllers['followupDate']!.text,
         followupStatus: selectedFollowupStatus.value,
         followupType: selectedFollowupType.value,
         followupRemarks: controllers['followupRemarks']!.text,
         followupAssignedTo: selectedFollowupAssignedTo.value,
+        isSynced: 0,
       );
       AppUtils.showlog(
         "update quotation followup ----> ${quotationFollowup.toJson()}",
@@ -718,8 +724,11 @@ class QuotesController extends GetxController {
     // Map these models to the QuotationTermsModel
     quotationTermsList.value = selectedTermModels.map((term) {
       return QuotationTermsModel(
+        updatedAt: DateTime.now().toString(),
+        updatedBy: uid,
         quotationId: int.parse(controllers['num']!.text),
         termId: term.id,
+        isSynced: 0,
       );
     }).toList();
 
@@ -735,6 +744,10 @@ class QuotesController extends GetxController {
       );
       for (var term in quotationTermsList) {
         final quotationTerms = QuotationTermsModel(
+          updatedAt: DateTime.now().toString(),
+          updatedBy: uid,
+          createdAt: DateTime.now().toString(),
+          createdBy: uid,
           quotationId: quotationId,
           termId: term.termId,
         );
@@ -820,7 +833,7 @@ class QuotesController extends GetxController {
         updatedAt: quotation.updatedAt,
         custId: quotation.custId,
         custName1: quotation.custName1,
-        custName2: quotation.custName2,
+        // custName2: quotation.custName2,
         date: quotation.date,
         email: quotation.email,
         mobileNo: quotation.mobileNo,
@@ -964,7 +977,7 @@ class QuotesController extends GetxController {
         updatedAt: quotation.updatedAt,
         custId: quotation.custId,
         custName1: quotation.custName1,
-        custName2: quotation.custName2,
+        // custName2: quotation.custName2,
         date: quotation.date,
         email: quotation.email,
         mobileNo: quotation.mobileNo,

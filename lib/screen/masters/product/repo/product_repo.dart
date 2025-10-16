@@ -99,13 +99,13 @@ class ProductRepo {
   Future<void> syncProductsToFirestore() async {
     try {
       await uploadToFirestore();
-      AppUtils.showlog("After uploadToFirestore");
+      AppUtils.showlog("Product : After uploadToFirestore");
 
       await downloadFromFirestore();
-      AppUtils.showlog("After downloadFromFirestore");
+      AppUtils.showlog("Product : After downloadFromFirestore");
     } catch (e) {
-      AppUtils.showlog("Error syncing contacts to Firestore: $e");
-      showErrorSnackBar("Error syncing contacts to cloud");
+      AppUtils.showlog("Error syncing product to Firestore: $e");
+      showErrorSnackBar("Error syncing product to cloud");
     }
   }
 
@@ -179,7 +179,7 @@ class ProductRepo {
           'created_at': data['created_at'],
           'updated_at': data['updated_at'],
           'isSynced': 1,
-        });
+        }, conflictAlgorithm: ConflictAlgorithm.ignore);
       } else {
         // Update local record if Firestore version is newer
         await db.update(
