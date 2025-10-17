@@ -44,16 +44,6 @@ class DatabaseHelper {
   Future<void> _onCreate(Database db, int version) async {
     try {
       AppUtils.showlog("inside _onCreate");
-      //   await db.execute('''
-      //   CREATE TABLE IF NOT EXISTS user (
-      //     uid TEXT PRIMARY KEY,
-      //     name TEXT,
-      //     email TEXT,
-      //     phone TEXT,
-      //     isSynced INTEGER
-      //   )
-      // ''');
-      //   AppUtils.showlog("after creating user table");
 
       await UserRepo.createTable(db);
       AppUtils.showlog("after creating user table");

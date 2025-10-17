@@ -39,7 +39,11 @@ class UomRepo {
   static Future<List<UomModel>> getAllUom() async {
     try {
       Database db = await DatabaseHelper().database;
-      final result = await db.query(table);
+      final result = await db.query(
+        table,
+        where: 'isSynced != ?',
+        whereArgs: [2],
+      );
       return result.map((e) => UomModel.fromJson(e)).toList();
     } catch (e) {
       AppUtils.showlog('retrieving uom: $e');

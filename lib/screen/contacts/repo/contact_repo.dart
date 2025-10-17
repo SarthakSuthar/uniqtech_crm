@@ -115,8 +115,6 @@ class ContactsRepo {
   // --------------  MARK: upload to firestore
   //--------------------------------------------------------------------------
 
-  //TODO: check ignore/replace conflict
-
   final _firestore = FirebaseFirestore.instance;
 
   Future<void> syncContactsToFirestore() async {

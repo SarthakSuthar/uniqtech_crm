@@ -124,6 +124,22 @@ class _ContactListState extends State<ContactList> {
                           email: controller.filterendList[index].email ?? '',
                           mobileNo:
                               controller.filterendList[index].mobileNo ?? '',
+                          context: context,
+                          onEdit: () {
+                            Get.toNamed(
+                              AppRoutes.addContact,
+                              arguments: {
+                                'isEdit': true,
+                                'uid': controller.filterendList[index].id
+                                    .toString(),
+                              },
+                            );
+                          },
+                          onDelete: () {
+                            controller.deleteContact(
+                              controller.filterendList[index].id.toString(),
+                            );
+                          },
                         ),
                       ),
                     ),
@@ -147,108 +163,252 @@ class _ContactListState extends State<ContactList> {
     );
   }
 
+  // Widget contactListWidget({
+  //   required String no,
+  //   required String customerName,
+  //   required String email,
+  //   required String mobileNo,
+  // }) {
+  //   return Padding(
+  //     padding: const EdgeInsets.all(8.0),
+  //     child: Card(
+  //       // decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
+  //       child: Stack(
+  //         children: [
+  //           Padding(
+  //             padding: const EdgeInsets.all(8.0),
+  //             child: Row(
+  //               children: [
+  //                 Column(
+  //                   crossAxisAlignment: CrossAxisAlignment.start,
+  //                   children: [
+  //                     Text("No."),
+  //                     Text("Customer Name"),
+  //                     Text("Email"),
+  //                     Text("Mobile No."),
+  //                     const SizedBox(height: 20),
+  //                   ],
+  //                 ),
+  //                 const SizedBox(width: 10),
+  //                 Column(
+  //                   crossAxisAlignment: CrossAxisAlignment.start,
+  //                   children: [
+  //                     Text(no),
+  //                     Text(customerName),
+  //                     Text(email),
+  //                     Text(mobileNo),
+  //                     const SizedBox(height: 20),
+  //                   ],
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //           Positioned(
+  //             right: 5,
+  //             bottom: 5,
+  //             child: Row(
+  //               children: [
+  //                 InkWell(
+  //                   onTap: () {
+  //                     AppUtils.showlog("edit button taped");
+  //                     //pass uid
+  //                     //get data for that uid
+  //                     //maintain status for update or new
+  //                     Get.toNamed(
+  //                       AppRoutes.addContact,
+  //                       arguments: {'isEdit': true, 'uid': no},
+  //                     );
+  //                   },
+  //                   child: Container(
+  //                     decoration: BoxDecoration(
+  //                       color: Theme.of(context).primaryColor,
+  //                       borderRadius: BorderRadius.circular(10),
+  //                     ),
+  //                     child: Padding(
+  //                       padding: const EdgeInsets.all(8.0),
+  //                       child: Icon(
+  //                         Icons.edit,
+  //                         color:
+  //                             Theme.of(context).brightness == Brightness.light
+  //                             ? Colors.white
+  //                             : Colors.black,
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 const SizedBox(width: 10),
+  //                 InkWell(
+  //                   onTap: () {
+  //                     controller.deleteContact(no);
+  //                     AppUtils.showlog("delete");
+  //                   },
+  //                   child: Container(
+  //                     decoration: BoxDecoration(
+  //                       color: Theme.of(context).primaryColor,
+  //                       borderRadius: BorderRadius.circular(10),
+  //                     ),
+  //                     child: Padding(
+  //                       padding: const EdgeInsets.all(8.0),
+  //                       child: Icon(
+  //                         Icons.delete,
+  //                         color:
+  //                             Theme.of(context).brightness == Brightness.light
+  //                             ? Colors.white
+  //                             : Colors.black,
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+
   Widget contactListWidget({
+    required BuildContext context,
     required String no,
     required String customerName,
     required String email,
     required String mobileNo,
+    required VoidCallback onEdit,
+    required VoidCallback onDelete,
   }) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Card(
-        // decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("No."),
-                      Text("Customer Name"),
-                      Text("Email"),
-                      Text("Mobile No."),
-                      const SizedBox(height: 20),
-                    ],
-                  ),
-                  const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(no),
-                      Text(customerName),
-                      Text(email),
-                      Text(mobileNo),
-                      const SizedBox(height: 20),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            Positioned(
-              right: 5,
-              bottom: 5,
-              child: Row(
-                children: [
-                  InkWell(
-                    onTap: () {
-                      AppUtils.showlog("edit button taped");
-                      //pass uid
-                      //get data for that uid
-                      //maintain status for update or new
-                      Get.toNamed(
-                        AppRoutes.addContact,
-                        arguments: {'isEdit': true, 'uid': no},
-                      );
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Icon(
-                          Icons.edit,
-                          color:
-                              Theme.of(context).brightness == Brightness.light
-                              ? Colors.white
-                              : Colors.black,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(width: 10),
-
-                  InkWell(
-                    onTap: () {
-                      controller.deleteContact(no);
-                      AppUtils.showlog("delete");
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Icon(
-                          Icons.delete,
-                          color:
-                              Theme.of(context).brightness == Brightness.light
-                              ? Colors.white
-                              : Colors.black,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor.withOpacity(0.9),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey.withOpacity(0.15)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
             ),
           ],
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: onEdit,
+          splashColor: Theme.of(context).primaryColor.withOpacity(0.1),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Leading avatar or index
+                CircleAvatar(
+                  radius: 24,
+                  backgroundColor: Theme.of(
+                    context,
+                  ).primaryColor.withOpacity(0.1),
+                  child: Text(
+                    no,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(width: 16),
+
+                // Info section
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        customerName,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(Icons.email, size: 16, color: Colors.grey),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              email,
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(color: Colors.grey[600]),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(Icons.phone, size: 16, color: Colors.grey),
+                          const SizedBox(width: 6),
+                          Text(
+                            mobileNo,
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(color: Colors.grey[600]),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Action buttons
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _iconButton(
+                      context,
+                      icon: Icons.edit_rounded,
+                      onTap: onEdit,
+                    ),
+                    const SizedBox(width: 8),
+                    _iconButton(
+                      context,
+                      icon: Icons.delete_rounded,
+                      onTap: onDelete,
+                      isDanger: true,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _iconButton(
+    BuildContext context, {
+    required IconData icon,
+    required VoidCallback onTap,
+    bool isDanger = false,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      splashColor: Theme.of(context).primaryColor.withOpacity(0.1),
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: isDanger
+              ? Colors.redAccent.withOpacity(0.1)
+              : Theme.of(context).primaryColor.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(
+          icon,
+          size: 20,
+          color: isDanger ? Colors.redAccent : Theme.of(context).primaryColor,
         ),
       ),
     );

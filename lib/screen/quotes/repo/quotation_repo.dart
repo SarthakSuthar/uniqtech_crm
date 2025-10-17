@@ -74,7 +74,11 @@ class QuotationRepo {
   ///get all quotations from the "quotation" table
   static Future<List<QuotationModel>> getAllQuotations() async {
     Database db = await DatabaseHelper().database;
-    final result = await db.query(quotationTable);
+    final result = await db.query(
+      quotationTable,
+      where: 'isSynced != ?',
+      whereArgs: [2],
+    );
     return result.map((e) => QuotationModel.fromJson(e)).toList();
   }
 
@@ -97,7 +101,13 @@ class QuotationRepo {
   ///delete a quotation record from the "quotation" table
   static Future<int> deleteQuotation(int id) async {
     Database db = await DatabaseHelper().database;
-    return await db.delete(quotationTable, where: 'id = ?', whereArgs: [id]);
+    // return await db.delete(quotationTable, where: 'id = ?', whereArgs: [id]);
+    return await db.update(
+      quotationTable,
+      {'isSynced': 2},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
   ///update an existing quotation record in the 'quotation' table
@@ -205,8 +215,15 @@ class QuotationRepo {
   ///Deletes an quotationrecord by its ID from the 'quotationtable.
   static Future<int> deleteQuotationProduct(int quotationId) async {
     Database db = await DatabaseHelper().database;
-    return db.delete(
+    // return db.delete(
+    //   quotationProductTable,
+    //   where: 'quotationId = ?',
+    //   whereArgs: [quotationId],
+    // );
+
+    return await db.update(
       quotationProductTable,
+      {'isSynced': 2},
       where: 'quotationId = ?',
       whereArgs: [quotationId],
     );
@@ -371,11 +388,18 @@ class QuotationRepo {
   //get delected term id and return
   static Future<int> getDeletedTerms(int quotationId) async {
     Database db = await DatabaseHelper().database;
-    final result = await db.delete(
+    final result = await db.update(
       quotationTermsTable,
+      {'isSynced': 2},
       where: 'quotationId = ?',
       whereArgs: [quotationId],
     );
+
+    //  await db.delete(
+    //   quotationTermsTable,
+    //   where: 'quotationId = ?',
+    //   whereArgs: [quotationId],
+    // );
     return result;
   }
 
@@ -464,6 +488,7 @@ class QuotationRepo {
     await FirestoreSyncService().downloadFromFirestore(
       quotationTermsTable,
       quotationTermsTableFields,
+      createAvailable: false,
     );
   }
 }

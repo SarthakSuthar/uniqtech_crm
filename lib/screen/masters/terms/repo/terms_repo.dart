@@ -40,7 +40,12 @@ class TermsRepo {
   static Future<List<TermsModel>> getAllTerms() async {
     try {
       Database db = await DatabaseHelper().database;
-      final result = await db.query(table);
+      final result = await db.query(
+        table,
+        where: 'isSynced != ?',
+        whereArgs: [2],
+      );
+      AppUtils.showlog('retrieving terms: $result');
       return result.map((e) => TermsModel.fromJson(e)).toList();
     } catch (e) {
       AppUtils.showlog('retrieving terms: $e');

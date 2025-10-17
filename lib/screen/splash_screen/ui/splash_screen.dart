@@ -21,6 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
       if (isLoggedIn == true) {
         Get.offNamed(AppRoutes.dashboard);
       } else {
+        // Get.offNamed(AppRoutes.dashboard);
         Get.offNamed(AppRoutes.login);
       }
     });
@@ -28,13 +29,19 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Image.asset("assets/images/logo.png"),
-        const CircularProgressIndicator(),
-      ],
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            SizedBox(height: MediaQuery.sizeOf(context).height * 0.1),
+            Image.asset("assets/images/logo.png", scale: 1.5),
+            SizedBox(height: MediaQuery.sizeOf(context).height * 0.1),
+            const CircularProgressIndicator(),
+            SizedBox(height: MediaQuery.sizeOf(context).height * 0.1),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -97,7 +97,18 @@ class _QuoteListState extends State<QuoteList> {
 
             Obx(
               () => controller.filterendList.isEmpty
-                  ? Text(" No data found")
+                  ? Column(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 50),
+                        Image.asset("assets/images/no_data.png", scale: 2),
+                        Text(
+                          "No Data Found",
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                      ],
+                    )
                   : Expanded(
                       child: ListView.builder(
                         itemCount: controller.filterendList.length,

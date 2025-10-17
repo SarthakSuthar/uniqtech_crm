@@ -1,12 +1,6 @@
 import 'package:crm/app_const/theme/app_theme.dart';
 import 'package:crm/app_const/utils/app_utils.dart';
-import 'package:crm/screen/contacts/model/contact_model.dart';
-import 'package:crm/screen/contacts/repo/contact_repo.dart';
 import 'package:crm/screen/login/controller/login_controller.dart';
-import 'package:crm/screen/masters/product/model/product_model.dart';
-import 'package:crm/screen/masters/product/repo/product_repo.dart';
-import 'package:crm/screen/masters/uom/model/uom_model.dart';
-import 'package:crm/screen/masters/uom/repo/uom_repo.dart';
 import 'package:crm/services/local_db.dart';
 import 'package:crm/routes/app_routes.dart';
 import 'package:crm/services/shred_pref.dart';
@@ -35,56 +29,6 @@ void main() async {
   // We don't need to store the result, just ensure it's been called.
   await DatabaseHelper().database;
   AppUtils.showlog("Database Initialized!");
-
-  // --- Example Usage of your Repo ---
-  // Create a dummy contact
-  // var newContact = ContactModel(
-  //   createdBy: "dummy",
-  //   updatedBy: "dummy",
-  //   custName: 'Dummy Customer Inc.',
-  //   address: '123 Main St',
-  //   city: 'Anytown',
-  //   state: 'Anystate',
-  //   district: 'Anydistrict',
-  //   country: 'USA',
-  //   pincode: '12345',
-  //   mobileNo: '1234567890',
-  //   email: 'dummy@example.com',
-  //   website: 'www.dummy.com',
-  //   businessType: 'Software',
-  //   industryType: 'IT',
-  //   status: 'Active',
-  //   contactName: 'John Doe',
-  //   department: 'Sales',
-  //   designation: 'Manager',
-  //   contEmail: 'john.doe@example.com',
-  //   contMobileNo: '0987654321',
-  //   contPhoneNo: '555-1234',
-  //   createdAt: DateTime.now().toString(),
-  //   updatedAt: DateTime.now().toString(),
-  // );
-
-  // Insert it using the repo
-  // await ContactsRepo.insertContact(newContact);
-  // AppUtils.showlog("Dummy contact inserted.");
-
-  // var uom = UomModel(name: "uom", code: "123");
-
-  // await UomRepo.insertUom(uom);
-  // AppUtils.showlog("Dummy uom inserted.");
-
-  // var product = ProductModel(
-  //   productCode: "1234",
-  //   productName: "prod",
-  //   productUom: "uom",
-  //   productRate: "123",
-  //   productDescription: "desc",
-  // );
-
-  // await ProductRepo.addProduct(product);
-  // AppUtils.showlog("Dummy product inserted.");
-
-  // ------------------------------------
 
   runApp(const MyApp());
 }

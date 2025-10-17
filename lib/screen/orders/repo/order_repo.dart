@@ -206,7 +206,7 @@ class OrderRepo {
     );
   }
 
-  // ---------- Order Terms Table --------
+  // ----------------- Order Terms Table --------------------------
 
   static Future<void> createOrderTermsTable(Database db) async {
     await db.execute('''
@@ -232,7 +232,7 @@ class OrderRepo {
   }
 
   ///delee a term id
-  static Future<int> getDeletedTerms(int orderId) async {
+  static Future<int> deletedTerms(int orderId) async {
     Database db = await DatabaseHelper().database;
     // final result = await db.delete(
     //   orderTermsTable,
@@ -441,7 +441,7 @@ class OrderRepo {
     await FirestoreSyncService().downloadFromFirestore(
       orderTermsTable,
       orderTermsTableFields,
-      createAvailable: false,
+      // createAvailable: false,
     );
 
     // await FirestoreSyncService().downloadFromFirestore(

@@ -87,7 +87,13 @@ class InquiryRepo {
   /// Deletes an inquiry record by its ID from the 'inquiry' table.
   static Future<int> deleteInquiry(int id) async {
     Database db = await DatabaseHelper().database;
-    return await db.delete(table, where: 'id = ?', whereArgs: [id]);
+    // return await db.delete(table, where: 'id = ?', whereArgs: [id]);
+    return await db.update(
+      table,
+      {'isSynced': 2},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
   /// Updates an existing inquiry record in the 'inquiry' table.

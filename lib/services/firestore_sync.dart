@@ -74,13 +74,13 @@ Future<void> syncToCloud({required BuildContext context}) async {
     await TermsRepo().syncTermsToFirestore();
     await UomRepo().syncUOMToFirestore();
 
-    //MARK: Contacts
+    // //MARK: Contacts
     await ContactsRepo().syncContactsToFirestore();
 
-    //MARK: Inquiry
+    // //MARK: Inquiry
     await InquiryRepo().syncInquiryToFirestore();
 
-    //MARK: Quotation
+    // //MARK: Quotation
     await QuotationRepo().syncQuotationToFirestore();
 
     //MARK: Order
@@ -142,10 +142,15 @@ class FirestoreSyncService {
         whereArgs: [0],
       );
 
+      AppUtils.showlog("newRecords = $newRecords");
+
       for (final record in newRecords) {
         final firestoreData = Map<String, dynamic>.from(record);
         firestoreData['isSynced'] = 1; // Store as synced in Firestore
 
+        AppUtils.showlog("table = $table");
+        AppUtils.showlog("record = $record");
+        AppUtils.showlog("firestoreData = $firestoreData");
         try {
           await _firestore
               .collection(table)

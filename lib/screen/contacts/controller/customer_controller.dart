@@ -170,6 +170,8 @@ class AddCustomerController extends GetxController {
     filterendList.remove(ContactModel(id: int.parse(id)));
     contacts.remove(ContactModel(id: int.parse(id)));
 
+    await getAllContacts();
+
     AppUtils.showlog("removed contact : $id");
     AppUtils.showlog("No. of contacts : ${contacts.length}");
     AppUtils.showlog("list after removing --> ${contacts.map((e) => e.id)}}");
