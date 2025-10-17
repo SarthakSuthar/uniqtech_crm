@@ -24,7 +24,7 @@ class AppDrawer extends StatelessWidget {
           children: [
             //company logo
             Container(
-              color: Theme.of(context).primaryColor,
+              // color: Theme.of(context).scaffoldBackgroundColor,
               padding: const EdgeInsets.only(
                 top: 30,
                 bottom: 10,

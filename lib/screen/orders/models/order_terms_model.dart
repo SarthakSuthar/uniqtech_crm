@@ -23,13 +23,13 @@ class OrderTermsModel {
         id: json["id"],
         orderId: json["orderId"],
         termId: json["termId"],
-        isSynced: json["isSynced"],
+        isSynced: json["isSynced"] ?? 0,
       );
 
   Map<String, dynamic> toJson() => {
     "id": id,
     "orderId": orderId,
     "termId": termId,
-    "isSynced": isSynced,
+    "isSynced": isSynced ?? 0,
   };
 }

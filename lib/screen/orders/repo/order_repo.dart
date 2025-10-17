@@ -69,7 +69,11 @@ class OrderRepo {
   ///get all orders from the [orderTable]
   static Future<List<OrderModel>> getAllOrders() async {
     Database db = await DatabaseHelper().database;
-    final result = await db.query(orderTable);
+    final result = await db.query(
+      orderTable,
+      where: 'isSynced != ?',
+      whereArgs: [2],
+    );
     return result.map((e) => OrderModel.fromJson(e)).toList();
   }
 
@@ -232,7 +236,7 @@ class OrderRepo {
   }
 
   ///delee a term id
-  static Future<int> deletedTerms(int orderId) async {
+  static Future<int> deleteTerms(int orderId) async {
     Database db = await DatabaseHelper().database;
     // final result = await db.delete(
     //   orderTermsTable,

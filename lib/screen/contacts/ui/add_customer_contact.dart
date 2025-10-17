@@ -123,6 +123,7 @@ class _AddCustomerContactScreenState extends State<AddCustomerContactScreen> {
                       context: context,
                       focusNode: controller.focusNodes["contactPhoneNo"]!,
                       expandInRow: true,
+                      keyboardType: TextInputType.phone,
                     ),
                     inputWidget(
                       hintText: "Mobile No",
@@ -131,6 +132,7 @@ class _AddCustomerContactScreenState extends State<AddCustomerContactScreen> {
                       context: context,
                       focusNode: controller.focusNodes["contactMobileNo"]!,
                       expandInRow: true,
+                      keyboardType: TextInputType.phone,
                     ),
                   ],
                 ),

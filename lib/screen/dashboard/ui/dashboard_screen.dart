@@ -3,6 +3,7 @@ import 'package:crm/app_const/widgets/app_bar.dart';
 import 'package:crm/app_const/widgets/app_drawer.dart';
 import 'package:crm/routes/app_routes.dart';
 import 'package:crm/services/firestore_sync.dart';
+import 'package:crm/services/shred_pref.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -17,7 +18,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    syncToCloud(context: context);
+    sync();
+  }
+
+  void sync() async {
+    bool firstLogin = SharedPrefHelper.getBool("firstLogin") ?? false;
+    if (firstLogin) {
+      syncToCloud(context: context);
+      await SharedPrefHelper.setBool("firstLogin", false);
+    }
   }
 
   @override

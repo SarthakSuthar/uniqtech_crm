@@ -335,6 +335,23 @@ class InquiryRepo {
     }
   }
 
+  //delete
+  static Future<int> deleteInquiryFollowup(int inquiryId) async {
+    try {
+      Database db = await DatabaseHelper().database;
+
+      return await db.update(
+        inquiryFollowupTable,
+        {'isSynced': 2},
+        where: 'inquiryId = ?',
+        whereArgs: [inquiryId],
+      );
+    } catch (e) {
+      AppUtils.showlog("Error on delete inquiry followup : $e");
+      rethrow;
+    }
+  }
+
   // -------------------------------------------------------------------------------------------
   // ------------- MARK: upload to firestore
   // -------------------------------------------------------------------------------------------

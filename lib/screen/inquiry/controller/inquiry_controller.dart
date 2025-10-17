@@ -1,5 +1,6 @@
 import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/app_const/widgets/app_snackbars.dart';
+import 'package:crm/routes/app_routes.dart';
 import 'package:crm/screen/contacts/repo/contact_repo.dart';
 import 'package:crm/screen/inquiry/model/inquiry_followup_model.dart';
 import 'package:crm/screen/inquiry/model/inquiry_model.dart';
@@ -319,7 +320,7 @@ class InquiryController extends GetxController {
 
       int result = await InquiryRepo.insertInquiry(inquiryCustomer);
       AppUtils.showlog("insert inquiry customer ----> $result");
-      showSuccessSnackBar("Customer added successfully");
+      // showSuccessSnackBar("Customer added successfully");
       await getInquiryList();
     } catch (e) {
       showErrorSnackBar("Error adding customer");
@@ -454,6 +455,8 @@ class InquiryController extends GetxController {
       await addInquiryProductID();
       await getInquiryList();
       // Get.back(result: true);
+      Get.offAndToNamed(AppRoutes.dashboard);
+      showSuccessSnackBar("Inquiry submitted successfully");
     } catch (e) {
       AppUtils.showlog("Error submitting inquiry : $e");
     }
@@ -464,6 +467,7 @@ class InquiryController extends GetxController {
       await InquiryRepo.deleteInquiry(id);
       await getInquiryList();
       await InquiryRepo.deleteInquiryProduct(id);
+      await InquiryRepo.deleteInquiryFollowup(id);
       showSuccessSnackBar("Inquiry deleted successfully");
       await getinquiryProductList();
     } catch (e) {

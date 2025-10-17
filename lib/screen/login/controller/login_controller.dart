@@ -65,6 +65,7 @@ class LoginController extends GetxController {
         await UserRepo().insertUser(userData);
         AppUtils.showlog("user data in model --> ${userData.toJson()}");
         await SharedPrefHelper.setBool("isLoggedIn", true);
+        await SharedPrefHelper.setBool("firstLogin", true);
         showSuccessSnackBar("Logged in successfully!");
         Get.offAllNamed(AppRoutes.dashboard);
       }
@@ -82,6 +83,7 @@ class LoginController extends GetxController {
       user.value = null;
       await UserRepo().deleteUser();
       await SharedPrefHelper.setBool("isLoggedIn", false);
+      await SharedPrefHelper.clear();
       Get.offNamed(AppRoutes.login);
     } catch (e) {
       error.value = 'Failed to sign out: ${e.toString()}';

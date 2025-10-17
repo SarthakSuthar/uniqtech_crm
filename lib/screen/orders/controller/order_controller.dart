@@ -477,6 +477,8 @@ class OrderController extends GetxController {
       await getOrderList();
       await OrderRepo.deleteOrderProduct(id);
       await getOrderProductList();
+      await OrderRepo.deleteTerms(id);
+      await getAllTerms();
       showSuccessSnackBar("Order deleted successfully");
     } catch (e) {
       showErrorSnackBar("Error deleting order : $e");
