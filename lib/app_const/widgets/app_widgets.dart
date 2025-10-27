@@ -13,6 +13,7 @@ Widget inputWidget({
   TextInputType? keyboardType,
   bool expandInRow = false, // default safe for Column
   bool readOnly = false,
+  String? Function(String?)? customValidator,
 }) {
   final screenWidth = MediaQuery.of(context).size.width;
 
@@ -36,27 +37,19 @@ Widget inputWidget({
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
     ),
     validator: (value) {
-      if (value == null || value.isEmpty || value.trim().isEmpty) {
+      // ✅ If a custom validator is provided, use it
+      if (customValidator != null) {
+        return customValidator(value);
+      }
+
+      // ✅ Default validation
+      if (value == null || value.trim().isEmpty) {
         return "This field is required";
       }
+
       return null;
     },
   );
-
-  // final widgetWithPadding = Padding(
-  //   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-  //   child: SizedBox(
-  //     width: expandInRow ? null : screenWidth * 0.9,
-  //     child: Material(
-  //       elevation: 1,
-  //       borderRadius: BorderRadius.circular(14),
-  //       shadowColor: Colors.black12,
-  //       child: field,
-  //     ),
-  //   ),
-  // );
-
-  // return expandInRow ? Expanded(child: widgetWithPadding) : widgetWithPadding;
 
   if (expandInRow) {
     return Expanded(

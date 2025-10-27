@@ -19,11 +19,13 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class InquiryController extends GetxController {
+  bool isEdit;
+  String? no;
+
+  InquiryController({this.isEdit = false, this.no});
+
   final Map<String, TextEditingController> controllers = {};
   final Map<String, FocusNode> focusNodes = {};
-
-  bool isEdit = false;
-  String? no;
 
   // Dropdown values
   RxString? selectedProduct = RxString("");

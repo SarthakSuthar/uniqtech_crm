@@ -253,25 +253,36 @@ class AppDrawer extends StatelessWidget {
 
     return Theme(
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-      child: ExpansionTile(
-        initiallyExpanded: isExpanded,
-        tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-        backgroundColor: Colors.transparent,
-        collapsedBackgroundColor: Colors.transparent,
-        leading: Icon(icon, size: 26, color: colorScheme.primary),
-        title: Text(
-          name,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: colorScheme.onSurface.withOpacity(0.9),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        child: ExpansionTile(
+          initiallyExpanded: isExpanded,
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+          backgroundColor: Colors.transparent,
+          collapsedBackgroundColor: Colors.transparent,
+          leading: Icon(
+            icon,
+            size: 26,
+            color: isExpanded
+                ? colorScheme.primary
+                : colorScheme.onSurface.withOpacity(0.8),
           ),
+          title: Text(
+            name,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: colorScheme.onSurface.withOpacity(0.9),
+            ),
+          ),
+          iconColor: colorScheme.primary,
+          collapsedIconColor: colorScheme.onSurface.withOpacity(0.6),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          childrenPadding: const EdgeInsets.only(left: 40, bottom: 6),
+          children: children,
         ),
-        iconColor: colorScheme.primary,
-        collapsedIconColor: colorScheme.onSurface.withOpacity(0.6),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        childrenPadding: const EdgeInsets.only(left: 40, bottom: 6),
-        children: children,
       ),
     );
   }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/app_const/widgets/app_snackbars.dart';
 import 'package:crm/routes/app_routes.dart';
@@ -5,6 +7,7 @@ import 'package:crm/screen/login/model/user_model.dart';
 import 'package:crm/screen/login/repo/user_repo.dart';
 import 'package:crm/services/shred_pref.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -37,37 +40,41 @@ class LoginController extends GetxController {
 
   Future<void> signInWithGoogle() async {
     try {
-      isLoading.value = true;
-      error.value = null;
+      if (internetConnection == true) {
+        isLoading.value = true;
+        error.value = null;
 
-      final googleUser = await _googleSignIn.signIn();
-      if (googleUser != null) {
-        user.value = googleUser;
-        AppUtils.showlog("user details --> $user");
+        final googleUser = await _googleSignIn.signIn();
+        if (googleUser != null) {
+          user.value = googleUser;
+          AppUtils.showlog("user details --> $user");
 
-        // final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-        final GoogleSignInAuthentication googleAuth =
-            await googleUser.authentication;
+          // final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+          final GoogleSignInAuthentication googleAuth =
+              await googleUser.authentication;
 
-        final credential = GoogleAuthProvider.credential(
-          accessToken: googleAuth.accessToken,
-          idToken: googleAuth.idToken,
-        );
+          final credential = GoogleAuthProvider.credential(
+            accessToken: googleAuth.accessToken,
+            idToken: googleAuth.idToken,
+          );
 
-        await FirebaseAuth.instance.signInWithCredential(credential);
+          await FirebaseAuth.instance.signInWithCredential(credential);
 
-        final userData = UserModel(
-          uid: googleUser.id,
-          name: googleUser.displayName,
-          email: googleUser.email,
-          photoUrl: googleUser.photoUrl,
-        );
-        await UserRepo().insertUser(userData);
-        AppUtils.showlog("user data in model --> ${userData.toJson()}");
-        await SharedPrefHelper.setBool("isLoggedIn", true);
-        await SharedPrefHelper.setBool("firstLogin", true);
-        showSuccessSnackBar("Logged in successfully!");
-        Get.offAllNamed(AppRoutes.dashboard);
+          final userData = UserModel(
+            uid: googleUser.id,
+            name: googleUser.displayName,
+            email: googleUser.email,
+            photoUrl: googleUser.photoUrl,
+          );
+          await UserRepo().insertUser(userData);
+          AppUtils.showlog("user data in model --> ${userData.toJson()}");
+          await SharedPrefHelper.setBool("isLoggedIn", true);
+          await SharedPrefHelper.setBool("firstLogin", true);
+          showSuccessSnackBar("Logged in successfully!");
+          Get.offAllNamed(AppRoutes.dashboard);
+        }
+      } else {
+        showErrorSnackBar("No Internet Connection!");
       }
     } catch (e) {
       error.value = 'Failed to sign in: ${e.toString()}';
@@ -97,6 +104,22 @@ class LoginController extends GetxController {
       Get.offNamed(AppRoutes.login);
     } catch (e) {
       error.value = 'Failed to disconnect: ${e.toString()}';
+    }
+  }
+
+  bool internetConnection = false;
+
+  Future<void> checkInternet() async {
+    try {
+      final result = await InternetAddress.lookup("google.com");
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        internetConnection = true;
+      } else {
+        internetConnection = false;
+      }
+    } catch (e) {
+      AppUtils.showlog("Error checking internet --> $e");
+      internetConnection = false;
     }
   }
 }

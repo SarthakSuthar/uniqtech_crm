@@ -73,6 +73,13 @@ class AddCustomerController extends GetxController {
     super.onClose();
   }
 
+  bool isEmailExist(String email) {
+    if (contacts.any((element) => element.email == email)) {
+      return true;
+    }
+    return false;
+  }
+
   /// Update dropdowns
   void updateBusinessType(String? val) {
     if (val != null) selectedBusinessType?.value = val;

@@ -144,6 +144,16 @@ class _AddCustomerFormState extends State<AddCustomerForm> {
                 context: context,
                 focusNode: controller.focusNodes["email"]!,
                 keyboardType: TextInputType.emailAddress,
+                customValidator: (value) {
+                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value ?? '')) {
+                    return "Enter a valid email address";
+                  }
+
+                  if (controller.isEmailExist(value ?? '')) {
+                    return "Email already exists";
+                  }
+                  return null;
+                },
               ),
               inputWidget(
                 hintText: "Website",

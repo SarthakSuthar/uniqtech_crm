@@ -120,6 +120,17 @@ class _InquiryListState extends State<InquiryList> {
                               controller.filterendList[index].mobileNo ?? '',
                           customerName:
                               controller.filterendList[index].custName1 ?? '',
+                          onEdit: () {
+                            Get.toNamed(
+                              AppRoutes.addInquiry,
+                              arguments: {
+                                'no': controller.filterendList[index].id
+                                    .toString(),
+                                'isEdit': true,
+                              },
+                            );
+                            AppUtils.showlog("edit button taped");
+                          },
                         ),
                       ),
                     ),
@@ -147,6 +158,7 @@ class _InquiryListState extends State<InquiryList> {
     required String no,
     required String customerName,
     required String email,
+    required VoidCallback onEdit,
     required String mobileNo,
   }) {
     return Padding(
@@ -189,13 +201,7 @@ class _InquiryListState extends State<InquiryList> {
               child: Row(
                 children: [
                   InkWell(
-                    onTap: () {
-                      Get.toNamed(
-                        AppRoutes.addInquiry,
-                        arguments: {'no': no, 'isEdit': true},
-                      );
-                      AppUtils.showlog("edit button taped");
-                    },
+                    onTap: onEdit,
                     child: Container(
                       decoration: BoxDecoration(
                         color: Theme.of(context).primaryColor,

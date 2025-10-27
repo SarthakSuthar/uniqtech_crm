@@ -1,6 +1,4 @@
 import 'package:crm/app_const/theme/app_theme.dart';
-import 'package:crm/app_const/utils/app_utils.dart';
-import 'package:crm/routes/app_routes.dart';
 import 'package:crm/screen/login/controller/login_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -19,6 +17,15 @@ class _LoginScreenState extends State<LoginScreen> {
   // final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   // final TextEditingController _passwordController = TextEditingController();
   final LoginController controller = Get.put(LoginController());
+
+  bool internetConnection = false;
+
+  @override
+  void initState() {
+    super.initState();
+    controller.checkInternet();
+    internetConnection = controller.internetConnection;
+  }
 
   @override
   void dispose() {
