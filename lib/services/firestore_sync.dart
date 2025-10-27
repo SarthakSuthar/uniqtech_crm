@@ -11,14 +11,21 @@ import 'package:crm/screen/orders/repo/order_repo.dart';
 import 'package:crm/screen/quotes/repo/quotation_repo.dart';
 import 'package:crm/screen/tasks/repo/tasks_repo.dart';
 import 'package:crm/services/local_db.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sqflite/sqlite_api.dart';
 
 Future<bool> hasInternetConnection() async {
   try {
-    final result = await InternetAddress.lookup('google.com');
-    return result.isNotEmpty && result.first.rawAddress.isNotEmpty;
+    if (!kIsWeb) {
+      final result = await InternetAddress.lookup('google.com');
+      return result.isNotEmpty && result.first.rawAddress.isNotEmpty;
+    } else {
+      // For web, assume online if no specific check is available or needed
+      // A more robust check for web might involve making a small http request
+      return true;
+    }
   } catch (e) {
     return false;
   }

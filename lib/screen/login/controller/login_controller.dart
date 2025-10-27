@@ -1,4 +1,4 @@
-import 'dart:io';
+// import 'dart:io';
 
 import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/app_const/widgets/app_snackbars.dart';
@@ -7,9 +7,12 @@ import 'package:crm/screen/login/model/user_model.dart';
 import 'package:crm/screen/login/repo/user_repo.dart';
 import 'package:crm/services/shred_pref.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'dart:html' as html;
+import 'package:http/http.dart' as http;
 
 ///--------Setup--------
 ///firebase login
@@ -22,7 +25,12 @@ class LoginController extends GetxController {
   final user = Rx<GoogleSignInAccount?>(null);
   final error = Rx<String?>(null);
 
-  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email', 'profile']);
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: ['email', 'profile'],
+    clientId: kIsWeb
+        ? dotenv.env["GOOGLE_WEB_SIGIN_KEY"]
+        : null, // have to update in env according to firebase account
+  );
 
   Future<void> login(String email, String password) async {
     isLoading.value = true;
@@ -44,6 +52,12 @@ class LoginController extends GetxController {
       if (internetConnection == true) {
         isLoading.value = true;
         error.value = null;
+
+        if (kIsWeb) {
+          await _signInWithGoogleWeb();
+        } else {
+          await _signInWithGoogleMobile();
+        }
 
         final googleUser = await _googleSignIn.signIn();
         if (googleUser != null) {
@@ -85,6 +99,57 @@ class LoginController extends GetxController {
     }
   }
 
+  Future<void> _signInWithGoogleMobile() async {
+    final googleUser = await _googleSignIn.signIn();
+    if (googleUser == null) return; // user canceled
+
+    final googleAuth = await googleUser.authentication;
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    await FirebaseAuth.instance.signInWithCredential(credential);
+
+    final userData = UserModel(
+      uid: googleUser.id,
+      name: googleUser.displayName,
+      email: googleUser.email,
+      photoUrl: googleUser.photoUrl,
+    );
+
+    await _saveUserAndRedirect(userData);
+  }
+
+  Future<void> _signInWithGoogleWeb() async {
+    final GoogleAuthProvider authProvider = GoogleAuthProvider();
+
+    final userCredential = await FirebaseAuth.instance.signInWithPopup(
+      authProvider,
+    );
+
+    final user = userCredential.user;
+    if (user == null) return;
+
+    final userData = UserModel(
+      uid: user.uid,
+      name: user.displayName,
+      email: user.email,
+      photoUrl: user.photoURL,
+    );
+
+    await _saveUserAndRedirect(userData);
+  }
+
+  Future<void> _saveUserAndRedirect(UserModel userData) async {
+    await UserRepo().insertUser(userData);
+    AppUtils.showlog("user data in model --> ${userData.toJson()}");
+    await SharedPrefHelper.setBool("isLoggedIn", true);
+    await SharedPrefHelper.setBool("firstLogin", true);
+    showSuccessSnackBar("Logged in successfully!");
+    Get.offAllNamed(AppRoutes.dashboard);
+  }
+
   Future<void> signOut() async {
     try {
       await _googleSignIn.signOut();
@@ -110,13 +175,33 @@ class LoginController extends GetxController {
 
   bool internetConnection = false;
 
+  // Future<void> checkInternet() async {
+  //   if (!kIsWeb) {
+  //     try {
+  //       final result = await InternetAddress.lookup("google.com");
+  //       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+  //         internetConnection = true;
+  //       } else {
+  //         internetConnection = false;
+  //       }
+  //     } catch (e) {
+  //       AppUtils.showlog("Error checking internet --> $e");
+  //       internetConnection = false;
+  //     }
+  //   }
+  // }
+
   Future<void> checkInternet() async {
     try {
-      final result = await InternetAddress.lookup("google.com");
-      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        internetConnection = true;
+      if (kIsWeb) {
+        // Simple online flag for Web
+        internetConnection = html.window.navigator.onLine!;
       } else {
-        internetConnection = false;
+        // Lightweight GET check for Mobile
+        final response = await http
+            .get(Uri.parse('https://www.google.com'))
+            .timeout(const Duration(seconds: 3));
+        internetConnection = response.statusCode == 200;
       }
     } catch (e) {
       AppUtils.showlog("Error checking internet --> $e");

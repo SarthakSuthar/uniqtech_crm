@@ -1,7 +1,9 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:crm/screen/login/repo/user_repo.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
+import 'dart:developer' as developer;
 
 class FileHelper {
   static Future<String?> savePickedFile({
@@ -49,6 +51,10 @@ class AppUtils {
 
   ///green coloured log
   static void showlog(String msg) {
-    log('\x1B[32m$msg\x1B[0m');
+    if (kIsWeb) {
+      developer.log('\x1B[32m$msg\x1B[0m');
+    } else {
+      log('\x1B[32m$msg\x1B[0m');
+    }
   }
 }

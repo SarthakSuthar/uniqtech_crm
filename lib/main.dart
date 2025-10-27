@@ -6,6 +6,7 @@ import 'package:crm/routes/app_routes.dart';
 import 'package:crm/services/shred_pref.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
@@ -15,6 +16,8 @@ import 'firebase_options.dart';
 void main() async {
   // 1. Ensure Flutter is ready before using plugins.
   WidgetsFlutterBinding.ensureInitialized();
+
+  await dotenv.load(fileName: ".env");
 
   await SharedPrefHelper.init();
 
@@ -43,7 +46,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.light,
+      // themeMode: ThemeMode.system,
       getPages: AppRoutes.routes,
       initialRoute: AppRoutes.splash,
       initialBinding: AuthBinding(),

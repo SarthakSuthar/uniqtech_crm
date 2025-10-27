@@ -149,7 +149,8 @@ class _AddCustomerFormState extends State<AddCustomerForm> {
                     return "Enter a valid email address";
                   }
 
-                  if (controller.isEmailExist(value ?? '')) {
+                  if (widget.isEdit == false &&
+                      controller.isEmailExist(value ?? '')) {
                     return "Email already exists";
                   }
                   return null;
