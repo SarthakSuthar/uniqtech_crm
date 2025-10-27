@@ -40,6 +40,7 @@ class LoginController extends GetxController {
 
   Future<void> signInWithGoogle() async {
     try {
+      await checkInternet();
       if (internetConnection == true) {
         isLoading.value = true;
         error.value = null;

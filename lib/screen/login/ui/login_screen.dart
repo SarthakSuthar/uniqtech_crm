@@ -18,13 +18,10 @@ class _LoginScreenState extends State<LoginScreen> {
   // final TextEditingController _passwordController = TextEditingController();
   final LoginController controller = Get.put(LoginController());
 
-  bool internetConnection = false;
-
   @override
   void initState() {
     super.initState();
-    controller.checkInternet();
-    internetConnection = controller.internetConnection;
+    // controller.checkInternet();
   }
 
   @override
