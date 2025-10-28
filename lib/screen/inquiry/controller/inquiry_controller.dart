@@ -24,6 +24,13 @@ class InquiryController extends GetxController {
 
   InquiryController({this.isEdit = false, this.no});
 
+  RxString customerName = "".obs;
+  RxString custEmail = "".obs;
+  RxString custMobile = "".obs;
+
+  var customerList = <String, String>{}.obs;
+  var selectedCustomer = "".obs;
+
   final Map<String, TextEditingController> controllers = {};
   final Map<String, FocusNode> focusNodes = {};
 
@@ -79,25 +86,38 @@ class InquiryController extends GetxController {
     }
   }
 
+  //TODO: get name, emai, phone no by cust_id
+
   Future<void> setEditDetails() async {
     int intNo = int.parse(no ?? '');
+
+    await setCustomerDetails(
+      inquiryList
+          .firstWhereOrNull((element) => element.id == intNo)!
+          .custId
+          .toString(),
+    );
 
     controllers['num']!.text = no!;
     controllers['date']!.text = inquiryList
         .firstWhereOrNull((element) => element.id == intNo)!
         .date!;
-    controllers['name1']!.text = inquiryList
-        .firstWhereOrNull((element) => element.id == intNo)!
-        .custName1!;
-    selectedCustomer.value = inquiryList
-        .firstWhereOrNull((element) => element.id == intNo)!
-        .custName1!;
-    controllers['email']!.text = inquiryList
-        .firstWhereOrNull((element) => element.id == intNo)!
-        .email!;
-    controllers['mobile']!.text = inquiryList
-        .firstWhereOrNull((element) => element.id == intNo)!
-        .mobileNo!;
+    controllers['name1']!.text = customerName.value;
+    // controllers['name1']!.text = inquiryList
+    //     .firstWhereOrNull((element) => element.id == intNo)!
+    //     .custName1!;
+    selectedCustomer.value = customerName.value;
+    // selectedCustomer.value = inquiryList
+    //     .firstWhereOrNull((element) => element.id == intNo)!
+    //     .custName1!;
+    controllers['email']!.text = custEmail.value;
+    // controllers['email']!.text = inquiryList
+    //     .firstWhereOrNull((element) => element.id == intNo)!
+    //     .email!;
+    controllers['mobile']!.text = custMobile.value;
+    // controllers['mobile']!.text = inquiryList
+    //     .firstWhereOrNull((element) => element.id == intNo)!
+    //     .mobileNo!;
     controllers['social']!.text = inquiryList
         .firstWhereOrNull((element) => element.id == intNo)!
         .source!;
@@ -106,6 +126,19 @@ class InquiryController extends GetxController {
       await getinquiryProductList();
     }
   }
+
+  Future<void> setCustomerDetails(String id) async {
+    try {
+      final result = await ContactsRepo.getContactById(id);
+      customerName.value = result.custName!;
+      custEmail.value = result.email!;
+      custMobile.value = result.mobileNo!;
+    } catch (e) {
+      AppUtils.showlog("Error setting customer details : $e");
+    }
+  }
+
+  //TODO: get user name, email, mobile from id
 
   // @override
   // void onClose() {
@@ -186,16 +219,16 @@ class InquiryController extends GetxController {
     final lowerCaseQuery = val.toLowerCase();
 
     filterendList.value = inquiryList.where((item) {
-      final custName = item.custName1?.toLowerCase();
+      final custName = customerList.keys.where((e) => e.contains(val));
       final uid = item.id?.toString().toLowerCase();
 
       // An item is a match if its name OR uid contains the search query
-      return (custName?.contains(lowerCaseQuery) ?? false) ||
+      return (custName.contains(lowerCaseQuery)) ||
           (uid?.contains(lowerCaseQuery) ?? false);
     }).toList();
   }
 
-  // -------- Lists for dropdown and selections -------
+  // MARK: Lists for dropdown and selections
 
   /// get inquiry list
   Future<void> getInquiryList() async {
@@ -256,9 +289,6 @@ class InquiryController extends GetxController {
     }
   }
 
-  var customerList = <String, String>{}.obs;
-  var selectedCustomer = "".obs;
-
   /// get customers list
   Future<void> getCustomersList() async {
     try {
@@ -283,50 +313,15 @@ class InquiryController extends GetxController {
       AppUtils.showlog("get user details by id --> $id");
 
       final result = await ContactsRepo.getContactById(id);
+      // selectedCustomer.value = name;
       controllers["email"]?.text = result.email!;
       controllers["mobile"]?.text = result.mobileNo!;
+      customerName.value = result.custName!;
+      custEmail.value = result.email!;
+      custMobile.value = result.mobileNo!;
       AppUtils.showlog("selected contact details : ${result.toJson()}");
     } catch (e) {
       AppUtils.showlog("error on get user details : $e");
-    }
-  }
-
-  // ------------------------
-
-  ///add Customer
-  Future<void> addInquiryCustomer() async {
-    try {
-      final custName = selectedCustomer.value;
-      final custId = customerList[custName];
-
-      AppUtils.showlog("custName : $custName");
-      AppUtils.showlog("custId : $custId");
-
-      final inquiryCustomer = InquiryModel(
-        createdBy: await AppUtils.uid,
-        updatedBy: await AppUtils.uid,
-        createdAt: DateTime.now().toString(),
-        updatedAt: DateTime.now().toString(),
-        custId: int.parse(custId ?? ''),
-        custName1: selectedCustomer.value,
-        // custName2: controllers["name2"]!.text,
-        date: controllers["date"]!.text,
-        email: controllers["email"]!.text,
-        mobileNo: controllers["mobile"]!.text,
-        source: controllers["social"]!.text,
-      );
-
-      AppUtils.showlog(
-        "added inquiry customer ----> ${inquiryCustomer.toJson()}",
-      );
-
-      int result = await InquiryRepo.insertInquiry(inquiryCustomer);
-      AppUtils.showlog("insert inquiry customer ----> $result");
-      // showSuccessSnackBar("Customer added successfully");
-      await getInquiryList();
-    } catch (e) {
-      showErrorSnackBar("Error adding customer");
-      AppUtils.showlog("error on add customer : $e");
     }
   }
 
@@ -340,6 +335,50 @@ class InquiryController extends GetxController {
     } catch (e) {
       AppUtils.showlog("Error getting product id : $e");
       rethrow;
+    }
+  }
+
+  // ------------------------
+
+  ///add Customer
+  Future<int> addInquiryCustomer() async {
+    try {
+      AppUtils.showlog(
+        "Selected Customer in addInquiry --> ${selectedCustomer.value}",
+      );
+      final custName = selectedCustomer.value;
+      final custId = customerList[custName];
+
+      AppUtils.showlog("custName : $custName");
+      AppUtils.showlog("custId : $custId");
+
+      final inquiryCustomer = InquiryModel(
+        createdBy: await AppUtils.uid,
+        updatedBy: await AppUtils.uid,
+        createdAt: DateTime.now().toString(),
+        updatedAt: DateTime.now().toString(),
+        custId: int.parse(custId ?? ''),
+        // custName1: selectedCustomer.value,
+        // custName2: controllers["name2"]!.text,
+        date: controllers["date"]!.text,
+        // email: controllers["email"]!.text,
+        // mobileNo: controllers["mobile"]!.text,
+        source: controllers["social"]!.text,
+      );
+
+      AppUtils.showlog(
+        "added inquiry customer ----> ${inquiryCustomer.toJson()}",
+      );
+
+      int result = await InquiryRepo.insertInquiry(inquiryCustomer);
+      AppUtils.showlog("insert inquiry customer ----> $result");
+      // showSuccessSnackBar("Customer added successfully");
+      await getInquiryList();
+      return result;
+    } catch (e) {
+      showErrorSnackBar("Error adding customer : $e");
+      AppUtils.showlog("error on add customer : $e");
+      return 0;
     }
   }
 
@@ -386,33 +425,6 @@ class InquiryController extends GetxController {
     }
   }
 
-  ///add inquiry & product id to table so we have track of for a customer how many products inquiry we have
-  /*Future<void> addInquiryProductID() async {
-    try {
-      final inquiryId = int.parse(controllers['num']!.text);
-
-      AppUtils.showlog("Inquiry Id in addInquiryProductID : $inquiryId");
-
-      final inqProdId = InquiryProductModel(
-        inquiryId: inquiryId,
-        productId: getProductId(selectedProduct!.value),
-        quantity: int.parse(controllers["quantity"]!.text),
-        remark: controllers["remarks"]!.text,
-      );
-
-      AppUtils.showlog("inquiry id : ${inqProdId.inquiryId}");
-      AppUtils.showlog("product id : ${inqProdId.productId}");
-
-      int result = await InquiryRepo.insertInquiryProduct(inqProdId);
-      showSuccessSnackBar("Product added successfully");
-      AppUtils.showlog("insert inquiry product ----> $result");
-      await getinquiryProductList();
-    } catch (e) {
-      showErrorSnackBar("Error adding Product");
-      AppUtils.showlog("Error adding product & inquiry ID : $e");
-    }
-  }*/
-
   Future<void> addInquiryProductID() async {
     try {
       for (var element in tempProductList) {
@@ -453,12 +465,15 @@ class InquiryController extends GetxController {
   ///save inquiry
   Future<void> submitInquiry() async {
     try {
-      await addInquiryCustomer(); // customer
-      await addInquiryProductID();
+      final addCustomerResult = await addInquiryCustomer(); // customer
+      if (addCustomerResult != 0) {
+        await addInquiryProductID();
+        showSuccessSnackBar("Inquiry submitted successfully");
+      }
+
       await getInquiryList();
-      // Get.back(result: true);
-      Get.offAndToNamed(AppRoutes.dashboard);
-      showSuccessSnackBar("Inquiry submitted successfully");
+
+      Get.offAndToNamed(AppRoutes.inquiry);
     } catch (e) {
       AppUtils.showlog("Error submitting inquiry : $e");
     }
@@ -501,11 +516,11 @@ class InquiryController extends GetxController {
         updatedBy: await AppUtils.uid,
         updatedAt: DateTime.now().toString(),
         custId: int.parse(custId ?? ''),
-        custName1: selectedCustomer.value,
+        // custName1: selectedCustomer.value,
         // custName2: "controllers['name2']!.text",
         date: controllers['date']!.text,
-        email: controllers['email']!.text,
-        mobileNo: controllers['mobile']!.text,
+        // email: controllers['email']!.text,
+        // mobileNo: controllers['mobile']!.text,
         source: controllers['social']!.text,
       );
       AppUtils.showlog("updated inquiry ----> ${inquiry.toJson()}");
@@ -711,11 +726,11 @@ class InquiryController extends GetxController {
         createdAt: inquiry.createdAt,
         updatedAt: inquiry.updatedAt,
         custId: inquiry.custId,
-        custName1: inquiry.custName1,
+        // custName1: inquiry.custName1,
         // custName2: inquiry.custName2,
         date: inquiry.date,
-        email: inquiry.email,
-        mobileNo: inquiry.mobileNo,
+        // email: inquiry.email,
+        // mobileNo: inquiry.mobileNo,
         source: inquiry.source,
         isSynced: inquiry.isSynced,
       );

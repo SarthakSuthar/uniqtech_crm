@@ -5,7 +5,6 @@ import 'package:crm/screen/contacts/model/contact_model.dart';
 import 'package:crm/services/local_db.dart';
 import 'package:sqflite/sqlite_api.dart';
 
-//TODO: add email warning -- if email exist warn on ui
 class ContactsRepo {
   static const String table = 'contact';
 

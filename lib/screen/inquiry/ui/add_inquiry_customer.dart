@@ -17,17 +17,19 @@ class AddInquiryCustomer extends StatefulWidget {
 class _AddInquiryCustomerState extends State<AddInquiryCustomer> {
   // final InquiryController controller = Get.put(InquiryController());
 
-  late InquiryController controller;
+  // late InquiryController controller;
+
+  final InquiryController controller = Get.find<InquiryController>();
 
   @override
   void initState() {
     super.initState();
 
     //Create controller here (safe to use widget values)
-    controller = Get.put(
-      InquiryController(isEdit: widget.isEdit, no: widget.no),
-      tag: widget.no ?? 'new', // unique tag per inquiry
-    );
+    // controller = Get.put(
+    //   InquiryController(isEdit: widget.isEdit, no: widget.no),
+    //   tag: widget.no ?? 'new', // unique tag per inquiry
+    // );
   }
 
   final _formKey = GlobalKey<FormState>();
@@ -92,9 +94,9 @@ class _AddInquiryCustomerState extends State<AddInquiryCustomer> {
                                     true
                                 ? null
                                 : controller.selectedCustomer.value,
-                            onChanged: (value) {
+                            onChanged: (value) async {
                               controller.selectedCustomer.value = value!;
-                              controller.getSelectedContactDetails(value);
+                              await controller.getSelectedContactDetails(value);
                             },
                             expandInRow: true,
                           ),

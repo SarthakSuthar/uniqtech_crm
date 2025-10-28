@@ -97,13 +97,13 @@ Future<void> syncToCloud({required BuildContext context}) async {
     await TasksRepo().syncTasksToFirestore();
 
     if (context.mounted) {
-      Get.back(); // Close loading dialog
+      Navigator.of(context).pop(); // Close loading dialog
       showSuccessSnackBar("Data synced successfully.");
     }
   } catch (e) {
     if (context.mounted) {
-      Get.back(); // Close loading dialog
-      showErrorSnackBar("Data sync failed.");
+      Navigator.of(context).pop(); // Close loading dialog
+      showErrorSnackBar("Data sync failed: ${e.toString()}");
     }
     AppUtils.showlog("Error syncing data: $e");
   }

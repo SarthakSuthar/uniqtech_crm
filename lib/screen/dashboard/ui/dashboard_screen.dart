@@ -19,7 +19,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    sync();
+    // sync(); TODO: uncomment it for prod
   }
 
   void sync() async {

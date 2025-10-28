@@ -12,7 +12,8 @@ class AddInquiryProduct extends StatefulWidget {
 }
 
 class _AddInquiryProductState extends State<AddInquiryProduct> {
-  final InquiryController controller = Get.put(InquiryController());
+  final InquiryController controller = Get.find<InquiryController>();
+  // final InquiryController controller = Get.put(InquiryController());
 
   final _formKey = GlobalKey<FormState>();
 

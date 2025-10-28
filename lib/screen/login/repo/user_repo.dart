@@ -38,7 +38,8 @@ class UserRepo {
   static Future<UserModel> getUserData() async {
     try {
       final db = await DatabaseHelper().database;
-      final result = await db.query(tableName, where: 'id = ?', whereArgs: [1]);
+      // final result = await db.query(tableName, where: 'id = ?', whereArgs: [1]);
+      final result = await db.query(tableName);
       AppUtils.showlog("getUserData -- user repo : $result");
       if (result.isNotEmpty) {
         return UserModel.fromJson(result.first);

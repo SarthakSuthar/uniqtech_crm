@@ -31,14 +31,12 @@ class InquiryRepo {
             created_by TEXT,
             updated_by TEXT,
             custId INTEGER,
-            cust_name1 TEXT,
             date TEXT,
-            email TEXT,
-            mobile_no TEXT,
             source TEXT,
             created_at TEXT,
             updated_at TEXT,
-            isSynced INTEGER DEFAULT 0
+            isSynced INTEGER DEFAULT 0,
+            FOREIGN KEY (custId) REFERENCES customer(id) ON DELETE CASCADE ON UPDATE CASCADE
         )
     ''');
   }

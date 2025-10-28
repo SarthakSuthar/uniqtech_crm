@@ -115,11 +115,18 @@ class _InquiryListState extends State<InquiryList> {
                         // physics: const NeverScrollableScrollPhysics(),
                         itemBuilder: (context, index) => contactListWidget(
                           no: controller.filterendList[index].id.toString(),
-                          email: controller.filterendList[index].email ?? '',
-                          mobileNo:
-                              controller.filterendList[index].mobileNo ?? '',
-                          customerName:
-                              controller.filterendList[index].custName1 ?? '',
+                          // email: controller.filterendList[index].email ?? '',
+                          email: controller
+                              .setCustomerDetails(
+                                controller.filterendList
+                                    .firstWhereOrNull((e) => e.custId == index)
+                                    .toString(),
+                              )
+                              .toString(),
+                          mobileNo: "",
+                          // controller.filterendList[index].mobileNo ?? '',
+                          customerName: "",
+                          // controller.filterendList[index].custName1 ?? '',
                           onEdit: () {
                             Get.toNamed(
                               AppRoutes.addInquiry,

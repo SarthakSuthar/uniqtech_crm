@@ -11,10 +11,24 @@ import 'package:crm/screen/quotes/ui/quote_list.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class AppDrawer extends StatelessWidget {
-  AppDrawer({super.key});
+class AppDrawer extends StatefulWidget {
+  const AppDrawer({super.key});
 
-  final LoginController controller = Get.put(LoginController());
+  @override
+  State<AppDrawer> createState() => _AppDrawerState();
+}
+
+class _AppDrawerState extends State<AppDrawer> {
+  // final LoginController controller = Get.put(LoginController());
+
+  final LoginController controller = Get.find<LoginController>();
+
+  @override
+  void initState() {
+    super.initState();
+    // Load user details each time drawer builds (optional)
+    controller.getUserDetails();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,8 +50,21 @@ class AppDrawer extends StatelessWidget {
                 children: [
                   Image.asset('assets/images/logo.png'),
                   const SizedBox(height: 20),
-                  Text("Uniqtech Solutions"),
-                  Text("Mikir@uniqtechsolutions.com"),
+                  // Text("Uniqtech Solutions"),
+                  Obx(() => Text(controller.userId.value)),
+                  Obx(
+                    () => Text(
+                      controller.userName.value,
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ),
+                  Obx(
+                    () => Text(
+                      controller.userEmail.value,
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ),
+                  // Text("Mikir@uniqtechsolutions.com"),
                 ],
               ),
             ),
@@ -159,38 +186,6 @@ class AppDrawer extends StatelessWidget {
   }
 
   // Widget drawerItem(IconData icon, String name, VoidCallback? onTap) {
-  //   return InkWell(
-  //     onTap: onTap,
-  //     child: Padding(
-  //       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-  //       child: Row(
-  //         children: [
-  //           Icon(icon, size: 30),
-  //           const SizedBox(width: 10),
-  //           Text(
-  //             name,
-  //             style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-  // Widget drawerItemWithNestedRoutes(
-  //   IconData icon,
-  //   String name,
-  //   List<Widget> children,
-  // ) {
-  //   return ExpansionTile(
-  //     leading: Icon(icon, size: 30),
-  //     title: Text(
-  //       name,
-  //       style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-  //     ),
-  //     children: children,
-  //   );
-  // }
-
   Widget drawerItem({
     required IconData icon,
     required String name,
