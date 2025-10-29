@@ -1,4 +1,5 @@
 import 'package:crm/app_const/widgets/app_snackbars.dart';
+import 'package:crm/routes/app_routes.dart';
 import 'package:crm/screen/quotes/model/quote_invoice_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -24,14 +25,20 @@ import 'package:crm/screen/quotes/model/quotation_terms_model.dart';
 import 'package:crm/screen/quotes/repo/quotation_repo.dart';
 
 class QuotesController extends GetxController {
+  bool isEdit = false;
+  String? no;
+
+  QuotesController({this.isEdit = false, this.no});
+
   RxString? selectedProduct = "".obs;
   RxString? selectedUOM = "".obs;
 
   Map<String, TextEditingController> controllers = {};
   Map<String, FocusNode> focusNodes = {};
 
-  bool isEdit = false;
-  String? no;
+  RxString customerName = "".obs;
+  RxString custEmail = "".obs;
+  RxString custMobile = "".obs;
 
   @override
   void onInit() async {
@@ -48,11 +55,17 @@ class QuotesController extends GetxController {
     // await getSelectedTerms();
 
     // Set initial quotation number based on the total number of quotations
-    if (isEdit == true) {
-      await setEditDetails();
-    } else {
-      // controllers['num']!.text = (quotationList.length + 1).toString();
-      controllers['num']!.text = (await QuotationRepo().getNextQuotationId())
+    // if (isEdit == true) {
+    //   await setEditDetails();
+    // } else {
+    //   // controllers['num']!.text = (quotationList.length + 1).toString();
+    //   controllers['num']!.text = (await QuotationRepo().getNextQuotationId())
+    //       .toString();
+    //   controllers['date']!.text = dateFormat.format(DateTime.now());
+    // }
+
+    if (isEdit != true) {
+      controllers['num']!.text = (await QuotationRepo.getNextQuotationId())
           .toString();
       controllers['date']!.text = dateFormat.format(DateTime.now());
     }
@@ -137,6 +150,9 @@ class QuotesController extends GetxController {
   //   super.dispose();
   // }
 
+  // TODO: HAVE TO IMPLEMENT SAME AS IN INQUIRY CONTROLLER
+
+  /*
   Future<void> setEditDetails() async {
     int intNo = int.parse(no ?? '');
 
@@ -166,6 +182,7 @@ class QuotesController extends GetxController {
         '';
     await getQuotationProductList();
   }
+*/
 
   void calculateAmount() {
     final quantityText = controllers["quantity"]!.text;
@@ -201,6 +218,19 @@ class QuotesController extends GetxController {
     }
   }
 
+  Future<void> setCustomerDetails(String id) async {
+    try {
+      final result = await ContactsRepo.getContactById(id);
+      customerName.value = result.custName!;
+      custEmail.value = result.email!;
+      custMobile.value = result.mobileNo!;
+    } catch (e) {
+      AppUtils.showlog(
+        "quote controller -- Error setting customer details : $e",
+      );
+    }
+  }
+
   final RxList<QuotationModel> quotationList = <QuotationModel>[].obs;
   final RxList<QuotationModel> filterendList = <QuotationModel>[].obs;
 
@@ -224,18 +254,29 @@ class QuotesController extends GetxController {
     final lowerCaseQuery = val.toLowerCase();
 
     filterendList.value = quotationList.where((item) {
-      final custName = item.custName1?.toLowerCase();
+      final custName = customerList.keys.where((e) => e.contains(val));
       final uid = item.id
           .toString()
           .toLowerCase(); // Assuming uid is a string or can be converted to one
 
       // An item is a match if its name OR uid contains the search query
-      return (custName?.contains(lowerCaseQuery) ?? false) ||
+      return (custName.contains(lowerCaseQuery)) ||
           (uid.contains(lowerCaseQuery));
     }).toList();
   }
 
   // -------- Lists for dropdown and selections -------
+
+  Future<QuotationModel> getQuotationById(String id) async {
+    try {
+      final result = await QuotationRepo.getQuotationById(id);
+      AppUtils.showlog("get quotation by id : ${result.toJson()}");
+      return result;
+    } catch (e) {
+      AppUtils.showlog("Error getting quotation by id : $e");
+      rethrow;
+    }
+  }
 
   ///get all product list
   Future<void> getProductList() async {
@@ -343,11 +384,11 @@ class QuotesController extends GetxController {
         createdAt: DateTime.now().toString(),
         updatedAt: DateTime.now().toString(),
         custId: int.parse(custId ?? ''),
-        custName1: selectedCustomer.value,
+        // custName1: selectedCustomer.value,
         // custName2: controllers["name2"]!.text,
         date: controllers["date"]!.text,
-        email: controllers["email"]!.text,
-        mobileNo: controllers["mobile"]!.text,
+        // email: controllers["email"]!.text,
+        // mobileNo: controllers["mobile"]!.text,
         source: controllers["social"]!.text,
         subject: controllers["subject"]!.text,
       );
@@ -513,16 +554,17 @@ class QuotesController extends GetxController {
 
       final quotation = QuotationModel(
         id: quotationId,
-        createdBy: uid,
+        createdBy: uid, // TODO: have to keep previous creater id
         updatedBy: uid,
-        createdAt: DateTime.now().toString(),
+        createdAt: DateTime.now()
+            .toString(), // TODO: have to keep previous creater time
         updatedAt: DateTime.now().toString(),
         custId: int.parse(custId!),
-        custName1: selectedCustomer.value,
+        // custName1: selectedCustomer.value,
         // custName2: "controllers['name2']!.text",
         date: controllers['date']!.text,
-        email: controllers['email']!.text,
-        mobileNo: controllers['mobile']!.text,
+        // email: controllers['email']!.text,
+        // mobileNo: controllers['mobile']!.text,
         source: controllers['social']!.text,
         subject: controllers['subject']!.text,
         isSynced: 0,
@@ -535,6 +577,7 @@ class QuotesController extends GetxController {
       AppUtils.showlog("updated product ----> $updateProduct");
 
       showSuccessSnackBar("Quotation Updated Successfully");
+      Get.toNamed(AppRoutes.quote);
     } catch (e) {
       showErrorSnackBar("Error updating quotation");
       AppUtils.showlog("Error update quotation : $e");
@@ -832,11 +875,11 @@ class QuotesController extends GetxController {
         createdAt: quotation.createdAt,
         updatedAt: quotation.updatedAt,
         custId: quotation.custId,
-        custName1: quotation.custName1,
+        // custName1: quotation.custName1,
         // custName2: quotation.custName2,
         date: quotation.date,
-        email: quotation.email,
-        mobileNo: quotation.mobileNo,
+        // email: quotation.email,
+        // mobileNo: quotation.mobileNo,
         source: quotation.source,
       );
       AppUtils.showlog("added order customer ----> ${orderCustomer.toJson()}");
@@ -976,11 +1019,11 @@ class QuotesController extends GetxController {
         createdAt: quotation.createdAt,
         updatedAt: quotation.updatedAt,
         custId: quotation.custId,
-        custName1: quotation.custName1,
+        // custName1: quotation.custName1,
         // custName2: quotation.custName2,
         date: quotation.date,
-        email: quotation.email,
-        mobileNo: quotation.mobileNo,
+        // email: quotation.email,
+        // mobileNo: quotation.mobileNo,
         source: quotation.source,
       );
       AppUtils.showlog("added new customer ----> ${newCustomer.toJson()}");
@@ -1090,7 +1133,9 @@ class QuotesController extends GetxController {
       );
 
       //get customer name & address
-      invoiceCustName.value = currentQuotation.custName1 ?? '';
+      invoiceCustName.value =
+          customerName.value; //TODO: have to add current user name
+      // invoiceCustName.value = currentQuotation.custName1 ?? '';
       invoiceCustAddress.value =
           "${customerDetails.address}, ${customerDetails.city}, ${customerDetails.state}, ${customerDetails.country}";
       invoiceSubject.value = currentQuotation.subject ?? '';

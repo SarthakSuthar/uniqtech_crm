@@ -2,6 +2,7 @@ import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/app_const/widgets/app_bar.dart';
 import 'package:crm/app_const/widgets/app_drawer.dart';
 import 'package:crm/app_const/widgets/app_widgets.dart';
+import 'package:crm/screen/contacts/repo/contact_repo.dart';
 import 'package:crm/screen/quotes/controller/quotes_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -113,14 +114,57 @@ class _QuoteListState extends State<QuoteList> {
                       child: ListView.builder(
                         itemCount: controller.filterendList.length,
                         shrinkWrap: true,
-                        itemBuilder: (context, index) => quoteListWidget(
-                          no: controller.filterendList[index].id.toString(),
-                          email: controller.filterendList[index].email ?? '',
-                          mobileNo:
-                              controller.filterendList[index].mobileNo ?? '',
-                          customerName:
-                              controller.filterendList[index].custName1 ?? '',
-                        ),
+                        itemBuilder: (context, index) {
+                          final id = controller.filterendList[index].id!;
+
+                          return FutureBuilder<List<String>>(
+                            future: getUserDetails(id),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const SizedBox(
+                                  height: 60,
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  ),
+                                );
+                              } else if (snapshot.hasError) {
+                                return Text("Error: ${snapshot.error}");
+                              } else if (!snapshot.hasData ||
+                                  snapshot.data!.isEmpty) {
+                                return const Text("No contact details");
+                              } else {
+                                final details = snapshot.data!;
+                                final name = details[0];
+                                final email = details[1];
+                                final mobile = details[2];
+
+                                return quoteListWidget(
+                                  no: id.toString(),
+                                  customerName: name,
+                                  email: email,
+                                  mobileNo: mobile,
+                                  onEdit: () {
+                                    Get.toNamed(
+                                      AppRoutes.addQuote,
+                                      arguments: {
+                                        'no': id.toString(),
+                                        'isEdit': true,
+                                      },
+                                    );
+                                    AppUtils.showlog("edit button tapped");
+                                  },
+                                  onDelete: () {
+                                    controller.deleteQuotation(id: id);
+                                    AppUtils.showlog("delete button tapped");
+                                  },
+                                );
+                              }
+                            },
+                          );
+                        },
                       ),
                     ),
             ),
@@ -143,11 +187,31 @@ class _QuoteListState extends State<QuoteList> {
     );
   }
 
+  ///return order
+  ///1. name
+  ///2. email
+  ///3. mobile
+  Future<List<String>> getUserDetails(int id) async {
+    try {
+      final result = await ContactsRepo.getContactById(id.toString());
+      return [
+        result.custName.toString(),
+        result.email.toString(),
+        result.mobileNo.toString(),
+      ];
+    } catch (e) {
+      AppUtils.showlog(e.toString());
+      return [];
+    }
+  }
+
   Widget quoteListWidget({
     required String no,
     required String customerName,
     required String email,
     required String mobileNo,
+    required VoidCallback onEdit,
+    required VoidCallback onDelete,
   }) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -189,14 +253,15 @@ class _QuoteListState extends State<QuoteList> {
               child: Row(
                 children: [
                   InkWell(
-                    onTap: () {
-                      AppUtils.showlog("parsing arguments : $no");
-                      Get.toNamed(
-                        AppRoutes.addQuote,
-                        arguments: {'no': no, 'isEdit': true},
-                      );
-                      AppUtils.showlog("edit button taped");
-                    },
+                    onTap: onEdit,
+                    // onTap: () {
+                    //   AppUtils.showlog("parsing arguments : $no");
+                    //   Get.toNamed(
+                    //     AppRoutes.addQuote,
+                    //     arguments: {'no': no, 'isEdit': true},
+                    //   );
+                    //   AppUtils.showlog("edit button taped");
+                    // },
                     child: Container(
                       decoration: BoxDecoration(
                         color: Theme.of(context).primaryColor,
@@ -218,6 +283,7 @@ class _QuoteListState extends State<QuoteList> {
                   const SizedBox(width: 5),
 
                   InkWell(
+                    // onTap: () => onEdit,
                     onTap: () async {
                       AppUtils.showlog("convert to order button taped");
                       await controller.convertQuotationToOrder(quotationId: no);
@@ -326,10 +392,11 @@ class _QuoteListState extends State<QuoteList> {
                   const SizedBox(width: 5),
 
                   InkWell(
-                    onTap: () async {
-                      await controller.deleteQuotation(id: int.parse(no));
-                      AppUtils.showlog("delete button taped");
-                    },
+                    onTap: onDelete,
+                    // onTap: () async {
+                    //   await controller.deleteQuotation(id: int.parse(no));
+                    //   AppUtils.showlog("delete button taped");
+                    // },
                     child: Container(
                       decoration: BoxDecoration(
                         color: Theme.of(context).primaryColor,

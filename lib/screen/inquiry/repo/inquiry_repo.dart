@@ -126,7 +126,9 @@ class InquiryRepo {
             productId INTEGER,
             quantity INTEGER,
             remark TEXT,
-            isSynced INTEGER DEFAULT 0
+            isSynced INTEGER DEFAULT 0,
+            FOREIGN KEY (inquiryId) REFERENCES $table(id) ON DELETE CASCADE ON UPDATE CASCADE,
+            FOREIGN KEY (productId) REFERENCES product(id) ON DELETE CASCADE ON UPDATE CASCADE
         )
     ''');
   }

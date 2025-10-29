@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:crm/screen/login/repo/user_repo.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
-import 'dart:developer' as developer;
 
 class FileHelper {
   static Future<String?> savePickedFile({

@@ -7,12 +7,17 @@ import 'package:crm/screen/orders/ui/add_order_terms.dart';
 import 'package:flutter/material.dart';
 import 'package:tab_indicator_styler/tab_indicator_styler.dart';
 
-class AddOrder extends StatelessWidget {
+class AddOrder extends StatefulWidget {
   final String? no;
   final bool isEdit;
 
   const AddOrder({super.key, this.no, required this.isEdit});
 
+  @override
+  State<AddOrder> createState() => _AddOrderState();
+}
+
+class _AddOrderState extends State<AddOrder> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,12 +64,18 @@ class AddOrder extends StatelessWidget {
                 child: TabBarView(
                   children: [
                     SizedBox(
-                      child: AddOrderCustomer(no: no, isEdit: isEdit),
+                      child: AddOrderCustomer(
+                        no: widget.no,
+                        isEdit: widget.isEdit,
+                      ),
                     ),
                     SizedBox(child: AddOrderOther()),
                     SizedBox(child: AddOrderProduct()),
                     SizedBox(
-                      child: AddOrderTerms(orderId: no, isEdit: isEdit),
+                      child: AddOrderTerms(
+                        orderId: widget.no,
+                        isEdit: widget.isEdit,
+                      ),
                     ),
                   ],
                 ),

@@ -24,16 +24,33 @@ class _AddQuoteCustomerState extends State<AddQuoteCustomer> {
   void initState() {
     super.initState();
 
-    widget.isEdit ? controller.isEdit = true : controller.isEdit = false;
-    widget.no != null ? controller.no = widget.no : controller.no = '';
+    if (widget.isEdit == true) {
+      controller.getQuotationById(widget.no!).then((value) async {
+        controller.controllers['num']!.text = value.id.toString();
+        controller.controllers['date']!.text = value.date!;
+        controller.controllers['social']!.text = value.source.toString();
+        controller.controllers['subject']!.text =
+            value.subject.toString().isNotEmpty ? value.subject.toString() : '';
+
+        await controller.setCustomerDetails(widget.no!);
+        controller.controllers['name1']!.text = controller.customerName.value;
+        controller.controllers['email']!.text = controller.custEmail.value;
+        controller.controllers['mobile']!.text = controller.custMobile.value;
+        controller.selectedCustomer.value = controller.customerName.value;
+
+        await controller.getQuotationProductList();
+      });
+    }
+    // widget.isEdit ? controller.isEdit = true : controller.isEdit = false;
+    // widget.no != null ? controller.no = widget.no : controller.no = '';
   }
 
   @override
   Widget build(BuildContext context) {
-    // widget.isEdit == true
-    //     ? controller.isEdit = true
-    //     : controller.isEdit = false;
-    // widget.no != null ? controller.no = widget.no : controller.no = '';
+    widget.isEdit == true
+        ? controller.isEdit = true
+        : controller.isEdit = false;
+    widget.no != null ? controller.no = widget.no : controller.no = '';
 
     AppUtils.showlog("isEdit -----> ${controller.isEdit}");
     AppUtils.showlog("no -----> ${controller.no}");

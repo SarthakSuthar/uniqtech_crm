@@ -181,10 +181,10 @@ class _AddQuoteProductState extends State<AddQuoteProduct> {
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
-              if (_formKey.currentState!.validate()) {
-                controller.isEdit == true
-                    ? controller.updateQuotation()
-                    : controller.submitQuotation();
+              if (controller.isEdit == true) {
+                controller.updateQuotation();
+              } else if (_formKey.currentState!.validate()) {
+                controller.submitQuotation();
               }
               AppUtils.showlog("Inquiry Action button pressed");
             },

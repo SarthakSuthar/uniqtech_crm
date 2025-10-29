@@ -33,13 +33,14 @@ class _AddInquiryCustomerState extends State<AddInquiryCustomer> {
         controller.controllers['num']!.text = value.id.toString();
         controller.controllers['date']!.text = value.date.toString();
         controller.controllers['social']!.text = value.source.toString();
-        controller.controllers['date']!.text = value.date.toString();
 
         await controller.setCustomerDetails(widget.no!);
         controller.controllers['name1']!.text = controller.customerName.value;
         controller.controllers['email']!.text = controller.custEmail.value;
         controller.controllers['mobile']!.text = controller.custMobile.value;
         controller.selectedCustomer.value = controller.customerName.value;
+
+        await controller.getinquiryProductList();
       });
     }
 

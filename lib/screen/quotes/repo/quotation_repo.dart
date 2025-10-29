@@ -38,10 +38,10 @@ class QuotationRepo {
             updated_by TEXT,
             updated_at TEXT,
             custId INTEGER,
-            cust_name1 TEXT,
+            -- cust_name1 TEXT,
             date TEXT,
-            email TEXT,
-            mobile_no TEXT,
+            -- email TEXT,
+            -- mobile_no TEXT,
             source TEXT,
             subject TEXT,
             isSynced INTEGER DEFAULT 0
@@ -51,7 +51,7 @@ class QuotationRepo {
     AppUtils.showlog("Create Quotation Table");
   }
 
-  Future<int> getNextQuotationId() async {
+  static Future<int> getNextQuotationId() async {
     Database db = await DatabaseHelper().database;
     final result = await db.rawQuery(
       'SELECT MAX(id) as maxId FROM $quotationTable',
@@ -363,7 +363,9 @@ class QuotationRepo {
           updated_by TEXT,
           updated_at TEXT,
           termId INTEGER,
-          isSynced INTEGER DEFAULT 0
+          isSynced INTEGER DEFAULT 0,
+          FOREIGN KEY (quotationId) REFERENCES $quotationTable(id) ON DELETE CASCADE ON UPDATE CASCADE,
+          FOREIGN KEY (termId) REFERENCES terms(id) ON DELETE CASCADE ON UPDATE CASCADE
       )
   ''');
 
@@ -442,10 +444,10 @@ class QuotationRepo {
 
   static const List<String> quotationTableFields = [
     'custId',
-    'cust_name1',
+    // 'cust_name1',
     'date',
-    'email',
-    'mobile_no',
+    // 'email',
+    // 'mobile_no',
     'source',
     'subject',
   ];

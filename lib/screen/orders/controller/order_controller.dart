@@ -17,6 +17,11 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class OrderController extends GetxController {
+  bool isEdit = false;
+  String? no;
+
+  OrderController({this.isEdit = false, this.no});
+
   RxString? selectedProduct = RxString("");
   RxString? selectedUOM = RxString("");
 
@@ -34,9 +39,11 @@ class OrderController extends GetxController {
   Map<String, TextEditingController> controllers = {};
   Map<String, FocusNode> focusNodes = {};
 
-  bool isEdit = false;
-  String? no;
   final dateFormat = DateFormat("d/M/yyyy");
+
+  RxString customerName = "".obs;
+  RxString custEmail = "".obs;
+  RxString custMobile = "".obs;
 
   @override
   void onInit() async {
@@ -58,15 +65,21 @@ class OrderController extends GetxController {
     await getUid();
 
     // Set initial quotation number based on the total number of quotations
-    if (isEdit) {
-      await setEditDetails();
-    } else if (controllers['num']?.text.isEmpty ?? true) {
-      controllers['num']!.text = (await OrderRepo().getNextOrderId())
-          .toString();
+    // if (isEdit) {
+    //   await setEditDetails();
+    // } else if (controllers['num']?.text.isEmpty ?? true) {
+    //   controllers['num']!.text = (await OrderRepo().getNextOrderId())
+    //       .toString();
 
-      AppUtils.showlog(
-        "Order -- Last id in controller : ${controllers['num']!.text}",
-      );
+    //   AppUtils.showlog(
+    //     "Order -- Last id in controller : ${controllers['num']!.text}",
+    //   );
+
+    //   controllers['date']!.text = dateFormat.format(DateTime.now());
+    // }
+
+    if (isEdit != true) {
+      controllers['num']!.text = (await OrderRepo.getNextOrderId()).toString();
 
       controllers['date']!.text = dateFormat.format(DateTime.now());
     }
@@ -134,54 +147,54 @@ class OrderController extends GetxController {
   //   focusNodes.forEach((key, focusNode) => focusNode.dispose());
   // }
 
-  Future<void> setEditDetails() async {
-    int intNo = int.parse(no ?? '');
+  // Future<void> setEditDetails() async {
+  //   int intNo = int.parse(no ?? '');
 
-    controllers['num']!.text = no!;
-    controllers['date']!.text = orderList
-        .firstWhereOrNull((element) => element.id == intNo)!
-        .date!;
-    controllers['name1']!.text = orderList
-        .firstWhereOrNull((element) => element.id == intNo)!
-        .custName1!;
-    selectedCustomer.value = orderList
-        .firstWhereOrNull((element) => element.id == intNo)!
-        .custName1!;
-    controllers['email']!.text = orderList
-        .firstWhereOrNull((element) => element.id == intNo)!
-        .email!;
-    controllers['mobile']!.text = orderList
-        .firstWhereOrNull((element) => element.id == intNo)!
-        .mobileNo!;
-    controllers['social']!.text = orderList
-        .firstWhereOrNull((element) => element.id == intNo)!
-        .source!;
-    controllers['supplier_ref']!.text =
-        orderList
-            .firstWhereOrNull((element) => element.id == intNo)!
-            .supplierRef ??
-        '';
-    controllers['other_ref']!.text =
-        orderList
-            .firstWhereOrNull((element) => element.id == intNo)!
-            .otherRef ??
-        '';
-    controllers['extra_discount']!.text = orderList
-        .firstWhereOrNull((element) => element.id == intNo)!
-        .extraDiscount
-        .toString();
-    controllers['freight_amount']!.text =
-        orderList
-            .firstWhereOrNull((element) => element.id == intNo)!
-            .freightAmount ??
-        '';
-    controllers['loading_charges']!.text =
-        orderList
-            .firstWhereOrNull((element) => element.id == intNo)!
-            .loadingCharges ??
-        '';
-    await getOrderProductList();
-  }
+  //   controllers['num']!.text = no!;
+  //   controllers['date']!.text = orderList
+  //       .firstWhereOrNull((element) => element.id == intNo)!
+  //       .date!;
+  //   controllers['name1']!.text = orderList
+  //       .firstWhereOrNull((element) => element.id == intNo)!
+  //       .custName1!;
+  //   selectedCustomer.value = orderList
+  //       .firstWhereOrNull((element) => element.id == intNo)!
+  //       .custName1!;
+  //   controllers['email']!.text = orderList
+  //       .firstWhereOrNull((element) => element.id == intNo)!
+  //       .email!;
+  //   controllers['mobile']!.text = orderList
+  //       .firstWhereOrNull((element) => element.id == intNo)!
+  //       .mobileNo!;
+  //   controllers['social']!.text = orderList
+  //       .firstWhereOrNull((element) => element.id == intNo)!
+  //       .source!;
+  //   controllers['supplier_ref']!.text =
+  //       orderList
+  //           .firstWhereOrNull((element) => element.id == intNo)!
+  //           .supplierRef ??
+  //       '';
+  //   controllers['other_ref']!.text =
+  //       orderList
+  //           .firstWhereOrNull((element) => element.id == intNo)!
+  //           .otherRef ??
+  //       '';
+  //   controllers['extra_discount']!.text = orderList
+  //       .firstWhereOrNull((element) => element.id == intNo)!
+  //       .extraDiscount
+  //       .toString();
+  //   controllers['freight_amount']!.text =
+  //       orderList
+  //           .firstWhereOrNull((element) => element.id == intNo)!
+  //           .freightAmount ??
+  //       '';
+  //   controllers['loading_charges']!.text =
+  //       orderList
+  //           .firstWhereOrNull((element) => element.id == intNo)!
+  //           .loadingCharges ??
+  //       '';
+  //   await getOrderProductList();
+  // }
 
   void calculateAmount() {
     final quantityText = controllers["quantity"]!.text;
@@ -230,15 +243,41 @@ class OrderController extends GetxController {
     final lowerCaseQuery = val.toLowerCase();
 
     filterendList.value = orderList.where((item) {
-      final custName = item.custName1?.toLowerCase();
+      final custName = customerList.keys.where((e) => e.contains(val));
       final uid = item.id
           .toString()
           .toLowerCase(); // Assuming uid is a string or can be converted to one
 
       // An item is a match if its name OR uid contains the search query
-      return (custName?.contains(lowerCaseQuery) ?? false) ||
+      return (custName.contains(lowerCaseQuery)) ||
           (uid.contains(lowerCaseQuery));
     }).toList();
+  }
+
+  Future<void> setCustomerDetails(String id) async {
+    try {
+      final result = await ContactsRepo.getContactById(id);
+      customerName.value = result.custName!;
+      custEmail.value = result.email!;
+      custMobile.value = result.mobileNo!;
+    } catch (e) {
+      AppUtils.showlog(
+        "quote controller -- Error setting customer details : $e",
+      );
+    }
+  }
+
+  // -------- Lists for dropdown and selections -------
+
+  Future<OrderModel> getOrderById(String id) async {
+    try {
+      final result = await OrderRepo.getOrderById(id);
+      AppUtils.showlog("get order by id : ${result.toJson()}");
+      return result;
+    } catch (e) {
+      AppUtils.showlog("Error getting order by id : $e");
+      rethrow;
+    }
   }
 
   ///get all product list
@@ -357,11 +396,11 @@ class OrderController extends GetxController {
         updatedBy: uid,
         updatedAt: DateTime.now().toString(),
         custId: int.parse(custId ?? ''),
-        custName1: selectedCustomer.value,
+        // custName1: selectedCustomer.value,
         // custName2: controllers["name2"]!.text,
         date: controllers["date"]!.text,
-        email: controllers["email"]!.text,
-        mobileNo: controllers["mobile"]!.text,
+        // email: controllers["email"]!.text,
+        // mobileNo: controllers["mobile"]!.text,
         source: controllers["social"]!.text,
         supplierRef: controllers["supplier_ref"]!.text,
         otherRef: controllers["other_ref"]!.text,
@@ -460,7 +499,7 @@ class OrderController extends GetxController {
   }
 
   ///save order
-  Future<void> submitQuotation() async {
+  Future<void> submitOrder() async {
     try {
       await addOrderCustomer();
       await getOrderList();
@@ -522,11 +561,11 @@ class OrderController extends GetxController {
         updatedBy: uid,
         updatedAt: DateTime.now().toString(),
         custId: int.parse(custId ?? ''),
-        custName1: selectedCustomer.value,
+        // custName1: selectedCustomer.value,
         // custName2: "controllers['name2']!.text",
         date: controllers['date']!.text,
-        email: controllers['email']!.text,
-        mobileNo: controllers['mobile']!.text,
+        // email: controllers['email']!.text,
+        // mobileNo: controllers['mobile']!.text,
         source: controllers['social']!.text,
         supplierRef: controllers['supplier_ref']!.text,
         otherRef: controllers['other_ref']!.text,
@@ -668,13 +707,16 @@ class OrderController extends GetxController {
       AppUtils.showlog("order ID : $orderId");
       final currentOrder = await OrderRepo.getOrderById(orderId);
       AppUtils.showlog("contact id : ${currentOrder.custId}");
-      final customerDetails = await ContactsRepo.getContactById(
-        currentOrder.custId.toString(),
-      );
+      // final customerDetails = await ContactsRepo.getContactById(
+      //   currentOrder.custId.toString(),
+      // );
 
-      invoiceCustName.value = currentOrder.custName1 ?? '';
-      invoiceCustContact.value = customerDetails.mobileNo ?? '';
-      invoiceCustEmail.value = customerDetails.email ?? '';
+      invoiceCustName.value = customerName.value;
+      // invoiceCustName.value = currentOrder.custName1 ?? '';
+      invoiceCustContact.value = custMobile.value;
+      // invoiceCustContact.value = customerDetails.mobileNo ?? '';
+      invoiceCustEmail.value = custEmail.value;
+      // invoiceCustEmail.value = customerDetails.email ?? '';
       extraDiscount.value = currentOrder.extraDiscount.toString();
       freightAmount.value = currentOrder.freightAmount ?? '0';
       loadingCharges.value = currentOrder.loadingCharges ?? '0';

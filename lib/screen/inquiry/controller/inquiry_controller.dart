@@ -95,49 +95,49 @@ class InquiryController extends GetxController {
     }
   }
 
-  Future<void> setEditDetails() async {
-    int intNo = int.parse(no ?? '');
+  // Future<void> setEditDetails() async {
+  //   int intNo = int.parse(no ?? '');
 
-    if (no == null || no!.isEmpty) {
-      AppUtils.showlog('Error: no is null or empty');
-      return; // Exit early if no valid value
-    }
+  //   if (no == null || no!.isEmpty) {
+  //     AppUtils.showlog('Error: no is null or empty');
+  //     return; // Exit early if no valid value
+  //   }
 
-    await setCustomerDetails(
-      inquiryList
-          .firstWhereOrNull((element) => element.id == intNo)!
-          .custId
-          .toString(),
-    );
+  //   await setCustomerDetails(
+  //     inquiryList
+  //         .firstWhereOrNull((element) => element.id == intNo)!
+  //         .custId
+  //         .toString(),
+  //   );
 
-    controllers['num']!.text = no!;
-    controllers['date']!.text = inquiryList
-        .firstWhereOrNull((element) => element.id == intNo)!
-        .date!;
-    controllers['name1']!.text = customerName.value;
-    // controllers['name1']!.text = inquiryList
-    //     .firstWhereOrNull((element) => element.id == intNo)!
-    //     .custName1!;
-    selectedCustomer.value = customerName.value;
-    // selectedCustomer.value = inquiryList
-    //     .firstWhereOrNull((element) => element.id == intNo)!
-    //     .custName1!;
-    controllers['email']!.text = custEmail.value;
-    // controllers['email']!.text = inquiryList
-    //     .firstWhereOrNull((element) => element.id == intNo)!
-    //     .email!;
-    controllers['mobile']!.text = custMobile.value;
-    // controllers['mobile']!.text = inquiryList
-    //     .firstWhereOrNull((element) => element.id == intNo)!
-    //     .mobileNo!;
-    controllers['social']!.text = inquiryList
-        .firstWhereOrNull((element) => element.id == intNo)!
-        .source!;
+  //   controllers['num']!.text = no!;
+  //   controllers['date']!.text = inquiryList
+  //       .firstWhereOrNull((element) => element.id == intNo)!
+  //       .date!;
+  //   controllers['name1']!.text = customerName.value;
+  //   // controllers['name1']!.text = inquiryList
+  //   //     .firstWhereOrNull((element) => element.id == intNo)!
+  //   //     .custName1!;
+  //   selectedCustomer.value = customerName.value;
+  //   // selectedCustomer.value = inquiryList
+  //   //     .firstWhereOrNull((element) => element.id == intNo)!
+  //   //     .custName1!;
+  //   controllers['email']!.text = custEmail.value;
+  //   // controllers['email']!.text = inquiryList
+  //   //     .firstWhereOrNull((element) => element.id == intNo)!
+  //   //     .email!;
+  //   controllers['mobile']!.text = custMobile.value;
+  //   // controllers['mobile']!.text = inquiryList
+  //   //     .firstWhereOrNull((element) => element.id == intNo)!
+  //   //     .mobileNo!;
+  //   controllers['social']!.text = inquiryList
+  //       .firstWhereOrNull((element) => element.id == intNo)!
+  //       .source!;
 
-    if (no != null) {
-      await getinquiryProductList();
-    }
-  }
+  //   if (no != null) {
+  //     await getinquiryProductList();
+  //   }
+  // }
 
   Future<void> setCustomerDetails(String id) async {
     try {
@@ -770,7 +770,7 @@ class InquiryController extends GetxController {
     if (newQuotationId != 0) {
       quotationId = newQuotationId;
     } else {
-      quotationId = await QuotationRepo().getNextQuotationId() - 1;
+      quotationId = await QuotationRepo.getNextQuotationId() - 1;
     }
     try {
       for (var inquiryProduct in inquiryProduct) {
@@ -800,7 +800,7 @@ class InquiryController extends GetxController {
     if (newQuotationId != 0) {
       quotationId = newQuotationId;
     } else {
-      quotationId = await QuotationRepo().getNextQuotationId() - 1;
+      quotationId = await QuotationRepo.getNextQuotationId() - 1;
     }
     try {
       for (var inquiryFollowup in inquiryFollowup) {

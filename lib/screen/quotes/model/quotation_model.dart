@@ -16,11 +16,11 @@ class QuotationModel {
   String? updatedBy;
   String? updatedAt;
   int? custId;
-  String? custName1;
+  // String? custName1;
   // String? custName2;
   String? date;
-  String? email;
-  String? mobileNo;
+  // String? email;
+  // String? mobileNo;
   String? source;
   String? subject;
   int? isSynced = 0;
@@ -32,11 +32,11 @@ class QuotationModel {
     this.updatedBy,
     this.updatedAt,
     this.custId,
-    this.custName1,
+    // this.custName1,
     // this.custName2,
     this.date,
-    this.email,
-    this.mobileNo,
+    // this.email,
+    // this.mobileNo,
     this.source,
     this.subject,
     this.isSynced = 0,
@@ -49,11 +49,11 @@ class QuotationModel {
     updatedBy: json["updated_by"],
     updatedAt: json["updated_at"],
     custId: json["custId"],
-    custName1: json["cust_name1"],
+    // custName1: json["cust_name1"],
     // custName2: json["cust_name2"],
     date: json["date"],
-    email: json["email"],
-    mobileNo: json["mobile_no"],
+    // email: json["email"],
+    // mobileNo: json["mobile_no"],
     source: json["source"],
     subject: json["subject"],
     isSynced: json["isSynced"] ?? 0,
@@ -66,11 +66,11 @@ class QuotationModel {
     "updated_by": updatedBy,
     "updated_at": updatedAt,
     "custId": custId,
-    "cust_name1": custName1,
+    // "cust_name1": custName1,
     // "cust_name2": custName2,
     "date": date,
-    "email": email,
-    "mobile_no": mobileNo,
+    // "email": email,
+    // "mobile_no": mobileNo,
     "source": source,
     "subject": subject,
     "isSynced": isSynced ?? 0,

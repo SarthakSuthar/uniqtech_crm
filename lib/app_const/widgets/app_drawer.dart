@@ -8,6 +8,7 @@ import 'package:crm/screen/masters/terms/ui/term_master.dart';
 import 'package:crm/screen/masters/uom/ui/uom_screen.dart';
 import 'package:crm/screen/orders/ui/order_list.dart';
 import 'package:crm/screen/quotes/ui/quote_list.dart';
+import 'package:crm/screen/tasks/ui/tasks_list.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -21,7 +22,7 @@ class AppDrawer extends StatefulWidget {
 class _AppDrawerState extends State<AppDrawer> {
   // final LoginController controller = Get.put(LoginController());
 
-  final LoginController controller = Get.find<LoginController>();
+  final LoginController controller = Get.put(LoginController());
 
   @override
   void initState() {
@@ -146,7 +147,7 @@ class _AppDrawerState extends State<AppDrawer> {
               icon: Icons.task,
               name: "Task",
               onTap: () {
-                Get.to(() => AppRoutes.tasks);
+                Get.to(() => TasksList());
               },
               context: context,
             ),

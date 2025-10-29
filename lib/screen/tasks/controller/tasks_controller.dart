@@ -1,6 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/app_const/widgets/app_snackbars.dart';
+import 'package:crm/routes/app_routes.dart';
 import 'package:crm/screen/tasks/model/task_files_model.dart';
 import 'package:crm/screen/tasks/model/tasks_model.dart';
 import 'package:crm/screen/tasks/repo/tasks_repo.dart';
@@ -206,7 +207,7 @@ class TasksController extends GetxController {
         await addFile();
       }
       showSuccessSnackBar("Task added successfully");
-      Get.back();
+      Get.toNamed(AppRoutes.tasks);
       AppUtils.showlog("insert task ----> $result");
       await getTaskList();
     } catch (e) {
@@ -275,6 +276,7 @@ class TasksController extends GetxController {
       }
       await getTaskList();
       showSuccessSnackBar("Task updated successfully");
+      Get.toNamed(AppRoutes.tasks);
       AppUtils.showlog("updated task ----> $result");
     } catch (e) {
       showErrorSnackBar("Error updating task");

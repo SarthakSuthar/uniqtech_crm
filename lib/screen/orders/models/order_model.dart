@@ -5,11 +5,11 @@ class OrderModel {
   String? updatedAt;
   String? updatedBy;
   int? custId;
-  String? custName1;
+  // String? custName1;
   // String? custName2;
   String? date;
-  String? email;
-  String? mobileNo;
+  // String? email;
+  // String? mobileNo;
   String? source;
   String? supplierRef;
   String? otherRef;
@@ -25,11 +25,11 @@ class OrderModel {
     this.updatedAt,
     this.updatedBy,
     this.custId,
-    this.custName1,
+    // this.custName1,
     // this.custName2,
     this.date,
-    this.email,
-    this.mobileNo,
+    // this.email,
+    // this.mobileNo,
     this.source,
     this.supplierRef,
     this.otherRef,
@@ -48,11 +48,11 @@ class OrderModel {
       'updated_at': updatedAt,
       'updated_by': updatedBy,
       'custId': custId,
-      'cust_name1': custName1,
+      // 'cust_name1': custName1,
       // 'cust_name2': custName2,
       'date': date,
-      'email': email,
-      'mobile_no': mobileNo,
+      // 'email': email,
+      // 'mobile_no': mobileNo,
       'source': source,
       'supplier_ref': supplierRef,
       'other_ref': otherRef,
@@ -72,11 +72,11 @@ class OrderModel {
       updatedAt: json['updated_at'],
       updatedBy: json['updated_by'],
       custId: json['custId'],
-      custName1: json['cust_name1'],
+      // custName1: json['cust_name1'],
       // custName2: json['cust_name2'],
       date: json['date'],
-      email: json['email'],
-      mobileNo: json['mobile_no'],
+      // email: json['email'],
+      // mobileNo: json['mobile_no'],
       source: json['source'],
       supplierRef: json['supplier_ref'],
       otherRef: json['other_ref'],
@@ -87,8 +87,8 @@ class OrderModel {
     );
   }
 
-  @override
-  String toString() {
-    return 'OrderModel(id: $id,  custId: $custId, custName1: $custName1, date: $date, email: $email, mobileNo: $mobileNo, source: $source, supplierRef: $supplierRef, otherRef: $otherRef, extraDiscount: $extraDiscount, freightAmount: $freightAmount, loadingCharges: $loadingCharges, isSynced: $isSynced)';
-  }
+  // @override
+  // String toString() {
+  //   return 'OrderModel(id: $id,  custId: $custId, custName1: $custName1, date: $date, email: $email, mobileNo: $mobileNo, source: $source, supplierRef: $supplierRef, otherRef: $otherRef, extraDiscount: $extraDiscount, freightAmount: $freightAmount, loadingCharges: $loadingCharges, isSynced: $isSynced)';
+  // }
 }

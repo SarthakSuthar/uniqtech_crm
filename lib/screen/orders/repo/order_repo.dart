@@ -26,10 +26,10 @@ class OrderRepo {
     updated_at TEXT,
     updated_by TEXT,
     custId INTEGER,
-    cust_name1 TEXT,
+    -- cust_name1 TEXT,
     date TEXT,
-    email TEXT,
-    mobile_no TEXT,
+    -- email TEXT,
+    -- mobile_no TEXT,
     source TEXT,
     supplier_ref TEXT,
     other_ref TEXT,
@@ -57,7 +57,7 @@ class OrderRepo {
     return newId;
   }
 
-  Future<int> getNextOrderId() async {
+  static Future<int> getNextOrderId() async {
     Database db = await DatabaseHelper().database;
     final result = await db.rawQuery(
       'SELECT MAX(id) as maxId FROM $orderTable',
@@ -218,7 +218,9 @@ class OrderRepo {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             orderId INTEGER,
             termId INTEGER,
-            isSynced INTEGER DEFAULT 0
+            isSynced INTEGER DEFAULT 0,
+            FOREIGN KEY (orderId) REFERENCES $orderTable(id) ON DELETE CASCADE,
+            FOREIGN KEY (termId) REFERENCES terms(id) ON DELETE CASCADE
         )
     ''');
 
@@ -394,10 +396,10 @@ class OrderRepo {
 
   List<String> orderTableFields = [
     'custId',
-    'cust_name1',
+    // 'cust_name1',
     'date',
-    'email',
-    'mobile_no',
+    // 'email',
+    // 'mobile_no',
     'source',
     'supplier_ref',
     'other_ref',

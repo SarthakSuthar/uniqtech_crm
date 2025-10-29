@@ -20,6 +20,39 @@ class _AddOrderCustomerState extends State<AddOrderCustomer> {
   final _formKey = GlobalKey<FormState>();
 
   @override
+  void initState() {
+    super.initState();
+
+    if (widget.isEdit == true) {
+      controller.getOrderById(widget.no!).then((value) async {
+        controller.controllers['num']!.text = value.id.toString();
+        controller.controllers['date']!.text = value.date!;
+        controller.controllers['social']!.text = value.source.toString();
+        controller.controllers['social']!.text = value.source.toString();
+        controller.controllers['supplier_ref']!.text = value.supplierRef
+            .toString();
+        controller.controllers['other_ref']!.text = value.otherRef.toString();
+        controller.controllers['extra_discount']!.text = value.extraDiscount
+            .toString();
+        controller.controllers['freight_amount']!.text = value.freightAmount
+            .toString();
+        controller.controllers['loading_charges']!.text = value.loadingCharges
+            .toString();
+
+        await controller.setCustomerDetails(widget.no!);
+        controller.controllers['name1']!.text = controller.customerName.value;
+        controller.controllers['email']!.text = controller.custEmail.value;
+        controller.controllers['mobile']!.text = controller.custMobile.value;
+        controller.selectedCustomer.value = controller.customerName.value;
+
+        await controller.getOrderProductList();
+      });
+    }
+    // widget.isEdit ? controller.isEdit = true : controller.isEdit = false;
+    // widget.no != null ? controller.no = widget.no : controller.no = '';
+  }
+
+  @override
   Widget build(BuildContext context) {
     widget.isEdit == true
         ? controller.isEdit = true

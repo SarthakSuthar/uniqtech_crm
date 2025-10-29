@@ -2,6 +2,7 @@ import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/app_const/widgets/app_drawer.dart';
 import 'package:crm/app_const/widgets/app_widgets.dart';
 import 'package:crm/routes/app_routes.dart';
+import 'package:crm/screen/contacts/repo/contact_repo.dart';
 import 'package:crm/screen/orders/controller/order_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -120,14 +121,57 @@ class _OrderListState extends State<OrderList> {
                       child: ListView.builder(
                         shrinkWrap: true,
                         itemCount: controller.filterendList.length,
-                        itemBuilder: (context, index) => orderListWidget(
-                          no: controller.filterendList[index].id.toString(),
-                          email: controller.filterendList[index].email ?? '',
-                          mobileNo:
-                              controller.filterendList[index].mobileNo ?? '',
-                          customerName:
-                              controller.filterendList[index].custName1 ?? '',
-                        ),
+                        itemBuilder: (context, index) {
+                          final id = controller.filterendList[index].id!;
+
+                          return FutureBuilder(
+                            future: getUserDetails(id),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const SizedBox(
+                                  height: 60,
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  ),
+                                );
+                              } else if (snapshot.hasError) {
+                                return Text("Error: ${snapshot.error}");
+                              } else if (!snapshot.hasData ||
+                                  snapshot.data!.isEmpty) {
+                                return const Text("No contact details");
+                              } else {
+                                final details = snapshot.data!;
+                                final name = details[0];
+                                final email = details[1];
+                                final mobile = details[2];
+
+                                return orderListWidget(
+                                  no: id.toString(),
+                                  customerName: name,
+                                  email: email,
+                                  mobileNo: mobile,
+                                  onEdit: () {
+                                    Get.toNamed(
+                                      AppRoutes.addOrder,
+                                      arguments: {
+                                        'no': id.toString(),
+                                        'isEdit': true,
+                                      },
+                                    );
+                                    AppUtils.showlog("edit button tapped");
+                                  },
+                                  onDelete: () {
+                                    controller.deleteOrder(id: id);
+                                    AppUtils.showlog("delete button tapped");
+                                  },
+                                );
+                              }
+                            },
+                          );
+                        },
                       ),
                     ),
             ),
@@ -151,11 +195,27 @@ class _OrderListState extends State<OrderList> {
     );
   }
 
+  Future<List<String>> getUserDetails(int id) async {
+    try {
+      final result = await ContactsRepo.getContactById(id.toString());
+      return [
+        result.custName.toString(),
+        result.email.toString(),
+        result.mobileNo.toString(),
+      ];
+    } catch (e) {
+      AppUtils.showlog(e.toString());
+      return [];
+    }
+  }
+
   Widget orderListWidget({
     required String no,
     required String customerName,
     required String email,
     required String mobileNo,
+    required VoidCallback onEdit,
+    required VoidCallback onDelete,
   }) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -197,13 +257,14 @@ class _OrderListState extends State<OrderList> {
               child: Row(
                 children: [
                   InkWell(
-                    onTap: () {
-                      Get.toNamed(
-                        AppRoutes.addOrder,
-                        arguments: {'no': no, 'isEdit': true},
-                      );
-                      AppUtils.showlog("edit button taped");
-                    },
+                    onTap: onEdit,
+                    // onTap: () {
+                    //   Get.toNamed(
+                    //     AppRoutes.addOrder,
+                    //     arguments: {'no': no, 'isEdit': true},
+                    //   );
+                    //   AppUtils.showlog("edit button taped");
+                    // },
                     child: Container(
                       decoration: BoxDecoration(
                         color: Theme.of(context).primaryColor,
@@ -253,10 +314,11 @@ class _OrderListState extends State<OrderList> {
                   const SizedBox(width: 5),
 
                   InkWell(
-                    onTap: () async {
-                      await controller.deleteOrder(id: int.parse(no));
-                      AppUtils.showlog("delete button taped");
-                    },
+                    onTap: onDelete,
+                    // onTap: () async {
+                    //   await controller.deleteOrder(id: int.parse(no));
+                    //   AppUtils.showlog("delete button taped");
+                    // },
                     child: Container(
                       decoration: BoxDecoration(
                         color: Theme.of(context).primaryColor,
