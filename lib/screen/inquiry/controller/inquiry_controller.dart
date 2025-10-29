@@ -74,10 +74,19 @@ class InquiryController extends GetxController {
     await getUid();
 
     // Set initial inquiry number based on the total number of inquiries
-    if (isEdit == true) {
-      await setEditDetails();
-    } else {
-      //get last id from table
+    // if (isEdit == true) {
+    //   // await setEditDetails();
+    // } else {
+    //   //get last id from table
+    //   controllers['num']!.text = (await InquiryRepo().getNextInquiryId())
+    //       .toString();
+
+    //   // controllers['num']!.text = (inquiryList.length + 1).toString();
+    //   controllers['date']!.text = dateFormat.format(DateTime.now());
+    // }
+
+    if (isEdit != true) {
+      //   //get last id from table
       controllers['num']!.text = (await InquiryRepo().getNextInquiryId())
           .toString();
 
@@ -86,10 +95,13 @@ class InquiryController extends GetxController {
     }
   }
 
-  //TODO: get name, emai, phone no by cust_id
-
   Future<void> setEditDetails() async {
     int intNo = int.parse(no ?? '');
+
+    if (no == null || no!.isEmpty) {
+      AppUtils.showlog('Error: no is null or empty');
+      return; // Exit early if no valid value
+    }
 
     await setCustomerDetails(
       inquiryList
@@ -137,8 +149,6 @@ class InquiryController extends GetxController {
       AppUtils.showlog("Error setting customer details : $e");
     }
   }
-
-  //TODO: get user name, email, mobile from id
 
   // @override
   // void onClose() {
@@ -229,6 +239,18 @@ class InquiryController extends GetxController {
   }
 
   // MARK: Lists for dropdown and selections
+
+  ///get inquiry by id for edit
+  Future<InquiryModel> getInquiryById(String id) async {
+    try {
+      final result = await InquiryRepo.getInquiryById(id);
+      AppUtils.showlog("get inquiry by id : ${result.toJson()}");
+      return result;
+    } catch (e) {
+      AppUtils.showlog("Error getting inquiry by id : $e");
+      rethrow;
+    }
+  }
 
   /// get inquiry list
   Future<void> getInquiryList() async {

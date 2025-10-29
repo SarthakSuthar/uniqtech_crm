@@ -34,7 +34,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     final bool isWide = MediaQuery.of(context).size.width >= 800;
     return Scaffold(
-      appBar: appBar(title: "Dashboard"),
+      appBar: isWide ? null : appBar(title: "Dashboard"),
       // drawer: !(kIsWeb && isWide) ? AppDrawer() : null,
       drawer: !(isWide) ? AppDrawer() : null,
       body: Padding(
@@ -60,79 +60,82 @@ class _DashboardScreenState extends State<DashboardScreen> {
           //   padding: const EdgeInsets.all(16.0),
           //   child: Image.asset('assets/images/logo.png'),
           // ),
-          GridView.count(
-            crossAxisCount: isWide ? 3 : 2,
-            crossAxisSpacing: 20,
-            mainAxisSpacing: 20,
-            shrinkWrap: true, // Add this to prevent unbounded height
-            physics:
-                NeverScrollableScrollPhysics(), // Add this to prevent scrolling
+          Padding(
+            padding: EdgeInsets.all(isWide ? 40.0 : 8.0),
+            child: GridView.count(
+              crossAxisCount: isWide ? 3 : 2,
+              crossAxisSpacing: 20,
+              mainAxisSpacing: 20,
+              shrinkWrap: true, // Add this to prevent unbounded height
+              physics:
+                  NeverScrollableScrollPhysics(), // Add this to prevent scrolling
 
-            children: [
-              dashboardWidget(
-                icon: Icons.contact_mail,
-                title: "Contact",
-                context: context,
-                onTap: () {
-                  AppUtils.showlog("Contact pressed");
-                  Get.toNamed(AppRoutes.contactList);
-                },
-              ),
-              dashboardWidget(
-                icon: Icons.inbox,
-                title: "Inquiry",
-                context: context,
-                onTap: () {
-                  AppUtils.showlog("Inquiry pressed");
-                  Get.toNamed(AppRoutes.inquiry);
-                },
-              ),
-              dashboardWidget(
-                icon: Icons.contact_mail,
-                title: "Quotation",
-                context: context,
-                onTap: () {
-                  AppUtils.showlog("Quotation pressed");
-                  Get.toNamed(AppRoutes.quote);
-                },
-              ),
-              dashboardWidget(
-                icon: Icons.inbox,
-                title: "Order",
-                context: context,
-                onTap: () {
-                  AppUtils.showlog("Order pressed");
-                  Get.toNamed(AppRoutes.order);
-                },
-              ),
-              dashboardWidget(
-                icon: Icons.contact_mail,
-                title: "Task",
-                context: context,
-                onTap: () {
-                  AppUtils.showlog("Task pressed");
-                  Get.toNamed(AppRoutes.tasks);
-                },
-              ),
-              // dashboardWidget(
-              //   icon: Icons.inbox,
-              //   title: "Report",
-              //   context: context,
-              //   onTap: () {
-              //     AppUtils.showlog("Report pressed");
-              //     Get.toNamed(AppRoutes.report);
-              //   },
-              // ),
-              dashboardWidget(
-                icon: Icons.sync_alt,
-                title: "Sync",
-                onTap: () {
-                  syncToCloud(context: context);
-                  AppUtils.showlog("Sync pressed");
-                },
-                context: context,
-              ),
-            ],
+              children: [
+                dashboardWidget(
+                  icon: Icons.contact_mail,
+                  title: "Contact",
+                  context: context,
+                  onTap: () {
+                    AppUtils.showlog("Contact pressed");
+                    Get.toNamed(AppRoutes.contactList);
+                  },
+                ),
+                dashboardWidget(
+                  icon: Icons.question_answer,
+                  title: "Inquiry",
+                  context: context,
+                  onTap: () {
+                    AppUtils.showlog("Inquiry pressed");
+                    Get.toNamed(AppRoutes.inquiry);
+                  },
+                ),
+                dashboardWidget(
+                  icon: Icons.monetization_on,
+                  title: "Quotation",
+                  context: context,
+                  onTap: () {
+                    AppUtils.showlog("Quotation pressed");
+                    Get.toNamed(AppRoutes.quote);
+                  },
+                ),
+                dashboardWidget(
+                  icon: Icons.shopping_cart,
+                  title: "Order",
+                  context: context,
+                  onTap: () {
+                    AppUtils.showlog("Order pressed");
+                    Get.toNamed(AppRoutes.order);
+                  },
+                ),
+                dashboardWidget(
+                  icon: Icons.task,
+                  title: "Task",
+                  context: context,
+                  onTap: () {
+                    AppUtils.showlog("Task pressed");
+                    Get.toNamed(AppRoutes.tasks);
+                  },
+                ),
+                // dashboardWidget(
+                //   icon: Icons.inbox,
+                //   title: "Report",
+                //   context: context,
+                //   onTap: () {
+                //     AppUtils.showlog("Report pressed");
+                //     Get.toNamed(AppRoutes.report);
+                //   },
+                // ),
+                dashboardWidget(
+                  icon: Icons.sync_alt,
+                  title: "Sync",
+                  onTap: () {
+                    syncToCloud(context: context);
+                    AppUtils.showlog("Sync pressed");
+                  },
+                  context: context,
+                ),
+              ],
+            ),
           ),
 
           // dashboardWidget(

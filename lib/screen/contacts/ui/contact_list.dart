@@ -1,6 +1,7 @@
 import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/app_const/widgets/app_bar.dart';
 import 'package:crm/app_const/widgets/app_drawer.dart';
+import 'package:crm/app_const/widgets/app_toast.dart';
 import 'package:crm/app_const/widgets/app_widgets.dart';
 import 'package:crm/screen/contacts/controller/customer_controller.dart';
 import 'package:crm/routes/app_routes.dart';
@@ -36,6 +37,7 @@ class _ContactListState extends State<ContactList> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: appBar(title: "Contact"),
       drawer: AppDrawer(),
@@ -113,6 +115,45 @@ class _ContactListState extends State<ContactList> {
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
                       ],
+                    )
+                  : width >= 800
+                  ? GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            // childAspectRatio: 3.5, // Adjust as needed
+                            childAspectRatio: 5, // Adjust as needed
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                          ),
+                      itemCount: controller.filterendList.length,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(16),
+                      itemBuilder: (context, index) => contactListWidget(
+                        no: controller.filterendList[index].id.toString(),
+                        customerName:
+                            controller.filterendList[index].custName ?? '',
+                        email: controller.filterendList[index].email ?? '',
+                        mobileNo:
+                            controller.filterendList[index].mobileNo ?? '',
+                        context: context,
+                        onEdit: () {
+                          Get.toNamed(
+                            AppRoutes.addContact,
+                            arguments: {
+                              'isEdit': true,
+                              'uid': controller.filterendList[index].id
+                                  .toString(),
+                            },
+                          );
+                        },
+                        onDelete: () {
+                          controller.deleteContact(
+                            controller.filterendList[index].id.toString(),
+                          );
+                        },
+                      ),
                     )
                   : Expanded(
                       child: ListView.builder(
@@ -283,12 +324,14 @@ class _ContactListState extends State<ContactList> {
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOut,
         decoration: BoxDecoration(
-          color: Theme.of(context).cardColor.withOpacity(0.9),
+          color: Theme.of(context).cardColor.withAlpha((255 * 0.9).round()),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.withOpacity(0.15)),
+          border: Border.all(
+            color: Colors.grey.withAlpha((255 * 0.15).round()),
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withAlpha((255 * 0.05).round()),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -297,7 +340,9 @@ class _ContactListState extends State<ContactList> {
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: onEdit,
-          splashColor: Theme.of(context).primaryColor.withOpacity(0.1),
+          splashColor: Theme.of(
+            context,
+          ).primaryColor.withAlpha((255 * 0.1).round()),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -308,7 +353,7 @@ class _ContactListState extends State<ContactList> {
                   radius: 24,
                   backgroundColor: Theme.of(
                     context,
-                  ).primaryColor.withOpacity(0.1),
+                  ).primaryColor.withAlpha((255 * 0.1).round()),
                   child: Text(
                     no,
                     style: TextStyle(
@@ -362,22 +407,27 @@ class _ContactListState extends State<ContactList> {
                 ),
 
                 // Action buttons
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _iconButton(
-                      context,
-                      icon: Icons.edit_rounded,
-                      onTap: onEdit,
-                    ),
-                    const SizedBox(width: 8),
-                    _iconButton(
-                      context,
-                      icon: Icons.delete_rounded,
-                      onTap: onDelete,
-                      isDanger: true,
-                    ),
-                  ],
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _iconButton(
+                        context,
+                        icon: Icons.edit_rounded,
+                        onTap: onEdit,
+                        lable: "Edit",
+                      ),
+                      const SizedBox(width: 8),
+                      _iconButton(
+                        context,
+                        icon: Icons.delete_rounded,
+                        onTap: onDelete,
+                        isDanger: true,
+                        lable: "Delete",
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -390,25 +440,38 @@ class _ContactListState extends State<ContactList> {
   Widget _iconButton(
     BuildContext context, {
     required IconData icon,
+    required String lable,
     required VoidCallback onTap,
     bool isDanger = false,
   }) {
+    final width = MediaQuery.of(context).size.width;
     return InkWell(
       onTap: onTap,
+      onLongPress: () => appToast(lable),
       borderRadius: BorderRadius.circular(12),
-      splashColor: Theme.of(context).primaryColor.withOpacity(0.1),
+      splashColor: Theme.of(
+        context,
+      ).primaryColor.withAlpha((255 * 0.1).round()),
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: isDanger
-              ? Colors.redAccent.withOpacity(0.1)
-              : Theme.of(context).primaryColor.withOpacity(0.1),
+              ? Colors.redAccent.withAlpha((255 * 0.1).round())
+              : Theme.of(context).primaryColor.withAlpha((255 * 0.1).round()),
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Icon(
-          icon,
-          size: 20,
-          color: isDanger ? Colors.redAccent : Theme.of(context).primaryColor,
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 20,
+              color: isDanger
+                  ? Colors.redAccent
+                  : Theme.of(context).primaryColor,
+            ),
+            if (width > 800) const SizedBox(width: 8),
+            if (width > 800) Text(lable),
+          ],
         ),
       ),
     );

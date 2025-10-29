@@ -72,8 +72,11 @@ class AppRoutes {
     // GetPage(name: editContact, page: () => const EditContact()),
     GetPage(name: inquiry, page: () => InquiryList()),
     GetPage(
-      name: addInquiry,
+      name: AppRoutes.addInquiry,
       page: () {
+        if (Get.arguments == null) {
+          return AddInquiryScreen(isEdit: false, no: '');
+        }
         final args = Get.arguments as Map<String, dynamic>;
         return AddInquiryScreen(no: args['no'], isEdit: args['isEdit']);
       },

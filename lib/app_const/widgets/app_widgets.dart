@@ -57,8 +57,11 @@ Widget inputWidget({
     );
   } else {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: SizedBox(width: screenWidth * 0.9, child: field),
+      padding: const EdgeInsets.all(12.0),
+      child: SizedBox(
+        // width: screenWidth * 0.9,
+        child: field,
+      ),
     );
   }
 }

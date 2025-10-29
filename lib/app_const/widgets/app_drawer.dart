@@ -86,7 +86,7 @@ class _AppDrawerState extends State<AppDrawer> {
               context: context,
             ),
             drawerItem(
-              icon: Icons.inbox,
+              icon: Icons.question_answer,
               name: "Inquiries",
               onTap: () {
                 Get.to(() => InquiryList());
@@ -94,7 +94,7 @@ class _AppDrawerState extends State<AppDrawer> {
               context: context,
             ),
             drawerItem(
-              icon: Icons.inbox,
+              icon: Icons.monetization_on,
               name: "Quote",
               onTap: () {
                 Get.to(() => QuoteList());
@@ -102,7 +102,7 @@ class _AppDrawerState extends State<AppDrawer> {
               context: context,
             ),
             drawerItem(
-              icon: Icons.inbox,
+              icon: Icons.shopping_cart,
               name: "Order",
               onTap: () {
                 Get.to(() => OrderList());
@@ -123,7 +123,7 @@ class _AppDrawerState extends State<AppDrawer> {
                   context: context,
                 ),
                 drawerItem(
-                  icon: Icons.inbox,
+                  icon: Icons.straighten,
                   name: "UOM",
                   onTap: () {
                     Get.to(() => AddUomScreen());
@@ -131,7 +131,7 @@ class _AppDrawerState extends State<AppDrawer> {
                   context: context,
                 ),
                 drawerItem(
-                  icon: Icons.inbox,
+                  icon: Icons.fact_check_sharp,
                   name: "Term's",
                   onTap: () {
                     Get.to(() => const TermMaster());

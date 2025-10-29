@@ -15,15 +15,33 @@ class AddInquiryCustomer extends StatefulWidget {
 }
 
 class _AddInquiryCustomerState extends State<AddInquiryCustomer> {
-  // final InquiryController controller = Get.put(InquiryController());
+  final InquiryController controller = Get.put(InquiryController());
+
+  final _formKey = GlobalKey<FormState>();
 
   // late InquiryController controller;
 
-  final InquiryController controller = Get.find<InquiryController>();
+  // final InquiryController controller = Get.find<InquiryController>();
 
   @override
   void initState() {
     super.initState();
+    if (widget.isEdit == true) {
+      // controller.setEditDetails();
+
+      controller.getInquiryById(widget.no!).then((value) async {
+        controller.controllers['num']!.text = value.id.toString();
+        controller.controllers['date']!.text = value.date.toString();
+        controller.controllers['social']!.text = value.source.toString();
+        controller.controllers['date']!.text = value.date.toString();
+
+        await controller.setCustomerDetails(widget.no!);
+        controller.controllers['name1']!.text = controller.customerName.value;
+        controller.controllers['email']!.text = controller.custEmail.value;
+        controller.controllers['mobile']!.text = controller.custMobile.value;
+        controller.selectedCustomer.value = controller.customerName.value;
+      });
+    }
 
     //Create controller here (safe to use widget values)
     // controller = Get.put(
@@ -31,8 +49,6 @@ class _AddInquiryCustomerState extends State<AddInquiryCustomer> {
     //   tag: widget.no ?? 'new', // unique tag per inquiry
     // );
   }
-
-  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
