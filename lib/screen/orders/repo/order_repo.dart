@@ -447,7 +447,7 @@ class OrderRepo {
     await FirestoreSyncService().downloadFromFirestore(
       orderTermsTable,
       orderTermsTableFields,
-      // createAvailable: false,
+      createAvailable: false,
     );
 
     // await FirestoreSyncService().downloadFromFirestore(

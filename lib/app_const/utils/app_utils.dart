@@ -50,10 +50,10 @@ class AppUtils {
 
   ///green coloured log
   static void showlog(String msg) {
-    if (kIsWeb) {
-      print('\x1B[32m$msg\x1B[0m');
-    } else {
-      log('\x1B[32m$msg\x1B[0m');
-    }
+    // if (kIsWeb) {
+    //   print('\x1B[32m$msg\x1B[0m');
+    // } else {
+    //   log('\x1B[32m$msg\x1B[0m');
+    // }
   }
 }
