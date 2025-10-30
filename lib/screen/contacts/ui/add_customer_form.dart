@@ -26,9 +26,10 @@ class _AddCustomerFormState extends State<AddCustomerForm> {
 
     if (widget.isEdit == true) {
       controller.setEditValues(widget.uid!);
-    } else {
-      controller.clearAllFields();
     }
+    // else {
+    //   controller.clearAllFields();
+    // }
   }
 
   @override

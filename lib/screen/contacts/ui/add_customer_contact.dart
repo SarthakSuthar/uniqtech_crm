@@ -27,9 +27,10 @@ class _AddCustomerContactScreenState extends State<AddCustomerContactScreen> {
 
     if (widget.isEdit == true) {
       controller.setEditValues(widget.uid!);
-    } else {
-      controller.clearAllFields();
     }
+    //  else {
+    //   controller.clearAllFields();
+    // }
   }
 
   // @override

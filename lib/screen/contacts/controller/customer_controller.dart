@@ -59,11 +59,11 @@ class AddCustomerController extends GetxController {
       focusNodes[field] = FocusNode();
     }
 
-    // if (isEdit == true) {
-    //   await setEditValues(uid!);
-    // } else {
-    //   clearAllFields();
-    // }
+    if (isEdit == true) {
+      await setEditValues(uid!);
+    } else {
+      clearAllFields();
+    }
 
     await getAllContacts();
     await loadUserId();
@@ -135,7 +135,7 @@ class AddCustomerController extends GetxController {
       selectedDepartmentType?.value = contactToEdit.department ?? '';
       selectedDesignationType?.value = contactToEdit.designation ?? '';
       selectedIndustryType?.value = contactToEdit.industryType ?? '';
-      radioValue.value = contactToEdit.status ?? '';
+      // radioValue.value = contactToEdit.status ?? '';
     }
   }
 
