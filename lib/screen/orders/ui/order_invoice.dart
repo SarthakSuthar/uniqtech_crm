@@ -141,8 +141,7 @@ class _OrderInvoiceState extends State<OrderInvoice> {
           pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text("Buyer:"),
-              pw.Text(customerName),
+              pw.Text("Buyer: $customerName"),
               pw.Text("Contact No: $customerContact"),
               pw.Text("Email: $customerEmail"),
             ],

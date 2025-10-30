@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:tab_indicator_styler/tab_indicator_styler.dart';
 
 class AddContactScreen extends StatefulWidget {
-  final String uid;
+  final String? uid;
   final bool isEdit;
-  const AddContactScreen({super.key, required this.uid, required this.isEdit});
+  const AddContactScreen({super.key, this.uid, required this.isEdit});
 
   @override
   State<AddContactScreen> createState() => _AddContactScreenState();

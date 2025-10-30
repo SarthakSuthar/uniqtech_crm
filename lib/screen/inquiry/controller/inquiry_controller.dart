@@ -420,7 +420,7 @@ class InquiryController extends GetxController {
     }
   }
 
-  void addtempProductList() {
+  void addtempProductList() async {
     final inquiryId = int.parse(controllers['num']!.text);
 
     AppUtils.showlog("Inquiry Id in addInquiryProductID : $inquiryId");
@@ -521,6 +521,20 @@ class InquiryController extends GetxController {
   //update selected product list
   //update followup
 
+  Rx<String> previousCreatorId = ''.obs;
+  Rx<String> previousCreatDate = ''.obs;
+
+  Future<void> getPreviousCreateDeatails(int id) async {
+    try {
+      final detail = await InquiryRepo.getInquiryById(id.toString());
+      previousCreatorId.value = detail.createdBy!;
+      previousCreatDate.value = detail.createdAt!;
+      AppUtils.showlog("previous create details : ${detail.toJson()}");
+    } catch (e) {
+      AppUtils.showlog("Error getting previous create details : $e");
+    }
+  }
+
   Future<void> updateInquiry() async {
     try {
       // update customer details
@@ -533,8 +547,13 @@ class InquiryController extends GetxController {
 
       int inquiryId = int.parse(controllers['num']!.text);
       AppUtils.showlog("inquiryId : $inquiryId");
+
+      await getPreviousCreateDeatails(inquiryId);
+
       final inquiry = InquiryModel(
         id: inquiryId,
+        createdAt: previousCreatDate.value,
+        createdBy: previousCreatorId.value,
         updatedBy: await AppUtils.uid,
         updatedAt: DateTime.now().toString(),
         custId: int.parse(custId ?? ''),
@@ -653,9 +672,13 @@ class InquiryController extends GetxController {
       int intId = int.parse(inquiryId);
       AppUtils.showlog("intId : $intId");
 
+      await getPreviousCreateDeatails(intId);
+
       final inquiryFollowup = InquiryFollowupModel(
         id: intId,
         inquiryId: intId,
+        createdAt: previousCreatDate.value,
+        createdBy: previousCreatorId.value,
         updatedBy: await AppUtils.uid,
         updatedAt: DateTime.now().toString(),
         followupDate: controllers['followupDate']!.text,
@@ -743,10 +766,14 @@ class InquiryController extends GetxController {
   ) async {
     try {
       final quotation = QuotationModel(
-        createdBy: inquiry.createdBy,
-        updatedBy: inquiry.updatedBy,
-        createdAt: inquiry.createdAt,
-        updatedAt: inquiry.updatedAt,
+        createdBy: uid,
+        updatedBy: uid,
+        createdAt: DateTime.now().toString(),
+        updatedAt: DateTime.now().toString(),
+        // createdBy: inquiry.createdBy,
+        // updatedBy: inquiry.updatedBy,
+        // createdAt: inquiry.createdAt,
+        // updatedAt: inquiry.updatedAt,
         custId: inquiry.custId,
         // custName1: inquiry.custName1,
         // custName2: inquiry.custName2,
@@ -776,10 +803,14 @@ class InquiryController extends GetxController {
       for (var inquiryProduct in inquiryProduct) {
         final quotationProduct = QuotationProductModel(
           quotationId: quotationId,
-          createdBy: inquiryProduct.createdBy,
-          updatedBy: inquiryProduct.updatedBy,
-          createdAt: inquiryProduct.createdAt,
-          updatedAt: inquiryProduct.updatedAt,
+          createdBy: uid,
+          updatedBy: uid,
+          createdAt: DateTime.now().toString(),
+          updatedAt: DateTime.now().toString(),
+          // createdBy: inquiryProduct.createdBy,
+          // updatedBy: inquiryProduct.updatedBy,
+          // createdAt: inquiryProduct.createdAt,
+          // updatedAt: inquiryProduct.updatedAt,
           productId: inquiryProduct.productId,
           quantity: inquiryProduct.quantity,
           remark: inquiryProduct.remark,
@@ -806,10 +837,14 @@ class InquiryController extends GetxController {
       for (var inquiryFollowup in inquiryFollowup) {
         final quotationFollowup = QuotationFollowupModel(
           quotationId: quotationId,
-          createdBy: inquiryFollowup.createdBy,
-          updatedBy: inquiryFollowup.updatedBy,
-          createdAt: inquiryFollowup.createdAt,
-          updatedAt: inquiryFollowup.updatedAt,
+          // createdBy: inquiryFollowup.createdBy,
+          // updatedBy: inquiryFollowup.updatedBy,
+          // createdAt: inquiryFollowup.createdAt,
+          // updatedAt: inquiryFollowup.updatedAt,
+          createdBy: uid,
+          updatedBy: uid,
+          createdAt: DateTime.now().toString(),
+          updatedAt: DateTime.now().toString(),
           followupDate: inquiryFollowup.followupDate,
           followupType: inquiryFollowup.followupType,
           followupStatus: inquiryFollowup.followupStatus,

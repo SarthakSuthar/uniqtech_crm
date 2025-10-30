@@ -1,11 +1,10 @@
-import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:crm/app_const/widgets/app_widgets.dart';
 import 'package:crm/screen/contacts/controller/customer_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class AddCustomerContactScreen extends StatefulWidget {
-  final String uid;
+  final String? uid;
   final bool isEdit;
   const AddCustomerContactScreen({
     super.key,
@@ -25,22 +24,11 @@ class _AddCustomerContactScreenState extends State<AddCustomerContactScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.isEdit == true) {
-      controller.getContactById(widget.uid).then((contact) {
-        controller.controllers["contactName"]!.text = contact.contactName ?? '';
-        controller.selectedDepartmentType?.value = contact.department ?? '';
-        controller.selectedDesignationType?.value = contact.designation ?? '';
-        controller.controllers["contactEmail"]!.text = contact.contEmail ?? '';
-        controller.controllers["contactPhoneNo"]!.text =
-            contact.contPhoneNo ?? '';
-        controller.controllers["contactMobileNo"]!.text =
-            contact.contMobileNo ?? '';
-      });
 
-      AppUtils.showlog("uid: ${widget.uid}");
-      AppUtils.showlog(
-        "contactName: ${controller.controllers["contactName"]!.text}",
-      );
+    if (widget.isEdit == true) {
+      controller.setEditValues(widget.uid!);
+    } else {
+      controller.clearAllFields();
     }
   }
 
@@ -151,7 +139,7 @@ class _AddCustomerContactScreenState extends State<AddCustomerContactScreen> {
                         try {
                           widget.isEdit
                               ? await controller.updateContact(
-                                  await controller.getContactById(widget.uid),
+                                  await controller.getContactById(widget.uid!),
                                 )
                               : await controller.addContact();
                         } finally {

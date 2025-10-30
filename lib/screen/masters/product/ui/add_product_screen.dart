@@ -5,6 +5,7 @@ import 'package:crm/app_const/widgets/app_widgets.dart';
 import 'package:crm/screen/masters/product/controller/product_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class AddProductScreen extends StatelessWidget {
   AddProductScreen({super.key});
@@ -81,9 +82,11 @@ class AddProductScreen extends StatelessWidget {
                       children: controller.selectedFiles.map((file) {
                         return Card(
                           child: ListTile(
-                            title: Text(file.path.split('/').last),
+                            title: Text(
+                              file.name,
+                            ), // Use file.name instead of path.split
                             subtitle: Text(
-                              "${((file.lengthSync()) / (1024 * 1024)).toStringAsFixed(2)} MB",
+                              "${(file.size / (1024 * 1024)).toStringAsFixed(2)} MB", // Use file.size
                               style: TextStyle(fontSize: 12),
                             ),
                             trailing: IconButton(
@@ -110,9 +113,21 @@ class AddProductScreen extends StatelessWidget {
                             children: controller.selectedImages.map((file) {
                               return Card(
                                 child: ListTile(
-                                  title: Image.file(file),
+                                  title: kIsWeb
+                                      ? (file.bytes != null
+                                            ? Image.memory(
+                                                file.bytes!,
+                                                height: 100,
+                                              )
+                                            : SizedBox())
+                                      : (file.path != null
+                                            ? Image.network(
+                                                file.path!,
+                                                height: 100,
+                                              )
+                                            : SizedBox()),
                                   subtitle: Text(
-                                    "${((file.lengthSync()) / (1024 * 1024)).toStringAsFixed(2)} MB",
+                                    "${(file.size / (1024 * 1024)).toStringAsFixed(2)} MB",
                                     style: TextStyle(fontSize: 12),
                                   ),
                                   trailing: IconButton(
@@ -129,7 +144,8 @@ class AddProductScreen extends StatelessWidget {
                     title: "File",
                     icon: Icons.file_copy_outlined,
                     context: context,
-                    onTap: () => controller.selectFiles(),
+                    // onTap: () => controller.selectFiles(),
+                    onTap: () => controller.pickFile(),
                   ),
 
                   // const Spacer(),

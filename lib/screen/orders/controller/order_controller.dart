@@ -544,6 +544,20 @@ class OrderController extends GetxController {
     }
   }
 
+  Rx<String> previousCreatorId = ''.obs;
+  Rx<String> previousCreatDate = ''.obs;
+
+  Future<void> getPreviousCreateDeatails(int id) async {
+    try {
+      final detail = await OrderRepo.getOrderById(id.toString());
+      previousCreatorId.value = detail.createdBy!;
+      previousCreatDate.value = detail.createdAt!;
+      AppUtils.showlog("previous create details : ${detail.toJson()}");
+    } catch (e) {
+      AppUtils.showlog("Error getting previous create details : $e");
+    }
+  }
+
   Future<void> updateOrder() async {
     try {
       int orderId = int.parse(controllers['num']!.text);
@@ -560,6 +574,8 @@ class OrderController extends GetxController {
         id: orderId,
         updatedBy: uid,
         updatedAt: DateTime.now().toString(),
+        createdAt: previousCreatDate.value,
+        createdBy: previousCreatorId.value,
         custId: int.parse(custId ?? ''),
         // custName1: selectedCustomer.value,
         // custName2: "controllers['name2']!.text",
@@ -711,11 +727,17 @@ class OrderController extends GetxController {
       //   currentOrder.custId.toString(),
       // );
 
+      await setCustomerDetails(currentOrder.custId.toString());
+
       invoiceCustName.value = customerName.value;
       // invoiceCustName.value = currentOrder.custName1 ?? '';
       invoiceCustContact.value = custMobile.value;
       // invoiceCustContact.value = customerDetails.mobileNo ?? '';
       invoiceCustEmail.value = custEmail.value;
+
+      AppUtils.showlog(
+        "invoice cust name : ${invoiceCustName.value} -- contact : ${invoiceCustContact.value} -- email : ${invoiceCustEmail.value}",
+      );
       // invoiceCustEmail.value = customerDetails.email ?? '';
       extraDiscount.value = currentOrder.extraDiscount.toString();
       freightAmount.value = currentOrder.freightAmount ?? '0';

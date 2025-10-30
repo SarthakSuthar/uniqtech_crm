@@ -190,8 +190,10 @@ class _ContactListState extends State<ContactList> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+          controller.clearAllFields();
           AppUtils.showlog("Action button pressed");
-          Get.toNamed(AppRoutes.addContact);
+          // Get.toNamed(AppRoutes.addContact);
+          Get.toNamed(AppRoutes.addContact, arguments: {'isEdit': false});
         },
         backgroundColor: Theme.of(context).primaryColor,
         child: Icon(

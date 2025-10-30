@@ -150,8 +150,6 @@ class QuotesController extends GetxController {
   //   super.dispose();
   // }
 
-  // TODO: HAVE TO IMPLEMENT SAME AS IN INQUIRY CONTROLLER
-
   /*
   Future<void> setEditDetails() async {
     int intNo = int.parse(no ?? '');
@@ -542,6 +540,20 @@ class QuotesController extends GetxController {
     }
   }
 
+  Rx<String> previousCreatorId = ''.obs;
+  Rx<String> previousCreatDate = ''.obs;
+
+  Future<void> getPreviousCreateDeatails(int id) async {
+    try {
+      final detail = await QuotationRepo.getQuotationById(id.toString());
+      previousCreatorId.value = detail.createdBy!;
+      previousCreatDate.value = detail.createdAt!;
+      AppUtils.showlog("previous create details : ${detail.toJson()}");
+    } catch (e) {
+      AppUtils.showlog("Error getting previous create details : $e");
+    }
+  }
+
   Future<void> updateQuotation() async {
     try {
       int quotationId = int.parse(controllers['num']!.text);
@@ -549,15 +561,16 @@ class QuotesController extends GetxController {
       final custName = selectedCustomer.value;
       final custId = customerList[custName];
 
+      await getPreviousCreateDeatails(quotationId);
+
       AppUtils.showlog("custName : $custName");
       AppUtils.showlog("custId : $custId");
 
       final quotation = QuotationModel(
         id: quotationId,
-        createdBy: uid, // TODO: have to keep previous creater id
+        createdBy: previousCreatorId.value,
         updatedBy: uid,
-        createdAt: DateTime.now()
-            .toString(), // TODO: have to keep previous creater time
+        createdAt: previousCreatDate.value,
         updatedAt: DateTime.now().toString(),
         custId: int.parse(custId!),
         // custName1: selectedCustomer.value,
@@ -758,15 +771,20 @@ class QuotesController extends GetxController {
   }
 
   /// Helper method to rebuild the quotation list
-  void updateQuotationTerms() {
+  void updateQuotationTerms() async {
     // Find all the full TermModels that are currently selected
     final selectedTermModels = allTerms.where((term) {
       return selectedTerms.contains(term.id);
     });
 
+    await getPreviousCreateDeatails(int.parse(controllers['num']!.text));
+
     // Map these models to the QuotationTermsModel
     quotationTermsList.value = selectedTermModels.map((term) {
       return QuotationTermsModel(
+        id: term.id,
+        createdAt: previousCreatDate.value,
+        createdBy: previousCreatorId.value,
         updatedAt: DateTime.now().toString(),
         updatedBy: uid,
         quotationId: int.parse(controllers['num']!.text),
@@ -870,10 +888,14 @@ class QuotesController extends GetxController {
   Future<void> convertQuotationToOrderCustomer(QuotationModel quotation) async {
     try {
       final orderCustomer = OrderModel(
-        createdBy: quotation.createdBy,
-        updatedBy: quotation.updatedBy,
-        createdAt: quotation.createdAt,
-        updatedAt: quotation.updatedAt,
+        createdBy: uid,
+        updatedBy: uid,
+        createdAt: DateTime.now().toString(),
+        updatedAt: DateTime.now().toString(),
+        // createdBy: quotation.createdBy,
+        // updatedBy: quotation.updatedBy,
+        // createdAt: quotation.createdAt,
+        // updatedAt: quotation.updatedAt,
         custId: quotation.custId,
         // custName1: quotation.custName1,
         // custName2: quotation.custName2,
@@ -1011,13 +1033,17 @@ class QuotesController extends GetxController {
   }
 
   //create new customer
-  static Future<void> copyCustomer(QuotationModel quotation) async {
+  Future<void> copyCustomer(QuotationModel quotation) async {
     try {
       final newCustomer = QuotationModel(
-        createdBy: quotation.createdBy,
-        updatedBy: quotation.updatedBy,
-        createdAt: quotation.createdAt,
-        updatedAt: quotation.updatedAt,
+        createdBy: uid,
+        updatedBy: uid,
+        createdAt: DateTime.now().toString(),
+        updatedAt: DateTime.now().toString(),
+        // createdBy: quotation.createdBy,
+        // updatedBy: quotation.updatedBy,
+        // createdAt: quotation.createdAt,
+        // updatedAt: quotation.updatedAt,
         custId: quotation.custId,
         // custName1: quotation.custName1,
         // custName2: quotation.custName2,
@@ -1035,17 +1061,19 @@ class QuotesController extends GetxController {
   }
 
   //create productList
-  static Future<void> copyProductList(
-    List<QuotationProductModel> productList,
-  ) async {
+  Future<void> copyProductList(List<QuotationProductModel> productList) async {
     try {
       for (var product in productList) {
         final newProduct = QuotationProductModel(
           quotationId: product.quotationId,
-          createdBy: product.createdBy,
-          updatedBy: product.updatedBy,
-          createdAt: product.createdAt,
-          updatedAt: product.updatedAt,
+          createdBy: uid,
+          updatedBy: uid,
+          createdAt: DateTime.now().toString(),
+          updatedAt: DateTime.now().toString(),
+          // createdBy: product.createdBy,
+          // updatedBy: product.updatedBy,
+          // createdAt: product.createdAt,
+          // updatedAt: product.updatedAt,
           productId: product.productId,
           quantity: product.quantity,
           discount: product.discount,
@@ -1061,15 +1089,19 @@ class QuotesController extends GetxController {
   }
 
   //copy terms
-  static Future<void> copyTerms(List<QuotationTermsModel> termsList) async {
+  Future<void> copyTerms(List<QuotationTermsModel> termsList) async {
     try {
       for (var term in termsList) {
         final newTerm = QuotationTermsModel(
           quotationId: term.quotationId,
-          createdBy: term.createdBy,
-          updatedBy: term.updatedBy,
-          createdAt: term.createdAt,
-          updatedAt: term.updatedAt,
+          createdBy: uid,
+          updatedBy: uid,
+          createdAt: DateTime.now().toString(),
+          updatedAt: DateTime.now().toString(),
+          // createdBy: term.createdBy,
+          // updatedBy: term.updatedBy,
+          // createdAt: term.createdAt,
+          // updatedAt: term.updatedAt,
           termId: term.termId,
         );
         AppUtils.showlog("added new term ----> ${newTerm.toJson()}");
@@ -1082,17 +1114,19 @@ class QuotesController extends GetxController {
   }
 
   //copy followup
-  static Future<void> copyFollowup(
-    List<QuotationFollowupModel> followupList,
-  ) async {
+  Future<void> copyFollowup(List<QuotationFollowupModel> followupList) async {
     try {
       for (var followup in followupList) {
         final newFollowup = QuotationFollowupModel(
           quotationId: followup.quotationId,
-          createdBy: followup.createdBy,
-          updatedBy: followup.updatedBy,
-          createdAt: followup.createdAt,
-          updatedAt: followup.updatedAt,
+          createdBy: uid,
+          updatedBy: uid,
+          createdAt: DateTime.now().toString(),
+          updatedAt: DateTime.now().toString(),
+          // createdBy: followup.createdBy,
+          // updatedBy: followup.updatedBy,
+          // createdAt: followup.createdAt,
+          // updatedAt: followup.updatedAt,
           followupDate: followup.followupDate,
           followupStatus: followup.followupStatus,
           followupType: followup.followupType,
@@ -1133,8 +1167,9 @@ class QuotesController extends GetxController {
       );
 
       //get customer name & address
-      invoiceCustName.value =
-          customerName.value; //TODO: have to add current user name
+      invoiceCustName.value = customerDetails.custName ?? '';
+
+      AppUtils.showlog("invoiceCustName : ${invoiceCustName.value}");
       // invoiceCustName.value = currentQuotation.custName1 ?? '';
       invoiceCustAddress.value =
           "${customerDetails.address}, ${customerDetails.city}, ${customerDetails.state}, ${customerDetails.country}";

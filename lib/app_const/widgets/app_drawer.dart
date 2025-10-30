@@ -1,4 +1,3 @@
-import 'package:crm/routes/app_routes.dart';
 import 'package:crm/screen/contacts/ui/contact_list.dart';
 import 'package:crm/screen/dashboard/ui/dashboard_screen.dart';
 import 'package:crm/screen/inquiry/ui/inquiry_list.dart';
@@ -52,17 +51,24 @@ class _AppDrawerState extends State<AppDrawer> {
                   Image.asset('assets/images/logo.png'),
                   const SizedBox(height: 20),
                   // Text("Uniqtech Solutions"),
-                  Obx(() => Text(controller.userId.value)),
+                  // Obx(() => Text(controller.userId.value)),
                   Obx(
                     () => Text(
                       controller.userName.value,
-                      style: TextStyle(color: Colors.black),
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
                     ),
                   ),
                   Obx(
                     () => Text(
                       controller.userEmail.value,
-                      style: TextStyle(color: Colors.black),
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   // Text("Mikir@uniqtechsolutions.com"),

@@ -1,3 +1,4 @@
+import 'package:crm/app_const/utils/app_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -5,7 +6,7 @@ import 'package:crm/app_const/widgets/app_widgets.dart';
 import 'package:crm/screen/contacts/controller/customer_controller.dart';
 
 class AddCustomerForm extends StatefulWidget {
-  final String uid;
+  final String? uid;
   final bool isEdit;
   const AddCustomerForm({super.key, required this.uid, required this.isEdit});
 
@@ -20,24 +21,13 @@ class _AddCustomerFormState extends State<AddCustomerForm> {
   @override
   void initState() {
     super.initState();
+
+    AppUtils.showlog("uid: ${widget.uid}");
+
     if (widget.isEdit == true) {
-      controller.getContactById(widget.uid).then((contact) {
-        controller.controllers["name"]!.text = contact.custName ?? '';
-        controller.controllers["address"]!.text = contact.address ?? '';
-        controller.controllers["city"]!.text = contact.city ?? '';
-        controller.controllers["state"]!.text = contact.state ?? '';
-        controller.controllers["district"]!.text = contact.district ?? '';
-        controller.controllers["country"]!.text = contact.country ?? '';
-        controller.controllers["pincode"]!.text = contact.pincode ?? '';
-        controller.controllers["mobile"]!.text = contact.mobileNo ?? '';
-        controller.controllers["email"]!.text = contact.email ?? '';
-        controller.controllers["website"]!.text = contact.website ?? '';
-        controller.controllers["businessType"]!.text =
-            contact.businessType ?? '';
-        controller.controllers["industryType"]!.text =
-            contact.industryType ?? '';
-        controller.radioValue.value = contact.status!;
-      });
+      controller.setEditValues(widget.uid!);
+    } else {
+      controller.clearAllFields();
     }
   }
 
@@ -220,7 +210,7 @@ class _AddCustomerFormState extends State<AddCustomerForm> {
                             if (_formKey.currentState!.validate()) {
                               controller.isLoading = true.obs;
                               await controller.updateContact(
-                                await controller.getContactById(widget.uid),
+                                await controller.getContactById(widget.uid!),
                               );
                             }
                           },

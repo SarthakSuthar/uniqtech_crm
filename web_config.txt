@@ -1,0 +1,14 @@
+<configuration>
+  <system.webServer>
+    <staticContent>
+      <mimeMap fileExtension=".env" mimeType="text/plain" />
+    </staticContent>
+    <security>
+      <requestFiltering>
+        <hiddenSegments>
+          <remove segment=".env" />
+        </hiddenSegments>
+      </requestFiltering>
+    </security>
+  </system.webServer>
+</configuration>

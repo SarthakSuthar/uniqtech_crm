@@ -1,8 +1,6 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:crm/app_const/utils/app_utils.dart';
-import 'package:crm/app_const/widgets/app_snackbars.dart';
 import 'package:crm/screen/login/repo/user_repo.dart';
 import 'package:crm/screen/masters/product/model/product_model.dart';
 import 'package:crm/screen/masters/product/repo/product_repo.dart';
@@ -126,54 +124,29 @@ class ProductController extends GetxController {
   }
 
   // ----------- File Selection ----------
-  final RxList<File> selectedFiles = <File>[].obs;
-  final RxList<File> selectedImages = <File>[].obs;
+  final RxList<PlatformFile> selectedFiles = <PlatformFile>[].obs;
+  final RxList<PlatformFile> selectedImages = <PlatformFile>[].obs;
 
-  Future<void> selectFiles() async {
-    try {
-      // Open File Picker (allow both docs & images)
-      final result = await FilePicker.platform.pickFiles(
-        allowMultiple: false,
-        type: FileType.custom,
-        allowedExtensions: [
-          // Common mobile document formats
-          'pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'txt',
-          // Common image formats
-          'jpg', 'jpeg', 'png', 'heic', 'webp',
-        ],
-      );
+  final RxList<String> attachedFiles = <String>[].obs;
 
-      if (result == null) return;
+  /// Pick a file from storage
 
-      final file = File(result.files.single.path!);
-      final ext = file.path.split('.').last.toLowerCase();
+  Future<void> pickFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      withData: true, // Essential for web - loads bytes
+    );
 
-      // Define allowed document and image extensions
-      const docExtensions = [
-        'pdf',
-        'doc',
-        'docx',
-        'ppt',
-        'pptx',
-        'xls',
-        'xlsx',
-        'txt',
-      ];
-      const imageExtensions = ['jpg', 'jpeg', 'png', 'heic', 'webp'];
+    if (result != null) {
+      final platformFile = result.files.single;
+      final ext = platformFile.extension?.toLowerCase() ?? '';
 
-      if (docExtensions.contains(ext)) {
-        selectedFiles.add(file);
-        controllers["product_document"]?.text = file.path;
-        AppUtils.showlog("📄 Selected document: ${file.path}");
-      } else if (imageExtensions.contains(ext)) {
-        selectedImages.add(file);
-        controllers["product_image"]?.text = file.path;
-        AppUtils.showlog("🖼️ Selected image: ${file.path}");
+      if (['jpg', 'jpeg', 'png', 'heic', 'webp'].contains(ext)) {
+        selectedImages.add(platformFile);
+        controllers["product_image"]?.text = platformFile.name;
       } else {
-        showErrorSnackBar("Unsupported file type: .$ext");
+        selectedFiles.add(platformFile);
+        controllers["product_document"]?.text = platformFile.name;
       }
-    } catch (e) {
-      AppUtils.showlog("❌ Error selecting files: $e");
     }
   }
 }

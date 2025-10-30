@@ -59,9 +59,12 @@ class AddCustomerController extends GetxController {
       focusNodes[field] = FocusNode();
     }
 
-    // if (isEdit) {
-    //   await setEditValues();
+    // if (isEdit == true) {
+    //   await setEditValues(uid!);
+    // } else {
+    //   clearAllFields();
     // }
+
     await getAllContacts();
     await loadUserId();
   }
@@ -102,10 +105,11 @@ class AddCustomerController extends GetxController {
     if (val != null) radioValue.value = val;
   }
 
-  Future<void> setEditValues() async {
+  Future<void> setEditValues(String uid) async {
     isLoading.value = true;
 
-    final intNo = int.parse(no ?? '');
+    // final intNo = int.parse(no ?? '');
+    final intNo = int.parse(uid);
     final contactToEdit = contacts.firstWhereOrNull(
       (element) => element.id == intNo,
     );
@@ -131,7 +135,19 @@ class AddCustomerController extends GetxController {
       selectedDepartmentType?.value = contactToEdit.department ?? '';
       selectedDesignationType?.value = contactToEdit.designation ?? '';
       selectedIndustryType?.value = contactToEdit.industryType ?? '';
+      radioValue.value = contactToEdit.status ?? '';
     }
+  }
+
+  void clearAllFields() {
+    controllers.forEach((key, controller) {
+      controller.clear();
+    });
+    selectedBusinessType?.value = '';
+    selectedDepartmentType?.value = '';
+    selectedDesignationType?.value = '';
+    selectedIndustryType?.value = '';
+    radioValue.value = '';
   }
 
   /// Search for customer name or number
@@ -200,9 +216,26 @@ class AddCustomerController extends GetxController {
     }
   }
 
+  Rx<String> previousCreatorId = ''.obs;
+  Rx<String> previousCreatDate = ''.obs;
+
+  Future<void> getPreviousCreateDeatails(int id) async {
+    try {
+      final detail = await ContactsRepo.getContactById(id.toString());
+      previousCreatorId.value = detail.createdBy!;
+      previousCreatDate.value = detail.createdAt!;
+      AppUtils.showlog("previous create details : ${detail.toJson()}");
+    } catch (e) {
+      AppUtils.showlog("Error getting previous create details : $e");
+    }
+  }
+
   /// Update existing customer
   Future<void> updateContact(ContactModel contact) async {
     contact.updatedBy = uid;
+    contact.updatedAt = DateTime.now().toString();
+    contact.createdBy = previousCreatorId.value;
+    contact.createdAt = previousCreatDate.value;
     contact.custName = controllers["name"]!.text;
     contact.address = controllers["address"]!.text;
     contact.city = controllers["city"]!.text;
@@ -222,7 +255,6 @@ class AddCustomerController extends GetxController {
     contact.contEmail = controllers["contactEmail"]!.text;
     contact.contPhoneNo = controllers["contactPhoneNo"]!.text;
     contact.contMobileNo = controllers["contactMobileNo"]!.text;
-    contact.updatedAt = DateTime.now().toString();
     contact.isSynced = 0;
 
     await ContactsRepo.updateContact(contact);
